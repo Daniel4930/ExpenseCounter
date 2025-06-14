@@ -32,10 +32,9 @@ struct ContentView: View {
                 TabbarButton(selectedTab: $selectedTab, tab: Tabs.dashboard, tabIcon: "house", tabTitle: "Home")
                 TabbarButton(selectedTab: $selectedTab, tab: Tabs.settings, tabIcon: "gear", tabTitle: "Settings")
             }
-            .padding()
+            .padding(.top)
             .background(Color(.systemGray6))
         }
-        .ignoresSafeArea(SafeAreaRegions.all)
     }
 }
 
@@ -52,13 +51,12 @@ struct TabbarButton: View {
             }) {
                 VStack {
                     Image(systemName: tabIcon)
-                        .foregroundStyle(selectedTab == tab ? Color("ButtonColor") : .gray)
+                        .foregroundStyle(selectedTab == tab ? Color("MainColor") : .gray)
                     Text(tabTitle)
-                        .foregroundStyle(selectedTab == tab ? Color("ButtonColor") : .gray)
+                        .foregroundStyle(selectedTab == tab ? Color("MainColor") : .gray)
                 }
             }
         }
-        .padding(.vertical, 8)
         .frame(maxWidth: .infinity)
     }
 }
