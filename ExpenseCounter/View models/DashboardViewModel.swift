@@ -21,21 +21,20 @@ class DashboardViewModel {
     }
     
     func incrementMonth(date: Date) -> Date? {
-        if let newDate = Calendar.current.date(byAdding: .month, value: 1, to: date) {
+        if let newDate = calendar.date(byAdding: .month, value: 1, to: date) {
             return newDate
         }
         return nil
     }
     
     func decrementMonth(date: Date) -> Date? {
-        if let newDate = Calendar.current.date(byAdding: .month, value: -1, to: date) {
+        if let newDate = calendar.date(byAdding: .month, value: -1, to: date) {
             return newDate
         }
         return nil
     }
     
     func isMonthOutOfBounds(from date: Date) -> Bool {
-        let calendar = Calendar.current
         let now = Date()
 
         let currentComponents = calendar.dateComponents([.year, .month], from: now)

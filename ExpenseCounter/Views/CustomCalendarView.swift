@@ -18,7 +18,6 @@ struct CustomCalendarView: View {
         VStack {
             HStack {
                 Text("\(currentDate.formatted(.dateTime.year()))")
-                    .foregroundStyle(.black)
                 Spacer()
                 CurrentDateView(currentDate: $currentDate, customCalendarViewModel: customCalendarViewModel)
             }
@@ -86,7 +85,7 @@ struct MonthGridView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 10)
                     .clipShape(RoundedRectangle(cornerRadius: 20))
-                    .foregroundStyle(isDisabled ? Color.gray : Color.black)
+                    .foregroundStyle(isDisabled ? Color.gray : Color.primary)
                     .monthOverlay(isSelected: isSelected, isDisabled: isDisabled)
                     .onTapGesture {
                         if !isDisabled,
@@ -115,10 +114,14 @@ struct MonthOverlayModifier: ViewModifier {
         if isDisabled {
             content
         } else {
-            content.overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(isSelected ? Color.blue : Color.white, lineWidth: 1)
-            )
+            if isSelected {
+                content.overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(Color.blue, lineWidth: 1)
+                )
+            } else {
+                content
+            }
         }
     }
 }

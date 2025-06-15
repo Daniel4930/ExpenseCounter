@@ -47,7 +47,7 @@ struct Header: View {
                     .frame(width: 40, height: 40)
                     .clipShape(Circle())
             })
-            .foregroundStyle(.white)
+            .foregroundStyle(.primary)
 
         }
         .padding()
@@ -71,6 +71,7 @@ struct TotalSpendingView: View {
         }
         .frame(maxWidth: .infinity)
         .background(Color.white)
+        .foregroundStyle(.black)
         .clipShape(RoundedRectangle(cornerRadius: 20))
         .overlay(
             RoundedRectangle(cornerRadius: 20)
