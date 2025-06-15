@@ -25,7 +25,37 @@ struct DashboardView: View {
             }
             .background(Color("MainColor"))
             
-            Spacer()
+            AddAnExpenseButtonView()
+            
+            ScrollView {
+                ForEach(MockData.data.expenses) { expense in
+                    LazyVStack(spacing: 0) {
+                        Text(expense.date)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .frame(height: 50)
+                            .padding(.leading, 5)
+                            .background(Color.gray.opacity(0.4))
+                            .fontWeight(.bold)
+                        HStack {
+                            Color(hex: expense.category.color)
+                                .frame(maxWidth: 5)
+                            VStack(alignment: .leading, spacing: 0) {
+                                Text(expense.name)
+                                HStack {
+                                    Color(hex: expense.category.color)
+                                        .frame(width: 7, height: 7)
+                                        .clipShape(Circle())
+                                    Text(expense.category.name)
+                                        .font(.footnote)
+                                }
+                            }
+                            Spacer()
+                            Text("$\(expense.amount.formatted(.number.precision(.fractionLength(0...2))))")
+                                .padding(.trailing)
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -81,62 +111,17 @@ struct TotalSpendingView: View {
     }
 }
 
-struct DateView: View {
-    @Binding var showCalendar: Bool
-    @Binding var date: Date
-    @State private var monthIncreaseDisabled: Bool = false
-    let dashboardViewModel: DashboardViewModel
-    
+struct AddAnExpenseButtonView: View {
     var body: some View {
-        HStack {
-            Button(action: {
-                if let newDate = dashboardViewModel.decrementMonth(date: date) {
-                    date = newDate
-                }
-            }, label: {
-                Image(systemName: "chevron.left")
-                    .font(.title2)
-                    .foregroundStyle(.white)
-            })
-            
-            Button(action: {
-                showCalendar.toggle()
-            }) {
-                Text(date.formatted(.dateTime.month().year()))
-                    .font(.title2)
-                    .foregroundStyle(.white)
-            }
-            .sheet(isPresented: $showCalendar) {
-                CustomCalendarView(showCalendar: $showCalendar, date: $date, currentDate: date, selectedDate: date)
-                    .presentationDetents([.medium])
-            }
-            
-            Button(action: {
-                if let newDate = dashboardViewModel.incrementMonth(date: date) {
-                    if !dashboardViewModel.isMonthOutOfBounds(from: newDate) {
-                        date = newDate
-                        monthIncreaseDisabled = false
-                    } else {
-                        monthIncreaseDisabled = true
-                    }
-                }
-            }, label: {
-                Image(systemName: "chevron.right")
-                    .font(.title2)
-                    .foregroundStyle(monthIncreaseDisabled ? .gray : .white)
-                    .onAppear {
-                        if let newDate = dashboardViewModel.incrementMonth(date: date) {
-                            monthIncreaseDisabled = dashboardViewModel.isMonthOutOfBounds(from: newDate)
-                        }
-                    }
-                    .onChange(of: date) { _ in
-                        if let newDate = dashboardViewModel.incrementMonth(date: date) {
-                            monthIncreaseDisabled = dashboardViewModel.isMonthOutOfBounds(from: newDate)
-                        }
-                    }
-            })
-            .disabled(monthIncreaseDisabled)
-        }
-        .padding(.bottom)
+        Button(action: {
+            //TODO: Add a spend
+        }, label: {
+            Image(systemName: "plus")
+                .resizable()
+                .scaledToFit()
+                .frame(maxWidth: 30, maxHeight: 30)
+        })
+        Text("Add an expense")
+            .font(.subheadline)
     }
 }

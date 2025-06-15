@@ -11,6 +11,6 @@ struct Expense: Hashable, Identifiable {
     let id = UUID()
     let name: String
     let amount: Double
-    let date: Date
+    let date: String
     let category: Category
 }

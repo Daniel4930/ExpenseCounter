@@ -11,4 +11,5 @@ struct Category: Hashable, Identifiable {
     let id = UUID()
     let name: String
     let icon: String
+    let color: String
 }
