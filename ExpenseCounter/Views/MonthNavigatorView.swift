@@ -1,5 +1,5 @@
 //
-//  DateView.swift
+//  MonthNavigatorView.swift
 //  ExpenseCounter
 //
 //  Created by Daniel Le on 6/15/25.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct DateView: View {
+struct MonthNavigatorView: View {
     @Binding var showCalendar: Bool
     @Binding var date: Date
     @State private var monthIncreaseDisabled: Bool = false
@@ -63,6 +63,6 @@ struct DateView: View {
             })
             .disabled(monthIncreaseDisabled)
         }
-        .padding(.bottom)
+        .padding([.top, .bottom], 10)
     }
 }

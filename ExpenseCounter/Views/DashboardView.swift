@@ -10,51 +10,43 @@ import SwiftUI
 struct DashboardView: View {
     @State private var date: Date
     @State private var showCalendar = false
+    @State private var user: User
     let dashboardViewModel = DashboardViewModel()
     
     init() {
         _date = State(initialValue: dashboardViewModel.generateDate() ?? Date())
+        _user = State(initialValue: MockData.data)
     }
     
     var body: some View {
-        VStack {
-            VStack {
-                Header()
-                TotalSpendingView(totalSpending: 90.81)
-                DateView(showCalendar: $showCalendar, date: $date, dashboardViewModel: dashboardViewModel)
-            }
-            .background(Color("MainColor"))
-            
-            AddAnExpenseButtonView()
-            
-            ScrollView {
-                ForEach(MockData.data.expenses) { expense in
-                    LazyVStack(spacing: 0) {
-                        Text(expense.date)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .frame(height: 50)
-                            .padding(.leading, 5)
-                            .background(Color.gray.opacity(0.4))
-                            .fontWeight(.bold)
-                        HStack {
-                            Color(hex: expense.category.color)
-                                .frame(maxWidth: 5)
-                            VStack(alignment: .leading, spacing: 0) {
-                                Text(expense.name)
-                                HStack {
-                                    Color(hex: expense.category.color)
-                                        .frame(width: 7, height: 7)
-                                        .clipShape(Circle())
-                                    Text(expense.category.name)
-                                        .font(.footnote)
-                                }
-                            }
-                            Spacer()
-                            Text("$\(expense.amount.formatted(.number.precision(.fractionLength(0...2))))")
-                                .padding(.trailing)
-                        }
-                    }
+        VStack(spacing: 0) {
+            ZStack {
+                LinearGradient(
+                    colors: [Color("GradientColor1"), Color("GradientColor2")],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+
+                VStack(spacing: 0) {
+                    Header()
+                    TotalSpendingView(totalSpending: 90.81)
+                    MonthNavigatorView(showCalendar: $showCalendar, date: $date, dashboardViewModel: dashboardViewModel)
                 }
+                .padding(.top, 55)
+                .overlay(
+                    BottomRoundedRectangle(radius: 15)
+                        .stroke(Color("BorderColor"), lineWidth: 3)
+                )
+            }
+            .frame(maxHeight: 290)
+            .clipShape(BottomRoundedRectangle(radius: 15))
+            .shadow(color: .black, radius: 1)
+            .ignoresSafeArea()
+            
+            SpendFootNoteView()
+
+            ScrollView {
+                ExpensesView(expenses: $user.expenses)
             }
         }
     }
@@ -63,51 +55,34 @@ struct DashboardView: View {
 struct Header: View {
     var body: some View {
         HStack {
-            Text("Dashboard")
-                .font(.system(size: 25, weight: .bold, design: .default))
-            
-            Spacer()
-            
             Button(action: {
                 //TODO: View profile
             }, label: {
-                Image(systemName: "face.smiling")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 40, height: 40)
-                    .clipShape(Circle())
+                HStack {
+                    Image(systemName: "face.smiling")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 60, height: 60)
+                        .clipShape(Circle())
+                        .padding(3)
+                        .foregroundStyle(.white)
+                        .overlay {
+                            Circle()
+                                .stroke(.white, lineWidth: 2)
+                        }
+                    VStack(alignment: .leading) {
+                        Text("Daniel")
+                        Text("Le")
+                    }
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundStyle(.white)
+                }
+                Spacer()
+                
+                AddAnExpenseButtonView()
             })
-            .foregroundStyle(.primary)
-
+            .padding([.leading, .trailing, .bottom])
         }
-        .padding()
-    }
-}
-
-struct TotalSpendingView: View {
-    var totalSpending: Double
-    
-    var body: some View {
-        HStack {
-            VStack(alignment: .leading) {
-                Text("Spends")
-                    .font(.system(.title, weight: .bold))
-                Text("$\(totalSpending.formatted(.number.precision(.fractionLength(0...2))))")
-                    .font(.system(.title2))
-            }
-            .padding()
-
-            Spacer()
-        }
-        .frame(maxWidth: .infinity)
-        .background(Color.white)
-        .foregroundStyle(.black)
-        .clipShape(RoundedRectangle(cornerRadius: 20))
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.black, lineWidth: 1)
-        )
-        .padding([.leading, .trailing, .bottom])
     }
 }
 
@@ -119,9 +94,36 @@ struct AddAnExpenseButtonView: View {
             Image(systemName: "plus")
                 .resizable()
                 .scaledToFit()
-                .frame(maxWidth: 30, maxHeight: 30)
+                .frame(maxWidth: 20, maxHeight: 20)
         })
-        Text("Add an expense")
-            .font(.subheadline)
+        .foregroundStyle(.white)
+    }
+}
+
+struct SpendFootNoteView: View {
+    var body: some View {
+        HStack {
+            VStack {
+                Text("Spends")
+                    .foregroundStyle(Color("MainColor"))
+                Text("Today")
+            }
+            .font(.system(size: 20, weight: .bold))
+            .padding(.leading, 30)
+            
+            Spacer()
+            
+            Button(action: {
+                
+            }, label: {
+                Text("View all")
+            })
+            .buttonStyle(.borderedProminent)
+            .tint(Color("MainColor"))
+            .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 4)
+            .padding(.trailing, 15)
+        }
+        .padding(.bottom)
+        .padding(.top, -50)
     }
 }

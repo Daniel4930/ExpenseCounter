@@ -17,7 +17,6 @@ struct ContentView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            
             ZStack {
                 switch selectedTab {
                 case .dashboard:
