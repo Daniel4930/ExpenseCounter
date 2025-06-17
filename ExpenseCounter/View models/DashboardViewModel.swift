@@ -44,8 +44,6 @@ class DashboardViewModel {
               let checkingMonth = calendar.date(from: dateComponents) else {
             return false
         }
-
-        // Out of bounds if checkingMonth is after currentMonth
         return checkingMonth > currentMonth
     }
 }

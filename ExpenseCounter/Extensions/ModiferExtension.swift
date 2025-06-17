@@ -7,6 +7,16 @@
 
 import SwiftUI
 
+extension View {
+    func monthOverlay(isSelected: Bool, isDisabled: Bool) -> some View {
+        self.modifier(MonthOverlayModifier(isSelected: isSelected, isDisabled: isDisabled))
+    }
+    
+    func inputFormModifier() -> some View {
+        self.modifier(InputFormModifier())
+    }
+}
+
 struct MonthOverlayModifier: ViewModifier {
     let isSelected: Bool
     let isDisabled: Bool
@@ -42,15 +52,5 @@ struct InputFormModifier: ViewModifier {
                     .stroke(Color.black, lineWidth: 1)
             )
             .shadow(color: .black.opacity(0.2), radius: 5, x: 0, y: 5)
-    }
-}
-
-extension View {
-    func monthOverlay(isSelected: Bool, isDisabled: Bool) -> some View {
-        self.modifier(MonthOverlayModifier(isSelected: isSelected, isDisabled: isDisabled))
-    }
-    
-    func inputFormModifier() -> some View {
-        self.modifier(InputFormModifier())
     }
 }

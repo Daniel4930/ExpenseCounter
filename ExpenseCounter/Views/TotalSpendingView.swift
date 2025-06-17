@@ -46,7 +46,6 @@ struct TotalSpendingView: View {
                     
                 }, label: {
                     Text("Set Budget")
-                        .padding([.leading, .trailing], 10)
                 })
                 .buttonStyle(.borderedProminent)
                 .tint(Color("CustomGreenColor"))

@@ -9,60 +9,38 @@ import Foundation
 
 struct User: Hashable, Identifiable {
     let id = UUID()
-    var name: String
+    var firstName: String
+    var lastName: String
     var income: Double
-//    var icon: ?? 
+    var profileIcon: String
+    var categories: [Category]
+    var expenses: [Expense]
 }
 
 
 struct MockData {
-    static let category: [Category] = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy/MM/dd"
+    static let mockCategories: [Category] = [
+        Category(name: "Groceries", icon: "cart.fill", colorHex: "#34C759"),
+        Category(name: "Transport", icon: "car.fill", colorHex: "#FF9500"),
+        Category(name: "Entertainment", icon: "gamecontroller.fill", colorHex: "#AF52DE"),
+        Category(name: "Bills", icon: "bolt.fill", colorHex: "#FF3B30"),
+        Category(name: "Dining Out", icon: "fork.knife", colorHex: "#FFD60A")
+    ]
 
-        let foodExpenses = [
-            Expense(name: "Lunch", amount: 12.5, date: formatter.date(from: "2025/06/01")!),
-            Expense(name: "Groceries", amount: 45.0, date: formatter.date(from: "2025/06/03")!)
-        ]
+    static let mockExpenses: [Expense] = [
+        Expense(amount: 82.30, date: .now.addingTimeInterval(-86400 * 5), category: mockCategories[0], note: "Whole Foods"),
+        Expense(amount: 15.00, date: .now.addingTimeInterval(-86400 * 4), category: mockCategories[1], note: "Gas refill"),
+        Expense(amount: 12.99, date: .now.addingTimeInterval(-86400 * 3), category: mockCategories[2], note: "Spotify"),
+        Expense(amount: 120.50, date: .now.addingTimeInterval(-86400 * 2), category: mockCategories[3], note: "Internet bill"),
+        Expense(amount: 33.20, date: .now.addingTimeInterval(-86400), category: mockCategories[4], note: "Sushi dinner")
+    ]
 
-        let transportExpenses = [
-            Expense(name: "Bus Ticket", amount: 2.75, date: formatter.date(from: "2025/06/02")!),
-            Expense(name: "Gas", amount: 30.0, date: formatter.date(from: "2025/06/05")!)
-        ]
-
-        let entertainmentExpenses = [
-            Expense(name: "Movie", amount: 15.0, date: formatter.date(from: "2025/06/04")!),
-            Expense(name: "Concert", amount: 50.0, date: formatter.date(from: "2025/06/06")!)
-        ]
-
-        let utilitiesExpenses = [
-            Expense(name: "Electricity Bill", amount: 60.0, date: formatter.date(from: "2025/06/07")!),
-            Expense(name: "Water Bill", amount: 25.0, date: formatter.date(from: "2025/06/08")!)
-        ]
-
-        let healthExpenses = [
-            Expense(name: "Pharmacy", amount: 20.0, date: formatter.date(from: "2025/06/09")!),
-            Expense(name: "Doctor Visit", amount: 80.0, date: formatter.date(from: "2025/06/10")!)
-        ]
-
-        let shoppingExpenses = [
-            Expense(name: "Clothes", amount: 100.0, date: formatter.date(from: "2025/06/11")!),
-            Expense(name: "Shoes", amount: 120.0, date: formatter.date(from: "2025/06/12")!)
-        ]
-
-        let categories = [
-            Category(name: "Food", icon: "fork.knife", color: "#FF5733", expenses: foodExpenses),
-            Category(name: "Transport", icon: "car.fill", color: "#3498DB", expenses: transportExpenses),
-            Category(name: "Entertainment", icon: "music.note", color: "#9B59B6", expenses: entertainmentExpenses),
-            Category(name: "Utilities", icon: "bolt.fill", color: "#F1C40F", expenses: utilitiesExpenses),
-            Category(name: "Health", icon: "heart.fill", color: "#E74C3C", expenses: healthExpenses),
-            Category(name: "Shopping", icon: "bag.fill", color: "#1ABC9C", expenses: shoppingExpenses)
-        ]
-        
-        return categories
-    }()
-    
-    static let user: User = {
-        return User(name: "Daniel Le", income: 3000)
-    }()
+    static let mockUser = User(
+        firstName: "Daniel",
+        lastName: "Le",
+        income: 4000.00,
+        profileIcon: "UserIcon",
+        categories: mockCategories,
+        expenses: mockExpenses
+    )
 }

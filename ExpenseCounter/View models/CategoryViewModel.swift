@@ -8,10 +8,18 @@
 import Foundation
 
 class CategoryViewModel {
-    func sortExpensesByDate(_ expenses: [Expense]) -> [Expense] {
-        return expenses.sorted { $0.date > $1.date }
-    }
+    func sortExpensesByDateAndCategory(_ expenses: [Expense], _ category: Category) -> [Expense] {
+        var resultArray: [Expense] = []
+        
+        for expense in expenses {
+            if expense.category == category {
+                resultArray.append(expense)
+            }
+        }
     
+        return resultArray.sorted { $0.date > $1.date }
+    }
+
     func calculateTotalExpense(_ expenses: [Expense]) -> Double {
         var total: Double = 0
         

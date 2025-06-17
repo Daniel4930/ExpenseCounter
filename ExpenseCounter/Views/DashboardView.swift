@@ -11,13 +11,11 @@ struct DashboardView: View {
     @State private var date: Date
     @State private var showCalendar = false
     @State private var user: User
-    @State private var categories: [Category]
     let dashboardViewModel = DashboardViewModel()
     
     init() {
         _date = State(initialValue: dashboardViewModel.generateDate() ?? Date())
-        _user = State(initialValue: MockData.user)
-        _categories = State(initialValue: MockData.category)
+        _user = State(initialValue: MockData.mockUser)
     }
     
     var body: some View {
@@ -31,7 +29,7 @@ struct DashboardView: View {
                     )
                     
                     VStack(spacing: 0) {
-                        Header()
+                        Header(user: user)
                         TotalSpendingView(totalSpending: 90.81)
                         MonthNavigatorView(showCalendar: $showCalendar, date: $date, dashboardViewModel: dashboardViewModel)
                     }
@@ -49,7 +47,7 @@ struct DashboardView: View {
                 SpendFootNoteView()
                 
                 ScrollView {
-                    CategoryView(categories: categories)
+                    CategoryView()
                 }
             }
         }
@@ -57,10 +55,12 @@ struct DashboardView: View {
 }
 
 struct Header: View {
+    @State var user: User
+    
     var body: some View {
         HStack {
             HStack {
-                Image("UserIcon")
+                Image("\(user.profileIcon)")
                     .resizable()
                     .scaledToFit()
                     .frame(width: 60, height: 60)
@@ -72,8 +72,8 @@ struct Header: View {
                             .stroke(.white, lineWidth: 2)
                     }
                 VStack(alignment: .leading) {
-                    Text("Daniel")
-                    Text("Le")
+                    Text("\(user.firstName)")
+                    Text("\(user.lastName)")
                 }
                 .font(.system(size: 20, weight: .bold))
                 .foregroundStyle(.white)

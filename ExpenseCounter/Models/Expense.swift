@@ -7,11 +7,10 @@
 
 import Foundation
 
-struct Expense: Hashable, Identifiable {
+struct Expense: Identifiable, Hashable {
     let id = UUID()
-    let name: String
     let amount: Double
     let date: Date
-    
-    //let note: String?
+    let category: Category
+    let note: String?
 }
