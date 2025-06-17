@@ -21,34 +21,36 @@ struct DashboardView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            ZStack {
-                LinearGradient(
-                    colors: [Color("GradientColor1"), Color("GradientColor2")],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-
-                VStack(spacing: 0) {
-                    Header()
-                    TotalSpendingView(totalSpending: 90.81)
-                    MonthNavigatorView(showCalendar: $showCalendar, date: $date, dashboardViewModel: dashboardViewModel)
+        NavigationStack {
+            VStack(spacing: 0) {
+                ZStack {
+                    LinearGradient(
+                        colors: [Color("GradientColor1"), Color("GradientColor2")],
+                        startPoint: .topTrailing,
+                        endPoint: .bottomLeading
+                    )
+                    
+                    VStack(spacing: 0) {
+                        Header()
+                        TotalSpendingView(totalSpending: 90.81)
+                        MonthNavigatorView(showCalendar: $showCalendar, date: $date, dashboardViewModel: dashboardViewModel)
+                    }
+                    .padding(.top, 55)
+                    .overlay(
+                        BottomRoundedRectangle(radius: 15)
+                            .stroke(Color("CustomGreenColor"), lineWidth: 3)
+                    )
                 }
-                .padding(.top, 55)
-                .overlay(
-                    BottomRoundedRectangle(radius: 15)
-                        .stroke(Color("BorderColor"), lineWidth: 3)
-                )
-            }
-            .frame(maxHeight: 290)
-            .clipShape(BottomRoundedRectangle(radius: 15))
-            .shadow(color: .black, radius: 1)
-            .ignoresSafeArea()
-            
-            SpendFootNoteView()
-
-            ScrollView {
-                CategoryView(categories: categories)
+                .frame(maxHeight: 290)
+                .clipShape(BottomRoundedRectangle(radius: 15))
+                .shadow(color: .black, radius: 1)
+                .ignoresSafeArea()
+                
+                SpendFootNoteView()
+                
+                ScrollView {
+                    CategoryView(categories: categories)
+                }
             }
         }
     }
@@ -57,48 +59,37 @@ struct DashboardView: View {
 struct Header: View {
     var body: some View {
         HStack {
-            Button(action: {
-                //TODO: View profile
-            }, label: {
-                HStack {
-                    Image(systemName: "face.smiling")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 60, height: 60)
-                        .clipShape(Circle())
-                        .padding(3)
-                        .foregroundStyle(.white)
-                        .overlay {
-                            Circle()
-                                .stroke(.white, lineWidth: 2)
-                        }
-                    VStack(alignment: .leading) {
-                        Text("Daniel")
-                        Text("Le")
-                    }
-                    .font(.system(size: 20, weight: .bold))
+            HStack {
+                Image("UserIcon")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 60, height: 60)
+                    .clipShape(Circle())
+                    .padding(3)
                     .foregroundStyle(.white)
+                    .overlay {
+                        Circle()
+                            .stroke(.white, lineWidth: 2)
+                    }
+                VStack(alignment: .leading) {
+                    Text("Daniel")
+                    Text("Le")
                 }
-                Spacer()
-                
-                AddAnExpenseButtonView()
-            })
-            .padding([.leading, .trailing, .bottom])
+                .font(.system(size: 20, weight: .bold))
+                .foregroundStyle(.white)
+            }
+            
+            Spacer()
+        
+            NavigationLink(destination: AddExpenseView()) {
+                Image(systemName: "plus")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxWidth: 20, maxHeight: 20)
+                    .foregroundStyle(.white)
+            }
         }
-    }
-}
-
-struct AddAnExpenseButtonView: View {
-    var body: some View {
-        Button(action: {
-            //TODO: Add a spend
-        }, label: {
-            Image(systemName: "plus")
-                .resizable()
-                .scaledToFit()
-                .frame(maxWidth: 20, maxHeight: 20)
-        })
-        .foregroundStyle(.white)
+        .padding([.leading, .trailing, .bottom])
     }
 }
 
@@ -107,7 +98,7 @@ struct SpendFootNoteView: View {
         HStack(spacing: 0) {
             VStack(alignment: .leading) {
                 Text("Spends")
-                    .foregroundStyle(Color("MainColor"))
+                    .foregroundStyle(Color("CustomGreenColor"))
                 Text("Today")
             }
             .font(.system(size: 20, weight: .bold))
@@ -119,9 +110,10 @@ struct SpendFootNoteView: View {
                 
             }, label: {
                 Text("View all")
+                    .padding([.leading, .trailing], 5)
             })
             .buttonStyle(.borderedProminent)
-            .tint(Color("MainColor"))
+            .tint(Color("CustomGreenColor"))
             .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 4)
             .padding(.trailing, 15)
         }

@@ -12,4 +12,6 @@ struct Expense: Hashable, Identifiable {
     let name: String
     let amount: Double
     let date: Date
+    
+    //let note: String?
 }

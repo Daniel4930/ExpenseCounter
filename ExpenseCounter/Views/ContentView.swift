@@ -50,9 +50,9 @@ struct TabbarButton: View {
             }) {
                 VStack {
                     Image(systemName: tabIcon)
-                        .foregroundStyle(selectedTab == tab ? Color("MainColor") : .gray)
+                        .foregroundStyle(selectedTab == tab ? Color("CustomGreenColor") : Color("CustomGrayColor"))
                     Text(tabTitle)
-                        .foregroundStyle(selectedTab == tab ? Color("MainColor") : .gray)
+                        .foregroundStyle(selectedTab == tab ? Color("CustomGreenColor") : Color("CustomGrayColor"))
                 }
             }
         }

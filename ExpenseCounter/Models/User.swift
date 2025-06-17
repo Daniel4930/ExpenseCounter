@@ -11,6 +11,7 @@ struct User: Hashable, Identifiable {
     let id = UUID()
     var name: String
     var income: Double
+//    var icon: ?? 
 }
 
 
@@ -34,10 +35,28 @@ struct MockData {
             Expense(name: "Concert", amount: 50.0, date: formatter.date(from: "2025/06/06")!)
         ]
 
+        let utilitiesExpenses = [
+            Expense(name: "Electricity Bill", amount: 60.0, date: formatter.date(from: "2025/06/07")!),
+            Expense(name: "Water Bill", amount: 25.0, date: formatter.date(from: "2025/06/08")!)
+        ]
+
+        let healthExpenses = [
+            Expense(name: "Pharmacy", amount: 20.0, date: formatter.date(from: "2025/06/09")!),
+            Expense(name: "Doctor Visit", amount: 80.0, date: formatter.date(from: "2025/06/10")!)
+        ]
+
+        let shoppingExpenses = [
+            Expense(name: "Clothes", amount: 100.0, date: formatter.date(from: "2025/06/11")!),
+            Expense(name: "Shoes", amount: 120.0, date: formatter.date(from: "2025/06/12")!)
+        ]
+
         let categories = [
             Category(name: "Food", icon: "fork.knife", color: "#FF5733", expenses: foodExpenses),
             Category(name: "Transport", icon: "car.fill", color: "#3498DB", expenses: transportExpenses),
-            Category(name: "Entertainment", icon: "music.note", color: "#9B59B6", expenses: entertainmentExpenses)
+            Category(name: "Entertainment", icon: "music.note", color: "#9B59B6", expenses: entertainmentExpenses),
+            Category(name: "Utilities", icon: "bolt.fill", color: "#F1C40F", expenses: utilitiesExpenses),
+            Category(name: "Health", icon: "heart.fill", color: "#E74C3C", expenses: healthExpenses),
+            Category(name: "Shopping", icon: "bag.fill", color: "#1ABC9C", expenses: shoppingExpenses)
         ]
         
         return categories
