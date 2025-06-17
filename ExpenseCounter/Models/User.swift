@@ -11,22 +11,39 @@ struct User: Hashable, Identifiable {
     let id = UUID()
     var name: String
     var income: Double
-    var expenses: [Expense]
 }
 
+
 struct MockData {
-    static let foodCategory = Category(name: "Food", icon: "🍔", color: "#FF6B6B")
-    static let transportCategory = Category(name: "Transport", icon: "🚗", color: "#4ECDC4")
-    static let shoppingCategory = Category(name: "Shopping", icon: "🛍️", color: "#F7B801")
-    static let entertainmentCategory = Category(name: "Entertainment", icon: "🎮", color: "#A29BFE")
+    static let category: [Category] = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy/MM/dd"
 
-    static let expenses: [Expense] = [
-        Expense(name: "Groceries", amount: 45.99, date: Date(timeIntervalSinceNow: -86400 * 3), category: foodCategory),
-        Expense(name: "Uber Ride", amount: 18.50, date: Date(timeIntervalSinceNow: -86400 * 2), category: transportCategory),
-        Expense(name: "New Jeans", amount: 60.00, date: Date(timeIntervalSinceNow: -86400 * 1), category: shoppingCategory),
-        Expense(name: "Movie Tickets", amount: 22.00, date: Date(), category: entertainmentCategory),
-        Expense(name: "Lunch", amount: 12.75, date: Date(), category: foodCategory),
-    ]
+        let foodExpenses = [
+            Expense(name: "Lunch", amount: 12.5, date: formatter.date(from: "2025/06/01")!),
+            Expense(name: "Groceries", amount: 45.0, date: formatter.date(from: "2025/06/03")!)
+        ]
 
-    static let data = User(name: "Daniel Le", income: 3000.00, expenses: expenses)
+        let transportExpenses = [
+            Expense(name: "Bus Ticket", amount: 2.75, date: formatter.date(from: "2025/06/02")!),
+            Expense(name: "Gas", amount: 30.0, date: formatter.date(from: "2025/06/05")!)
+        ]
+
+        let entertainmentExpenses = [
+            Expense(name: "Movie", amount: 15.0, date: formatter.date(from: "2025/06/04")!),
+            Expense(name: "Concert", amount: 50.0, date: formatter.date(from: "2025/06/06")!)
+        ]
+
+        let categories = [
+            Category(name: "Food", icon: "fork.knife", color: "#FF5733", expenses: foodExpenses),
+            Category(name: "Transport", icon: "car.fill", color: "#3498DB", expenses: transportExpenses),
+            Category(name: "Entertainment", icon: "music.note", color: "#9B59B6", expenses: entertainmentExpenses)
+        ]
+        
+        return categories
+    }()
+    
+    static let user: User = {
+        return User(name: "Daniel Le", income: 3000)
+    }()
 }

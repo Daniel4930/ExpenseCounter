@@ -11,11 +11,13 @@ struct DashboardView: View {
     @State private var date: Date
     @State private var showCalendar = false
     @State private var user: User
+    @State private var categories: [Category]
     let dashboardViewModel = DashboardViewModel()
     
     init() {
         _date = State(initialValue: dashboardViewModel.generateDate() ?? Date())
-        _user = State(initialValue: MockData.data)
+        _user = State(initialValue: MockData.user)
+        _categories = State(initialValue: MockData.category)
     }
     
     var body: some View {
@@ -46,7 +48,7 @@ struct DashboardView: View {
             SpendFootNoteView()
 
             ScrollView {
-                ExpensesView(expenses: $user.expenses)
+                CategoryView(categories: categories)
             }
         }
     }
@@ -102,8 +104,8 @@ struct AddAnExpenseButtonView: View {
 
 struct SpendFootNoteView: View {
     var body: some View {
-        HStack {
-            VStack {
+        HStack(spacing: 0) {
+            VStack(alignment: .leading) {
                 Text("Spends")
                     .foregroundStyle(Color("MainColor"))
                 Text("Today")

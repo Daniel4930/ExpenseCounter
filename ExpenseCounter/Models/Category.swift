@@ -12,4 +12,5 @@ struct Category: Hashable, Identifiable {
     let name: String
     let icon: String
     let color: String
+    var expenses: [Expense]
 }
