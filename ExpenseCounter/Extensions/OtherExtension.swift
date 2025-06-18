@@ -5,13 +5,22 @@
 //  Created by Daniel Le on 6/17/25.
 //
 
-import SwiftUI
+import UIKit
 
-extension View {
-    func hideKeyboardOnTap() -> some View {
-        self.onTapGesture {
-            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
-                                            to: nil, from: nil, for: nil)
+extension UIApplication {
+    func addTapGestureRecognizer() {
+        guard
+            let windowScene = connectedScenes.first as? UIWindowScene,
+            let window = windowScene.windows.first
+        else { return }
+
+        let tapGesture = UITapGestureRecognizer(target: window, action: #selector(UIView.endEditing(_:)))
+        tapGesture.requiresExclusiveTouchType = false
+        tapGesture.cancelsTouchesInView = false
+
+        // Optional: only add if not already added
+        if !(window.gestureRecognizers?.contains(where: { $0 === tapGesture }) ?? false) {
+            window.addGestureRecognizer(tapGesture)
         }
     }
 }

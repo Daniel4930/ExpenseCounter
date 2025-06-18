@@ -14,7 +14,7 @@ struct CategorySpendingView: View {
     
     var body: some View {
         VStack(spacing: 16) {
-            ForEach(categoryViewModel.categories) { category in
+            ForEach(categoryViewModel.categories, id: \.id) { category in
                 let sortedExpenses = categorySpendingViewModel.sortExpensesByDateAndCategory(expensesViewModel.expenses, category)
                 
                 CategoryItemView(category: category, sortedExpenses: sortedExpenses, categorySpendingViewModel: categorySpendingViewModel)

@@ -15,6 +15,18 @@ class UserViewModel: ObservableObject {
         fetchUser()
     }
     
+    private func createTestUser() {
+        let user = User(context: sharedCoreDataInstance.context)
+        user.id = UUID()
+        user.firstName = "Daniel"
+        user.lastName = "Le"
+        user.income = 10000.00
+        user.profileIcon = "UserIcon"
+        
+        sharedCoreDataInstance.save()
+        fetchUser()
+    }
+    
     func fetchUser() {
         let request = NSFetchRequest<User>(entityName: "User")
         
@@ -28,17 +40,5 @@ class UserViewModel: ObservableObject {
         } catch let error {
             fatalError("Failed to fetch user with error -> \(error.localizedDescription)")
         }
-    }
-    
-    func createTestUser() {
-        let user = User(context: sharedCoreDataInstance.context)
-        user.id = UUID()
-        user.firstName = "Daniel"
-        user.lastName = "Le"
-        user.income = 10000.00
-        user.profileIcon = "UserIcon"
-        
-        sharedCoreDataInstance.save()
-        fetchUser()
     }
 }

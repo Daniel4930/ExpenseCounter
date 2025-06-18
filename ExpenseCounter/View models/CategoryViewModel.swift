@@ -13,6 +13,34 @@ class CategoryViewModel: ObservableObject {
     
     init() {
         fetchCategories()
+        if categories.isEmpty {
+            addDefaultCategories()
+        }
+    }
+    
+    private func addDefaultCategories() {
+        for category in DefaultCategory.categories {
+            let newCategory = Category(context: coreDataSharedInstance.context)
+            newCategory.id = UUID()
+            newCategory.name = category.name
+            newCategory.icon = category.icon
+            newCategory.colorHex = category.colorHex
+        }
+        coreDataSharedInstance.save()
+        fetchCategories()
+    }
+    
+    func deleteAllCategories() {
+        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = Category.fetchRequest()
+        let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+
+        do {
+            try coreDataSharedInstance.context.execute(batchDeleteRequest)
+            try coreDataSharedInstance.context.save()
+            fetchCategories() // refresh the local categories array if needed
+        } catch {
+            print("Failed to delete all categories: \(error)")
+        }
     }
     
     func fetchCategories() {

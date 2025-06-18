@@ -12,48 +12,9 @@ struct TotalSpendingView: View {
 
     var body: some View {
         HStack {
-            VStack(alignment: .leading) {
-                Text("Spends")
-                    .font(.title2)
-                    .fontWeight(.semibold)
-                HStack(spacing: 3) {
-                    Text("$")
-                    Text("\(totalSpending.formatted(.number.precision(.fractionLength(0...2))))")
-                        .foregroundStyle(Color("CustomGreenColor"))
-                }
-                .font(.title)
-                .fontWeight(.bold)
-            }
-            .foregroundStyle(Color("CustomDarkGrayColor"))
-            .padding([.top, .bottom, .trailing])
-            .padding(.leading, 30)
-            .padding(.trailing, 20)
-            
-            Spacer()
-            
-            Divider()
-                .frame(minWidth: 3)
-                .overlay(Color("CustomGreenColor"))
-                .padding([.top, .bottom])
-            
-            Spacer()
-            
-            VStack(alignment: .center, spacing: 0) {
-                Text("Safe to spend")
-                    .font(.body)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(Color("CustomDarkGrayColor"))
-                    .padding(.bottom, 5)
-                Button(action: {
-                    
-                }, label: {
-                    Text("Set Budget")
-                })
-                .buttonStyle(.borderedProminent)
-                .tint(Color("CustomGreenColor"))
-            }
-            .padding([.top, .bottom, .leading])
-            .padding(.trailing, 30)
+            spendingSummary
+            divider
+            safeToSpendSection
         }
         .frame(maxWidth: .infinity)
         .background(Color.white)
@@ -62,7 +23,51 @@ struct TotalSpendingView: View {
             RoundedRectangle(cornerRadius: 15)
                 .stroke(Color("CustomGreenColor"), lineWidth: 1)
         )
-        .padding([.leading, .trailing])
+        .padding(.horizontal)
         .shadow(color: .black.opacity(0.2), radius: 4)
+    }
+
+    private var spendingSummary: some View {
+        VStack(alignment: .leading) {
+            Text("Spends")
+                .font(.title2)
+                .fontWeight(.semibold)
+
+            HStack(spacing: 3) {
+                Text("$")
+                Text(totalSpending.formatted(.number.precision(.fractionLength(0...2))))
+                    .foregroundStyle(Color("CustomGreenColor"))
+            }
+            .font(.title)
+            .fontWeight(.bold)
+        }
+        .foregroundStyle(Color("CustomDarkGrayColor"))
+        .padding(.vertical)
+        .padding(.leading, 30)
+        .padding(.trailing, 20)
+    }
+
+    private var divider: some View {
+        Divider()
+            .frame(minWidth: 3)
+            .overlay(Color("CustomGreenColor"))
+            .padding(.vertical)
+    }
+
+    private var safeToSpendSection: some View {
+        VStack(alignment: .center, spacing: 5) {
+            Text("Safe to spend")
+                .font(.body)
+                .fontWeight(.semibold)
+                .foregroundStyle(Color("CustomDarkGrayColor"))
+
+            Button("Set Budget", action: {
+                // Action here
+            })
+            .buttonStyle(.borderedProminent)
+            .tint(Color("CustomGreenColor"))
+        }
+        .padding(.vertical)
+        .padding(.horizontal, 30)
     }
 }

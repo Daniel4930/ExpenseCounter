@@ -7,14 +7,21 @@
 
 import SwiftUI
 
+enum AddExpenseFormField: Hashable, CaseIterable {
+    case amount
+    case note
+}
+
 struct AddExpenseView: View {
     @State private var amount: String = ""
-    @State private var selectedCategory: Category?
+    @State private var category: Category?
     @State private var date: Date = Date()
     @State private var time: Date = Date()
-    @State private var note: String = "Enter a note if needed"
+    @State private var note: String = ""
     @State private var showCategoryPopUp = false
     @State private var readyToSubmit = false
+    @State private var keyboardHeight: CGFloat = 0
+    @FocusState private var focusedField: AddExpenseFormField?
     
     @Environment(\.dismiss) private var dismiss
     
@@ -29,10 +36,12 @@ struct AddExpenseView: View {
                             Text("Enter an amount")
                                 .foregroundStyle(Color("CustomGrayColor"))
                         }
+                        .focused($focusedField, equals: AddExpenseFormField.amount)
                         .onChange(of: amount) {newValue in
                             if addExpenseViewModel.amountInputValid(newValue) == false {
                                 amount = String(newValue.dropLast())
                             }
+                            readyToSubmit = addExpenseViewModel.validInputsBeforeSubmit(newValue, category)
                         }
                     }
                     .inputFormModifier()
@@ -44,7 +53,7 @@ struct AddExpenseView: View {
                         showCategoryPopUp = true
                     }, label: {
                         HStack {
-                            Text(selectedCategory?.name ?? "Select a category")
+                            Text(category?.name ?? "Select a category")
                             
                             Spacer()
                             
@@ -56,8 +65,11 @@ struct AddExpenseView: View {
                     })
                     .inputFormModifier()
                     .popover(isPresented: $showCategoryPopUp) {
-                        CategorySelectionGridView(selectedCategory: $selectedCategory)
+                        CategorySelectionGridView(selectedCategory: $category)
                             .presentationDetents([.medium])
+                    }
+                    .onChange(of: category) { newValue in
+                        readyToSubmit = addExpenseViewModel.validInputsBeforeSubmit(amount, newValue)
                     }
                 }
                 
@@ -87,6 +99,7 @@ struct AddExpenseView: View {
                 
                 CustomSectionView(header: "Note") {
                     TextEditor(text: $note)
+                        .focused($focusedField, equals: AddExpenseFormField.note)
                         .frame(height: 150)
                         .font(.body)
                         .foregroundColor(.primary)
@@ -104,35 +117,11 @@ struct AddExpenseView: View {
             .navigationBarBackButtonHidden(true)
             .toolbarBackground(Color("CustomGreenColor"), for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button(action: {
-                        dismiss()
-                    }) {
-                        HStack {
-                            Image(systemName: "chevron.left")
-                            Text("Back")
-                        }
-                        .foregroundColor(.white)
-                    }
-                }
-                
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(action: {
-                        dismiss()
-                    }, label: {
-                        Text("Submit")
-                            .foregroundColor(.white)
-                    })
-                    .disabled(readyToSubmit)
-                }
-                
-                ToolbarItem(placement: .principal) {
-                    Text("Add an expense")
-                        .foregroundColor(.white)
-                        .font(.title2)
-                }
-            }
+            .keyboardHeight($keyboardHeight)
+            .padding(.bottom, focusedField == AddExpenseFormField.amount ? keyboardHeight : 0)
+            .animation(.easeInOut(duration: 0.3), value: focusedField)
+            .offset(y: focusedField == AddExpenseFormField.note ? -keyboardHeight : 0)
+            .addExpenseToolbarModifier($focusedField, $readyToSubmit, addExpenseViewModel)
         }
         .scrollDismissesKeyboard(.interactively)
         .ignoresSafeArea(.keyboard)

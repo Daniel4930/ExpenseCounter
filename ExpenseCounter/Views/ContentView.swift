@@ -34,6 +34,7 @@ struct ContentView: View {
             .padding(.top)
             .background(Color(.systemGray6))
         }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
     }
 }
 
