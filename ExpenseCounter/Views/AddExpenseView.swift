@@ -12,6 +12,7 @@ struct AddExpenseView: View {
     @State private var selectedCategory: Category?
     @State private var date: Date = Date()
     @State private var time: Date = Date()
+    @State private var note: String = "Enter a note if needed"
     @State private var showCategoryPopUp = false
     @State private var readyToSubmit = false
     
@@ -84,15 +85,19 @@ struct AddExpenseView: View {
                     .inputFormModifier()
                 }
                 
-                Spacer()
-                
-                Button(action: {
-                    dismiss()
-                }, label: {
-                    Text("Done")
-                })
-                .disabled(readyToSubmit)
-                .buttonStyle(.borderedProminent)
+                CustomSectionView(header: "Note") {
+                    TextEditor(text: $note)
+                        .frame(height: 150)
+                        .font(.body)
+                        .foregroundColor(.primary)
+                        .background {
+                            RoundedRectangle(cornerRadius: 10)
+                        }
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.black, lineWidth: 1)
+                        )
+                }
                 
                 Spacer()
             }
@@ -100,7 +105,7 @@ struct AddExpenseView: View {
             .toolbarBackground(Color("CustomGreenColor"), for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .topBarLeading) {
                     Button(action: {
                         dismiss()
                     }) {
@@ -112,6 +117,16 @@ struct AddExpenseView: View {
                     }
                 }
                 
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: {
+                        dismiss()
+                    }, label: {
+                        Text("Submit")
+                            .foregroundColor(.white)
+                    })
+                    .disabled(readyToSubmit)
+                }
+                
                 ToolbarItem(placement: .principal) {
                     Text("Add an expense")
                         .foregroundColor(.white)
@@ -119,6 +134,8 @@ struct AddExpenseView: View {
                 }
             }
         }
+        .scrollDismissesKeyboard(.interactively)
+        .ignoresSafeArea(.keyboard)
     }
 }
 
@@ -135,8 +152,4 @@ struct CustomSectionView<Content: View>: View {
         }
         .padding()
     }
-}
-
-#Preview {
-    AddExpenseView()
 }

@@ -9,7 +9,7 @@ import SwiftUI
 
 struct CategorySelectionGridView: View {
     @Binding var selectedCategory: Category?
-    let categories = MockData.mockCategories
+    @StateObject private var categoryViewModel = CategoryViewModel()
     let columns = [
         GridItem(.flexible()), GridItem(.flexible())
     ]
@@ -17,7 +17,7 @@ struct CategorySelectionGridView: View {
     var body: some View {
         ScrollView {
             LazyVGrid(columns: columns) {
-                ForEach(categories) {category in
+                ForEach(categoryViewModel.categories) {category in
                     CategoryGridItemView(selectedCategory: $selectedCategory, category: category)
                 }
             }
@@ -38,17 +38,17 @@ struct CategoryGridItemView: View {
             dismiss()
         }, label: {
             VStack {
-                Image(systemName: category.icon)
+                Image(systemName: category.icon ?? ErrorCategory.icon)
                     .frame(width: 50, height: 50)
                     .foregroundStyle(.white)
                     .background(
                         RoundedRectangle(cornerRadius: 10)
-                            .fill(Color(hex: category.colorHex))
-                            .shadow(color: Color(hex: category.colorHex).opacity(0.3), radius: 5)
+                            .fill(Color(hex: category.colorHex ?? ErrorCategory.colorHex))
+                            .shadow(color: Color(hex: category.colorHex ?? ErrorCategory.colorHex).opacity(0.3), radius: 5)
                     )
                     .font(.system(size: 28))
 
-                Text(category.name)
+                Text(category.name ?? ErrorCategory.name)
             }
             .padding()
             .overlay {

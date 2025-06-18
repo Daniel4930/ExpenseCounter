@@ -10,12 +10,11 @@ import SwiftUI
 struct DashboardView: View {
     @State private var date: Date
     @State private var showCalendar = false
-    @State private var user: User
+    @StateObject private var userViewModel = UserViewModel()
     let dashboardViewModel = DashboardViewModel()
     
     init() {
         _date = State(initialValue: dashboardViewModel.generateDate() ?? Date())
-        _user = State(initialValue: MockData.mockUser)
     }
     
     var body: some View {
@@ -29,7 +28,7 @@ struct DashboardView: View {
                     )
                     
                     VStack(spacing: 0) {
-                        Header(user: user)
+                        Header(user: userViewModel.user.first!)
                         TotalSpendingView(totalSpending: 90.81)
                         MonthNavigatorView(showCalendar: $showCalendar, date: $date, dashboardViewModel: dashboardViewModel)
                     }
@@ -44,10 +43,10 @@ struct DashboardView: View {
                 .shadow(color: .black, radius: 1)
                 .ignoresSafeArea()
                 
-                SpendFootNoteView()
+                SpendFootnoteView()
                 
                 ScrollView {
-                    CategoryView()
+                    CategorySpendingView()
                 }
             }
         }
@@ -55,12 +54,12 @@ struct DashboardView: View {
 }
 
 struct Header: View {
-    @State var user: User
+    let user: User
     
     var body: some View {
         HStack {
             HStack {
-                Image("\(user.profileIcon)")
+                Image("\(user.profileIcon ?? "face.smilling.inverse")")
                     .resizable()
                     .scaledToFit()
                     .frame(width: 60, height: 60)
@@ -72,10 +71,11 @@ struct Header: View {
                             .stroke(.white, lineWidth: 2)
                     }
                 VStack(alignment: .leading) {
-                    Text("\(user.firstName)")
-                    Text("\(user.lastName)")
+                    Text("\(user.firstName ?? "User")")
+                    Text("\(user.lastName ?? "")")
                 }
-                .font(.system(size: 20, weight: .bold))
+                .font(.title3)
+                .fontWeight(.bold)
                 .foregroundStyle(.white)
             }
             
@@ -93,7 +93,7 @@ struct Header: View {
     }
 }
 
-struct SpendFootNoteView: View {
+struct SpendFootnoteView: View {
     var body: some View {
         HStack(spacing: 0) {
             VStack(alignment: .leading) {
@@ -101,7 +101,8 @@ struct SpendFootNoteView: View {
                     .foregroundStyle(Color("CustomGreenColor"))
                 Text("Today")
             }
-            .font(.system(size: 20, weight: .bold))
+            .font(.title3)
+            .fontWeight(.bold)
             .padding(.leading, 30)
             
             Spacer()

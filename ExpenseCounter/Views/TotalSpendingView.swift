@@ -14,14 +14,15 @@ struct TotalSpendingView: View {
         HStack {
             VStack(alignment: .leading) {
                 Text("Spends")
-                    .font(.system(size: 20, weight: .semibold))
+                    .font(.title2)
+                    .fontWeight(.semibold)
                 HStack(spacing: 3) {
                     Text("$")
-                        .font(.system(size: 30, weight: .bold))
                     Text("\(totalSpending.formatted(.number.precision(.fractionLength(0...2))))")
                         .foregroundStyle(Color("CustomGreenColor"))
-                        .font(.system(size: 30, weight: .bold))
                 }
+                .font(.title)
+                .fontWeight(.bold)
             }
             .foregroundStyle(Color("CustomDarkGrayColor"))
             .padding([.top, .bottom, .trailing])
@@ -39,7 +40,8 @@ struct TotalSpendingView: View {
             
             VStack(alignment: .center, spacing: 0) {
                 Text("Safe to spend")
-                    .font(.system(size: 17, weight: .semibold))
+                    .font(.body)
+                    .fontWeight(.semibold)
                     .foregroundStyle(Color("CustomDarkGrayColor"))
                     .padding(.bottom, 5)
                 Button(action: {

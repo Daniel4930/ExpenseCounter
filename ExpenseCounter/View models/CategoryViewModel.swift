@@ -1,32 +1,27 @@
 //
-//  ExpensesViewMode.swift
+//  CategoryViewModel.swift
 //  ExpenseCounter
 //
-//  Created by Daniel Le on 6/15/25.
+//  Created by Daniel Le on 6/17/25.
 //
 
-import Foundation
+import CoreData
 
-class CategoryViewModel {
-    func sortExpensesByDateAndCategory(_ expenses: [Expense], _ category: Category) -> [Expense] {
-        var resultArray: [Expense] = []
-        
-        for expense in expenses {
-            if expense.category == category {
-                resultArray.append(expense)
-            }
-        }
+class CategoryViewModel: ObservableObject {
+    @Published var categories: [Category] = []
+    private let coreDataSharedInstance = CoreDataStack.shared
     
-        return resultArray.sorted { $0.date > $1.date }
+    init() {
+        fetchCategories()
     }
-
-    func calculateTotalExpense(_ expenses: [Expense]) -> Double {
-        var total: Double = 0
+    
+    func fetchCategories() {
+        let request = NSFetchRequest<Category>(entityName: "Category")
         
-        for expense in expenses {
-            total += expense.amount
+        do {
+            categories = try coreDataSharedInstance.context.fetch(request)
+        } catch let error {
+            fatalError("Can't fetch categories with error -> \(error.localizedDescription)")
         }
-        
-        return total
     }
 }
