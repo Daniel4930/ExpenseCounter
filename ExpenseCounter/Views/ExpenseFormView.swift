@@ -29,6 +29,7 @@ struct ExpenseFormView: View {
     @State var time: Date
     @State var note: String
     let navTitle: String
+    let id: UUID?
     
     @State var readyToSubmit: Bool = false
     @State private var showCategoryPopUp = false
@@ -134,6 +135,7 @@ struct ExpenseFormView: View {
             .offset(y: focusedField == ExpenseFormField.note ? -keyboardHeight : 0)
             .addExpenseToolbarModifier(
                 navTitle,
+                id,
                 ExpenseFormBindings(
                     focusedField: $focusedField,
                     readyToSubmit: $readyToSubmit,
@@ -141,7 +143,7 @@ struct ExpenseFormView: View {
                     category: $category,
                     date: $date,
                     time: $time,
-                    note: $note
+                    note: $note,
                 )
             )
         }

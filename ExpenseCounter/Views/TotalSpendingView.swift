@@ -13,8 +13,12 @@ struct TotalSpendingView: View {
     var body: some View {
         HStack {
             spendingSummary
+                .frame(maxHeight: .infinity)
+            Spacer()
             divider
+            Spacer()
             safeToSpendSection
+                .frame(maxHeight: .infinity)
         }
         .frame(maxWidth: .infinity)
         .background(Color.white)
@@ -42,9 +46,7 @@ struct TotalSpendingView: View {
             .fontWeight(.bold)
         }
         .foregroundStyle(Color("CustomDarkGrayColor"))
-        .padding(.vertical)
         .padding(.leading, 30)
-        .padding(.trailing, 20)
     }
 
     private var divider: some View {
@@ -67,7 +69,6 @@ struct TotalSpendingView: View {
             .buttonStyle(.borderedProminent)
             .tint(Color("CustomGreenColor"))
         }
-        .padding(.vertical)
-        .padding(.horizontal, 30)
+        .padding(.trailing, 30)
     }
 }

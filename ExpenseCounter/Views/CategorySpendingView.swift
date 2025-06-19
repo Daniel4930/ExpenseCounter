@@ -18,17 +18,19 @@ struct CategorySpendingView: View {
             ForEach(categoryViewModel.categories, id: \.id) { category in
                 let sortedExpenses = CategorySpendingView.sortExpensesByCategoryAndBeforeDate(expenseViewModel.expenses, category, date)
                 
-                NavigationLink(
-                    destination: ExpenseListView (
-                        expenses: sortedExpenses,
-                        category: category
-                    )
-                ) {
-                    CategoryItemView(
-                        category: category,
-                        firstExpense: sortedExpenses.first,
-                        totalSpend: CategorySpendingView.calculateTotalExpense(sortedExpenses),
-                    )
+                if !sortedExpenses.isEmpty {
+                    NavigationLink(
+                        destination: ExpenseListView (
+                            category: category,
+                            date: date
+                        )
+                    ) {
+                        CategoryItemView(
+                            category: category,
+                            firstExpense: sortedExpenses.first,
+                            totalSpend: CategorySpendingView.calculateTotalExpense(sortedExpenses),
+                        )
+                    }
                 }
             }
         }
@@ -70,7 +72,7 @@ struct CategoryItemView: View {
     let totalSpend: Double
     
     var body: some View {
-        HStack(alignment: .center, spacing: 16) {
+        HStack(alignment: .center, spacing: 10) {
             CategoryIconView(category: category)
             
             VStack(alignment: .leading, spacing: 4) {
@@ -94,6 +96,7 @@ struct CategoryItemView: View {
                         .foregroundStyle(Color("CustomDarkGrayColor"))
                 }
             }
+            .frame(width: 140, alignment: .leading)
 
             Spacer()
             
@@ -108,3 +111,13 @@ struct CategoryItemView: View {
         .padding(.horizontal)
     }
 }
+
+//#Preview {
+//    @State var previewDate = Date()
+//
+//    return CategorySpendingView(date: $previewDate)
+//        .environmentObject(UserViewModel())
+//        .environmentObject(CategoryViewModel())
+//        .environmentObject(ExpenseViewModel())
+//        .onAppear(perform: UIApplication.shared.addTapGestureRecognizer)
+//}

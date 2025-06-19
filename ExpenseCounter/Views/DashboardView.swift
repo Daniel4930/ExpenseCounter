@@ -12,6 +12,7 @@ struct DashboardView: View {
     @State private var showCalendar = false
     
     @EnvironmentObject var userViewModel: UserViewModel
+    @EnvironmentObject var expensesViewModel: ExpenseViewModel
     
     var body: some View {
         NavigationStack {
@@ -25,7 +26,7 @@ struct DashboardView: View {
                     
                     VStack(spacing: 0) {
                         Header(user: userViewModel.user.first!)
-                        TotalSpendingView(totalSpending: 90.81)
+                        TotalSpendingView(totalSpending: DashboardView.calculateTotalExpense(expensesViewModel.expenses))
                         MonthNavigatorView(showCalendar: $showCalendar, date: $date)
                     }
                     .padding(.top, 55)
@@ -46,6 +47,15 @@ struct DashboardView: View {
                 }
             }
         }
+    }
+}
+private extension DashboardView {
+    static func calculateTotalExpense(_ expenses: [Expense]) -> Double {
+        var total: Double = 0
+        for expense in expenses {
+            total += expense.amount
+        }
+        return total
     }
 }
 
@@ -96,7 +106,8 @@ struct Header: View {
                 date: Date(),
                 time: Date(),
                 note: "",
-                navTitle: "Add an expense"
+                navTitle: "Add an expense",
+                id: nil
             )) {
                 Image(systemName: "plus")
                     .resizable()

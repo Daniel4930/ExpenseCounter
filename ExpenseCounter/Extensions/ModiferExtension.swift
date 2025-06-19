@@ -23,10 +23,12 @@ extension View {
     
     func addExpenseToolbarModifier(
         _ navTitle: String,
+        _ id: UUID?,
         _ bindings: ExpenseFormBindings,
     ) -> some View {
         self.modifier(AddExpenseToolbarModifier(
             navTitle: navTitle,
+            id: id,
             binding: bindings,
         ))
     }
@@ -91,6 +93,7 @@ struct KeyboardProvider: ViewModifier {
 
 struct AddExpenseToolbarModifier: ViewModifier {
     let navTitle: String
+    let id: UUID?
     var binding: ExpenseFormBindings
     
     @Environment(\.dismiss) private var dismiss
@@ -118,7 +121,8 @@ struct AddExpenseToolbarModifier: ViewModifier {
                             binding.category.wrappedValue!,
                             date: binding.date.wrappedValue,
                             time: binding.time.wrappedValue,
-                            binding.note.wrappedValue
+                            binding.note.wrappedValue,
+                            id
                         )
                         dismiss()
                     }, label: {
