@@ -28,7 +28,7 @@ struct ContentView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             
             HStack {
-                TabbarButton(selectedTab: $selectedTab, tab: Tabs.dashboard, tabIcon: "house", tabTitle: "Home")
+                TabbarButton(selectedTab: $selectedTab, tab: Tabs.dashboard, tabIcon: "house", tabTitle: "Dashboard")
                 TabbarButton(selectedTab: $selectedTab, tab: Tabs.settings, tabIcon: "gear", tabTitle: "Settings")
             }
             .padding(.top)
@@ -63,4 +63,8 @@ struct TabbarButton: View {
 
 #Preview {
     ContentView()
+        .environmentObject(UserViewModel())
+        .environmentObject(CategoryViewModel())
+        .environmentObject(ExpenseViewModel())
+        .onAppear(perform: UIApplication.shared.addTapGestureRecognizer)
 }

@@ -8,54 +8,82 @@
 import SwiftUI
 
 struct CategorySpendingView: View {
-    @StateObject private var categoryViewModel = CategoryViewModel()
-    @StateObject private var expensesViewModel = ExpenseViewModel()
-    let categorySpendingViewModel = CategorySpendingViewModel()
+    @Binding var date: Date
+    
+    @EnvironmentObject var categoryViewModel: CategoryViewModel
+    @EnvironmentObject var expenseViewModel: ExpenseViewModel
     
     var body: some View {
         VStack(spacing: 16) {
             ForEach(categoryViewModel.categories, id: \.id) { category in
-                let sortedExpenses = categorySpendingViewModel.sortExpensesByDateAndCategory(expensesViewModel.expenses, category)
+                let sortedExpenses = CategorySpendingView.sortExpensesByCategoryAndBeforeDate(expenseViewModel.expenses, category, date)
                 
-                CategoryItemView(category: category, sortedExpenses: sortedExpenses, categorySpendingViewModel: categorySpendingViewModel)
+                NavigationLink(
+                    destination: ExpenseListView (
+                        expenses: sortedExpenses,
+                        category: category
+                    )
+                ) {
+                    CategoryItemView(
+                        category: category,
+                        firstExpense: sortedExpenses.first,
+                        totalSpend: CategorySpendingView.calculateTotalExpense(sortedExpenses),
+                    )
+                }
             }
         }
         .padding(.top, 9)
     }
 }
 
+private extension CategorySpendingView {
+    static func sortExpensesByCategoryAndBeforeDate(_ expenses: [Expense], _ category: Category, _ date: Date) -> [Expense] {
+        var resultArray: [Expense] = []
+        let calendar = Calendar.current
+        
+        for expense in expenses {
+            let monthAndYearDateComponent = calendar.dateComponents([.month, .year], from: date)
+            let monthAndYearExpenseDateComponent = calendar.dateComponents([.month, .year], from: expense.date!)
+            
+            if expense.category == category && calendar.date(from:monthAndYearExpenseDateComponent)! <= calendar.date(from: monthAndYearDateComponent)! {
+                resultArray.append(expense)
+            }
+        }
+        
+        return resultArray.sorted { $0.date! > $1.date! }
+    }
+    
+    static func calculateTotalExpense(_ expenses: [Expense]) -> Double {
+        var total: Double = 0
+        
+        for expense in expenses {
+            total += expense.amount
+        }
+        
+        return total
+    }
+}
+
 struct CategoryItemView: View {
     let category: Category
-    let sortedExpenses: [Expense]
-    let categorySpendingViewModel: CategorySpendingViewModel
-    
+    let firstExpense: Expense?
+    let totalSpend: Double
     
     var body: some View {
         HStack(alignment: .center, spacing: 16) {
-            Image(systemName: category.icon ?? ErrorCategory.icon)
-                .frame(width: 50, height: 50)
-                .foregroundStyle(.white)
-                .background(
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(Color(hex: category.colorHex ?? ErrorCategory.colorHex))
-                        .shadow(color: Color(hex: category.colorHex ?? ErrorCategory.colorHex).opacity(0.3), radius: 5)
-                )
-                .font(.system(size: 28))
-
+            CategoryIconView(category: category)
+            
             VStack(alignment: .leading, spacing: 4) {
-                Text(category.name ?? ErrorCategory.name)
-                    .foregroundStyle(.black)
-                    .font(.title3)
-                    .bold()
-
-                if let expense = sortedExpenses.first {
+                CategoryNameView(category: category)
+                
+                if let expense = firstExpense {
                     HStack(spacing: 8) {
-                        Text(expense.date?.formatted(.dateTime.day().month()) ?? "\(Date().formatted(.dateTime.day().month()))")
+                        Text(expense.date?.formatted(.dateTime.day().month()) ?? "Error date")
                         Divider()
                             .frame(minWidth: 2)
                             .frame(maxHeight: 15)
                             .overlay(.black)
-                        Text(expense.date?.formatted(.dateTime.hour().minute()) ?? "\(Date().formatted(.dateTime.hour().minute()))")
+                        Text(expense.date?.formatted(.dateTime.hour().minute()) ?? "Error time")
                     }
                     .font(.subheadline)
                     .fontWeight(.semibold)
@@ -69,14 +97,7 @@ struct CategoryItemView: View {
 
             Spacer()
             
-            HStack(spacing: 0) {
-                Text("$")
-                    .padding(.trailing, 4)
-                Text("\(categorySpendingViewModel.calculateTotalExpense(sortedExpenses), specifier: "%.2f")")
-            }
-            .foregroundStyle(.black)
-            .font(.title3)
-            .bold()
+            AmountTextView(amount: totalSpend, font: .title3, color: .black)
         }
         .padding()
         .background(
@@ -87,4 +108,3 @@ struct CategoryItemView: View {
         .padding(.horizontal)
     }
 }
-

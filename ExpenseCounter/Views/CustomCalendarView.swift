@@ -12,19 +12,18 @@ struct CustomCalendarView: View {
     @Binding var date: Date
     @State var currentDate: Date
     @State var selectedDate: Date
-    let customCalendarViewModel = CustomCalendarViewModel()
     
     var body: some View {
         VStack {
             HStack {
                 Text("\(currentDate.formatted(.dateTime.year()))")
                 Spacer()
-                CurrentDateView(currentDate: $currentDate, customCalendarViewModel: customCalendarViewModel)
+                CurrentDateView(currentDate: $currentDate)
             }
             .padding([.leading, .trailing, .bottom])
 
             
-            MonthGridView(currentDate: $currentDate, selectedDate: $selectedDate, date: $date, customCalendarViewModel: customCalendarViewModel)
+            MonthGridView(currentDate: $currentDate, selectedDate: $selectedDate, date: $date)
 
             Button("Done") {
                 showCalendar = false
@@ -37,12 +36,11 @@ struct CustomCalendarView: View {
 
 struct CurrentDateView: View {
     @Binding var currentDate: Date
-    var customCalendarViewModel: CustomCalendarViewModel
     
     var body: some View {
         HStack(spacing: 30) {
             Button(action: {
-                if let newDate = customCalendarViewModel.decrementYear(date: currentDate) {
+                if let newDate = CurrentDateView.decrementYear(date: currentDate) {
                     currentDate = newDate
                 }
             }, label: {
@@ -50,7 +48,7 @@ struct CurrentDateView: View {
             })
             
             Button(action: {
-                if let newDate = customCalendarViewModel.incrementYear(date: currentDate) {
+                if let newDate = CurrentDateView.incrementYear(date: currentDate) {
                     currentDate = newDate
                 }
             }, label: {
@@ -58,6 +56,14 @@ struct CurrentDateView: View {
             })
         }
         .font(.title2)
+    }
+}
+private extension CurrentDateView {
+    static func incrementYear(date: Date, by value: Int = 1) -> Date? {
+        Calendar.current.date(byAdding: .year, value: value, to: date)
+    }
+    static func decrementYear(date: Date, by value: Int = 1) -> Date? {
+        Calendar.current.date(byAdding: .year, value: -value, to: date)
     }
 }
 
@@ -69,17 +75,16 @@ struct MonthGridView: View {
     @Binding var currentDate: Date
     @Binding var selectedDate: Date
     @Binding var date: Date
-    let customCalendarViewModel: CustomCalendarViewModel
     let calendar = Calendar.current
     let months = Calendar.current.monthSymbols
     
     var body: some View {
         LazyVGrid(columns: columns) {
             ForEach(0..<12, id: \.self) { index in
-                let monthDate = customCalendarViewModel.dateFrom(year: calendar.component(.year, from: currentDate), month: index + 1)
-                let isDisabled = customCalendarViewModel.isMonthOutOfBounds(from: monthDate)
+                let monthDate = MonthGridView.dateFrom(year: calendar.component(.year, from: currentDate), month: index + 1)
+                let isDisabled = MonthGridView.isMonthOutOfBounds(from: monthDate)
                 
-                let isSelected = customCalendarViewModel.sameMonthAndYear(selectedDate, monthDate)
+                let isSelected = MonthGridView.sameMonthAndYear(selectedDate, monthDate)
                 
                 Text(months[index])
                     .frame(maxWidth: .infinity)
@@ -89,7 +94,7 @@ struct MonthGridView: View {
                     .monthOverlay(isSelected: isSelected, isDisabled: isDisabled)
                     .onTapGesture {
                         if !isDisabled,
-                           let newDate = customCalendarViewModel.updateMonth(
+                           let newDate = MonthGridView.updateMonth(
                                date: selectedDate,
                                newMonth: index + 1,
                                newYear: calendar.component(.year, from: currentDate)
@@ -103,5 +108,39 @@ struct MonthGridView: View {
             .padding(.vertical)
         }
         .padding(.horizontal)
+    }
+}
+private extension MonthGridView {
+    static func dateFrom(year: Int, month: Int) -> Date {
+        let components = DateComponents(year: year, month: month)
+        return Calendar.current.date(from: components) ?? Date()
+    }
+    static func isMonthOutOfBounds(from date: Date) -> Bool {
+        let calendar = Calendar.current
+        let now = Date()
+
+        let currentComponents = calendar.dateComponents([.year, .month], from: now)
+        let dateComponents = calendar.dateComponents([.year, .month], from: date)
+
+        guard let currentMonth = calendar.date(from: currentComponents),
+              let checkingMonth = calendar.date(from: dateComponents) else {
+            return false
+        }
+
+        // Out of bounds if checkingMonth is after currentMonth
+        return checkingMonth > currentMonth
+    }
+    static func sameMonthAndYear(_ date1: Date, _ date2: Date) -> Bool {
+        let calendar = Calendar.current
+        let comp1 = calendar.dateComponents([.year, .month], from: date1)
+        let comp2 = calendar.dateComponents([.year, .month], from: date2)
+        return comp1.year == comp2.year && comp1.month == comp2.month
+    }
+    static func updateMonth(date: Date, newMonth: Int, newYear: Int) -> Date? {
+        var components = DateComponents()
+        components.year = newYear
+        components.month = newMonth
+        components.day = 1 // start of the month
+        return Calendar.current.date(from: components)
     }
 }

@@ -11,12 +11,11 @@ struct MonthNavigatorView: View {
     @Binding var showCalendar: Bool
     @Binding var date: Date
     @State private var monthIncreaseDisabled: Bool = false
-    let dashboardViewModel: DashboardViewModel
     
     var body: some View {
         HStack {
             Button(action: {
-                if let newDate = dashboardViewModel.decrementMonth(date: date) {
+                if let newDate = decrementMonth(date: date) {
                     date = newDate
                 }
             }, label: {
@@ -38,8 +37,8 @@ struct MonthNavigatorView: View {
             }
             
             Button(action: {
-                if let newDate = dashboardViewModel.incrementMonth(date: date) {
-                    if !dashboardViewModel.isMonthOutOfBounds(from: newDate) {
+                if let newDate = incrementMonth(date: date) {
+                    if !isMonthOutOfBounds(from: newDate) {
                         date = newDate
                         monthIncreaseDisabled = false
                     } else {
@@ -51,18 +50,46 @@ struct MonthNavigatorView: View {
                     .font(.title2)
                     .foregroundStyle(monthIncreaseDisabled ? .gray : .white)
                     .onAppear {
-                        if let newDate = dashboardViewModel.incrementMonth(date: date) {
-                            monthIncreaseDisabled = dashboardViewModel.isMonthOutOfBounds(from: newDate)
+                        if let newDate = incrementMonth(date: date) {
+                            monthIncreaseDisabled = isMonthOutOfBounds(from: newDate)
                         }
                     }
                     .onChange(of: date) { _ in
-                        if let newDate = dashboardViewModel.incrementMonth(date: date) {
-                            monthIncreaseDisabled = dashboardViewModel.isMonthOutOfBounds(from: newDate)
+                        if let newDate = incrementMonth(date: date) {
+                            monthIncreaseDisabled = isMonthOutOfBounds(from: newDate)
                         }
                     }
             })
             .disabled(monthIncreaseDisabled)
         }
         .padding([.top, .bottom], 10)
+    }
+}
+
+private extension MonthNavigatorView {
+    func incrementMonth(date: Date) -> Date? {
+        if let newDate = Calendar.current.date(byAdding: .month, value: 1, to: date) {
+            return newDate
+        }
+        return nil
+    }
+    func decrementMonth(date: Date) -> Date? {
+        if let newDate = Calendar.current.date(byAdding: .month, value: -1, to: date) {
+            return newDate
+        }
+        return nil
+    }
+    func isMonthOutOfBounds(from date: Date) -> Bool {
+        let now = Date()
+        let calendar = Calendar.current
+
+        let currentComponents = calendar.dateComponents([.year, .month], from: now)
+        let dateComponents = calendar.dateComponents([.year, .month], from: date)
+
+        guard let currentMonth = calendar.date(from: currentComponents),
+              let checkingMonth = calendar.date(from: dateComponents) else {
+            return false
+        }
+        return checkingMonth > currentMonth
     }
 }

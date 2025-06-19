@@ -8,14 +8,10 @@
 import SwiftUI
 
 struct DashboardView: View {
-    @State private var date: Date
+    @State private var date: Date = generateDate() ?? Date()
     @State private var showCalendar = false
-    @StateObject private var userViewModel = UserViewModel()
-    let dashboardViewModel = DashboardViewModel()
     
-    init() {
-        _date = State(initialValue: dashboardViewModel.generateDate() ?? Date())
-    }
+    @EnvironmentObject var userViewModel: UserViewModel
     
     var body: some View {
         NavigationStack {
@@ -30,7 +26,7 @@ struct DashboardView: View {
                     VStack(spacing: 0) {
                         Header(user: userViewModel.user.first!)
                         TotalSpendingView(totalSpending: 90.81)
-                        MonthNavigatorView(showCalendar: $showCalendar, date: $date, dashboardViewModel: dashboardViewModel)
+                        MonthNavigatorView(showCalendar: $showCalendar, date: $date)
                     }
                     .padding(.top, 55)
                     .overlay(
@@ -46,10 +42,24 @@ struct DashboardView: View {
                 SpendFootnoteView()
                 
                 ScrollView {
-                    CategorySpendingView()
+                    CategorySpendingView(date: $date)
                 }
             }
         }
+    }
+}
+
+private extension DashboardView {
+    static func generateDate() -> Date? {
+        let now = Date()
+        let calendar = Calendar.current
+        
+        let components = calendar.dateComponents([.year, .month], from: now)
+        
+        if let beginningOfMonth = calendar.date(from: components) {
+            return beginningOfMonth
+        }
+        return nil
     }
 }
 
@@ -81,7 +91,13 @@ struct Header: View {
             
             Spacer()
         
-            NavigationLink(destination: AddExpenseView()) {
+            NavigationLink(destination: ExpenseFormView (
+                amount: "",
+                date: Date(),
+                time: Date(),
+                note: "",
+                navTitle: "Add an expense"
+            )) {
                 Image(systemName: "plus")
                     .resizable()
                     .scaledToFit()

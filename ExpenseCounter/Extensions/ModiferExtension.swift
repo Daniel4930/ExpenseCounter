@@ -21,8 +21,14 @@ extension View {
         self.modifier(KeyboardProvider(keyboardHeight: state))
     }
     
-    func addExpenseToolbarModifier(_ focusedField: FocusState<AddExpenseFormField?>.Binding, _ readyToSubmit: Binding<Bool>, _ addExpenseViewModel: AddExpenseViewModel) -> some View {
-        self.modifier(AddExpenseToolbarModifier(focusedField: focusedField, readyToSubmit: readyToSubmit, addExpenseViewModel: addExpenseViewModel))
+    func addExpenseToolbarModifier(
+        _ navTitle: String,
+        _ bindings: ExpenseFormBindings,
+    ) -> some View {
+        self.modifier(AddExpenseToolbarModifier(
+            navTitle: navTitle,
+            binding: bindings,
+        ))
     }
 }
 
@@ -84,10 +90,11 @@ struct KeyboardProvider: ViewModifier {
 }
 
 struct AddExpenseToolbarModifier: ViewModifier {
-    @FocusState.Binding var focusedField: AddExpenseFormField?
-    @Binding var readyToSubmit: Bool
+    let navTitle: String
+    var binding: ExpenseFormBindings
+    
     @Environment(\.dismiss) private var dismiss
-    let addExpenseViewModel: AddExpenseViewModel
+    @EnvironmentObject var expenseViewModel: ExpenseViewModel
 
     func body(content: Content) -> some View {
         content
@@ -106,28 +113,35 @@ struct AddExpenseToolbarModifier: ViewModifier {
                 
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: {
+                        expenseViewModel.addExpense(
+                            binding.amount.wrappedValue,
+                            binding.category.wrappedValue!,
+                            date: binding.date.wrappedValue,
+                            time: binding.time.wrappedValue,
+                            binding.note.wrappedValue
+                        )
                         dismiss()
                     }, label: {
                         Text("Submit")
-                            .foregroundColor(readyToSubmit ? .white : Color("CustomGrayColor"))
+                            .foregroundColor(binding.readyToSubmit.wrappedValue ? .white : Color("CustomGrayColor"))
                     })
-                    .disabled(!readyToSubmit)
+                    .disabled(!binding.readyToSubmit.wrappedValue)
                 }
                 
                 ToolbarItem(placement: .principal) {
-                    Text("Add an expense")
+                    Text(navTitle)
                         .foregroundColor(.white)
                         .font(.title2)
                 }
                 ToolbarItemGroup(placement: .keyboard) {
                     Button {
-                        focusedField = addExpenseViewModel.switchFocusedState(field: focusedField, direction: 1)
+                        binding.focusedField.wrappedValue = AddExpenseToolbarModifier.switchFocusedState(field: binding.focusedField.wrappedValue, direction: 1)
                     } label: {
                         Image(systemName: "chevron.up")
                     }
 
                     Button {
-                        focusedField = addExpenseViewModel.switchFocusedState(field: focusedField, direction: -1)
+                        binding.focusedField.wrappedValue = AddExpenseToolbarModifier.switchFocusedState(field: binding.focusedField.wrappedValue, direction: -1)
                     } label: {
                         Image(systemName: "chevron.down")
                     }
@@ -135,9 +149,34 @@ struct AddExpenseToolbarModifier: ViewModifier {
                     Spacer()
 
                     Button("Done") {
-                        focusedField = nil
+                        binding.focusedField.wrappedValue = nil
                     }
                 }
             }
+    }
+}
+
+private extension AddExpenseToolbarModifier {
+    static func switchFocusedState(field: ExpenseFormField?, direction: Int) -> ExpenseFormField? {
+        guard let field else { return nil }
+        
+        let allCases = ExpenseFormField.allCases
+        
+        guard var index = allCases.firstIndex(of: field) else { return nil }
+        
+        if direction == 1 {
+            index -= 1
+        } else {
+            index += 1
+        }
+        
+        let size = allCases.count
+        if index < 0 {
+            index = size - 1
+        } else if index >= size {
+            index = 0
+        }
+        
+        return allCases[index]
     }
 }

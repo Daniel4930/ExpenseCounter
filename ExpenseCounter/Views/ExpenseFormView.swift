@@ -1,5 +1,5 @@
 //
-//  AddExpenseView.swift
+//  ExpenseFormView.swift
 //  ExpenseCounter
 //
 //  Created by Daniel Le on 6/16/25.
@@ -7,25 +7,36 @@
 
 import SwiftUI
 
-enum AddExpenseFormField: Hashable, CaseIterable {
+enum ExpenseFormField: Hashable, CaseIterable {
     case amount
     case note
 }
 
-struct AddExpenseView: View {
-    @State private var amount: String = ""
-    @State private var category: Category?
-    @State private var date: Date = Date()
-    @State private var time: Date = Date()
-    @State private var note: String = ""
+struct ExpenseFormBindings {
+    var focusedField: FocusState<ExpenseFormField?>.Binding
+    var readyToSubmit: Binding<Bool>
+    var amount: Binding<String>
+    var category: Binding<Category?>
+    var date: Binding<Date>
+    var time: Binding<Date>
+    var note: Binding<String>
+}
+
+struct ExpenseFormView: View {
+    @State var amount: String
+    @State var category: Category?
+    @State var date: Date
+    @State var time: Date
+    @State var note: String
+    let navTitle: String
+    
+    @State var readyToSubmit: Bool = false
     @State private var showCategoryPopUp = false
-    @State private var readyToSubmit = false
     @State private var keyboardHeight: CGFloat = 0
-    @FocusState private var focusedField: AddExpenseFormField?
+    @FocusState var focusedField: ExpenseFormField?
     
     @Environment(\.dismiss) private var dismiss
     
-    let addExpenseViewModel = AddExpenseViewModel()
     var body: some View {
         ScrollView {
             VStack {
@@ -36,12 +47,12 @@ struct AddExpenseView: View {
                             Text("Enter an amount")
                                 .foregroundStyle(Color("CustomGrayColor"))
                         }
-                        .focused($focusedField, equals: AddExpenseFormField.amount)
+                        .focused($focusedField, equals: ExpenseFormField.amount)
                         .onChange(of: amount) {newValue in
-                            if addExpenseViewModel.amountInputValid(newValue) == false {
+                            if ExpenseFormView.amountInputValid(newValue) == false {
                                 amount = String(newValue.dropLast())
                             }
-                            readyToSubmit = addExpenseViewModel.validInputsBeforeSubmit(newValue, category)
+                            readyToSubmit = ExpenseFormView.validInputsBeforeSubmit(newValue, category)
                         }
                     }
                     .inputFormModifier()
@@ -69,7 +80,7 @@ struct AddExpenseView: View {
                             .presentationDetents([.medium])
                     }
                     .onChange(of: category) { newValue in
-                        readyToSubmit = addExpenseViewModel.validInputsBeforeSubmit(amount, newValue)
+                        readyToSubmit = ExpenseFormView.validInputsBeforeSubmit(amount, newValue)
                     }
                 }
                 
@@ -99,7 +110,7 @@ struct AddExpenseView: View {
                 
                 CustomSectionView(header: "Note") {
                     TextEditor(text: $note)
-                        .focused($focusedField, equals: AddExpenseFormField.note)
+                        .focused($focusedField, equals: ExpenseFormField.note)
                         .frame(height: 150)
                         .font(.body)
                         .foregroundColor(.primary)
@@ -118,13 +129,40 @@ struct AddExpenseView: View {
             .toolbarBackground(Color("CustomGreenColor"), for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
             .keyboardHeight($keyboardHeight)
-            .padding(.bottom, focusedField == AddExpenseFormField.amount ? keyboardHeight : 0)
+            .padding(.bottom, focusedField == ExpenseFormField.amount ? keyboardHeight : 0)
             .animation(.easeInOut(duration: 0.3), value: focusedField)
-            .offset(y: focusedField == AddExpenseFormField.note ? -keyboardHeight : 0)
-            .addExpenseToolbarModifier($focusedField, $readyToSubmit, addExpenseViewModel)
+            .offset(y: focusedField == ExpenseFormField.note ? -keyboardHeight : 0)
+            .addExpenseToolbarModifier(
+                navTitle,
+                ExpenseFormBindings(
+                    focusedField: $focusedField,
+                    readyToSubmit: $readyToSubmit,
+                    amount: $amount,
+                    category: $category,
+                    date: $date,
+                    time: $time,
+                    note: $note
+                )
+            )
         }
         .scrollDismissesKeyboard(.interactively)
         .ignoresSafeArea(.keyboard)
+    }
+}
+
+private extension ExpenseFormView {
+    static func amountInputValid(_ amount: String) -> Bool {
+        let amountInputPattern = #"^\d*\.?\d{0,2}$"#
+        if (amount.range(of: amountInputPattern, options: .regularExpression) != nil) {
+            return true
+        }
+        return false
+    }
+    static func validInputsBeforeSubmit(_ amount: String, _ category: Category?) -> Bool {
+        if !amount.isEmpty && category != nil {
+            return true
+        }
+        return false
     }
 }
 

@@ -38,17 +38,14 @@ struct CategoryGridItemView: View {
             dismiss()
         }, label: {
             VStack {
-                Image(systemName: category.icon ?? ErrorCategory.icon)
-                    .frame(width: 50, height: 50)
-                    .foregroundStyle(.white)
-                    .background(
-                        RoundedRectangle(cornerRadius: 10)
-                            .fill(Color(hex: category.colorHex ?? ErrorCategory.colorHex))
-                            .shadow(color: Color(hex: category.colorHex ?? ErrorCategory.colorHex).opacity(0.3), radius: 5)
-                    )
-                    .font(.system(size: 28))
+                CategoryIconView(category: category)
 
-                Text(category.name ?? ErrorCategory.name)
+                CategoryNameView(
+                    category: category,
+                    fontColor: .primary,
+                    font: .body,
+                    fontWeight: .regular
+                )
             }
             .padding()
             .overlay {

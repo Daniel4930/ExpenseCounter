@@ -25,12 +25,14 @@ class CategoryViewModel: ObservableObject {
             newCategory.name = category.name
             newCategory.icon = category.icon
             newCategory.colorHex = category.colorHex
+            newCategory.defaultCategory = true
         }
         coreDataSharedInstance.save()
         fetchCategories()
     }
     
-    func deleteAllCategories() {
+    //Don't call this in production code
+    private func deleteAllCategories() {
         let fetchRequest: NSFetchRequest<NSFetchRequestResult> = Category.fetchRequest()
         let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
 
