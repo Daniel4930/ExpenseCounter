@@ -11,28 +11,29 @@ struct TotalSpendingView: View {
     var totalSpending: Double
 
     var body: some View {
-        HStack {
-            spendingSummary
-                .frame(maxHeight: .infinity)
-            Spacer()
-            divider
-            Spacer()
-            safeToSpendSection
-                .frame(maxHeight: .infinity)
+        GeometryReader { proxy in
+            HStack(spacing: 0) {
+                spendingSummary
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .frame(width: proxy.size.width * 0.40)
+                divider
+                safeToSpendSection
+                    .frame(width: proxy.size.width * 0.40)
+            }
+            .frame(maxWidth: .infinity)
+            .background(Color.white)
+            .clipShape(RoundedRectangle(cornerRadius: 15))
+            .overlay(
+                RoundedRectangle(cornerRadius: 15)
+                    .stroke(Color("CustomGreenColor"), lineWidth: 1)
+            )
+            .padding(.horizontal)
+            .shadow(color: .black.opacity(0.2), radius: 4)
         }
-        .frame(maxWidth: .infinity)
-        .background(Color.white)
-        .clipShape(RoundedRectangle(cornerRadius: 15))
-        .overlay(
-            RoundedRectangle(cornerRadius: 15)
-                .stroke(Color("CustomGreenColor"), lineWidth: 1)
-        )
-        .padding(.horizontal)
-        .shadow(color: .black.opacity(0.2), radius: 4)
     }
 
     private var spendingSummary: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 0) {
             Text("Spends")
                 .font(.title2)
                 .fontWeight(.semibold)
@@ -46,22 +47,23 @@ struct TotalSpendingView: View {
             .fontWeight(.bold)
         }
         .foregroundStyle(Color("CustomDarkGrayColor"))
-        .padding(.leading, 30)
     }
 
     private var divider: some View {
         Divider()
-            .frame(minWidth: 3)
+            .frame(maxHeight: .infinity)
+            .frame(maxWidth: 3)
             .overlay(Color("CustomGreenColor"))
             .padding(.vertical)
     }
 
     private var safeToSpendSection: some View {
-        VStack(alignment: .center, spacing: 5) {
+        VStack(alignment: .center, spacing: 0) {
             Text("Safe to spend")
                 .font(.body)
                 .fontWeight(.semibold)
                 .foregroundStyle(Color("CustomDarkGrayColor"))
+                .padding(.bottom, 5)
 
             Button("Set Budget", action: {
                 // Action here
@@ -69,6 +71,5 @@ struct TotalSpendingView: View {
             .buttonStyle(.borderedProminent)
             .tint(Color("CustomGreenColor"))
         }
-        .padding(.trailing, 30)
     }
 }

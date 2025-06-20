@@ -26,7 +26,7 @@ struct DashboardView: View {
                     
                     VStack(spacing: 0) {
                         Header(user: userViewModel.user.first!)
-                        TotalSpendingView(totalSpending: DashboardView.calculateTotalExpense(expensesViewModel.expenses))
+                        TotalSpendingView(totalSpending: DashboardView.calculateTotalExpense(expensesViewModel.expenses, date))
                         MonthNavigatorView(showCalendar: $showCalendar, date: $date)
                     }
                     .padding(.top, 55)
@@ -38,7 +38,6 @@ struct DashboardView: View {
                 .frame(maxHeight: 290)
                 .clipShape(BottomRoundedRectangle(radius: 15))
                 .shadow(color: .black, radius: 1)
-                .ignoresSafeArea()
                 
                 SpendFootnoteView()
                 
@@ -46,20 +45,26 @@ struct DashboardView: View {
                     CategorySpendingView(date: $date)
                 }
             }
+            .ignoresSafeArea()
         }
     }
 }
 private extension DashboardView {
-    static func calculateTotalExpense(_ expenses: [Expense]) -> Double {
+    static func calculateTotalExpense(_ expenses: [Expense], _ date: Date) -> Double {
+        let calendar = Calendar.current
+        let targetComponents = calendar.dateComponents([.year, .month], from: date)
         var total: Double = 0
         for expense in expenses {
-            total += expense.amount
+            if let expenseDate = expense.date {
+                let expenseComponents = calendar.dateComponents([.year, .month], from: expenseDate)
+                if expenseComponents.year == targetComponents.year &&
+                   expenseComponents.month == targetComponents.month {
+                    total += expense.amount
+                }
+            }
         }
         return total
     }
-}
-
-private extension DashboardView {
     static func generateDate() -> Date? {
         let now = Date()
         let calendar = Calendar.current
@@ -102,12 +107,8 @@ struct Header: View {
             Spacer()
         
             NavigationLink(destination: ExpenseFormView (
-                amount: "",
-                date: Date(),
-                time: Date(),
-                note: "",
-                navTitle: "Add an expense",
-                id: nil
+                expense: nil,
+                navTitle: "Add an expense"
             )) {
                 Image(systemName: "plus")
                     .resizable()
@@ -146,6 +147,6 @@ struct SpendFootnoteView: View {
             .padding(.trailing, 15)
         }
         .padding(.bottom)
-        .padding(.top, -50)
+        .padding(.top)
     }
 }

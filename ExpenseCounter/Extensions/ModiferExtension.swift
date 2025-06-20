@@ -25,11 +25,13 @@ extension View {
         _ navTitle: String,
         _ id: UUID?,
         _ bindings: ExpenseFormBindings,
+        _ expenseContext: Expense
     ) -> some View {
         self.modifier(AddExpenseToolbarModifier(
             navTitle: navTitle,
             id: id,
             binding: bindings,
+            expenseContext: expenseContext
         ))
     }
 }
@@ -95,6 +97,7 @@ struct AddExpenseToolbarModifier: ViewModifier {
     let navTitle: String
     let id: UUID?
     var binding: ExpenseFormBindings
+    let expenseContext: Expense
     
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var expenseViewModel: ExpenseViewModel
@@ -116,14 +119,25 @@ struct AddExpenseToolbarModifier: ViewModifier {
                 
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: {
-                        expenseViewModel.addExpense(
-                            binding.amount.wrappedValue,
-                            binding.category.wrappedValue!,
-                            date: binding.date.wrappedValue,
-                            time: binding.time.wrappedValue,
-                            binding.note.wrappedValue,
-                            id
-                        )
+                        if let id = id {
+                            expenseViewModel.updateExpense(
+                                id,
+                                binding.amount.wrappedValue,
+                                binding.note.wrappedValue,
+                                binding.date.wrappedValue,
+                                binding.time.wrappedValue,
+                                binding.category.wrappedValue!
+                            )
+                        } else {
+                            expenseViewModel.addExpense(
+                                expenseContext,
+                                binding.amount.wrappedValue,
+                                binding.category.wrappedValue!,
+                                date: binding.date.wrappedValue,
+                                time: binding.time.wrappedValue,
+                                binding.note.wrappedValue
+                            )
+                        }
                         dismiss()
                     }, label: {
                         Text("Submit")

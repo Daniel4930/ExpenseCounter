@@ -10,6 +10,8 @@ import SwiftUI
 enum Tabs {
     case dashboard
     case settings
+    case reports
+    case category
 }
 
 struct ContentView: View {
@@ -23,12 +25,18 @@ struct ContentView: View {
                     DashboardView()
                 case .settings:
                     Text("Settings")
+                case .reports:
+                    Text("Report")
+                case .category:
+                    Text("Category")
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             
             HStack {
                 TabbarButton(selectedTab: $selectedTab, tab: Tabs.dashboard, tabIcon: "house", tabTitle: "Dashboard")
+                TabbarButton(selectedTab: $selectedTab, tab: Tabs.reports, tabIcon: "list.bullet.clipboard", tabTitle: "Reports")
+                TabbarButton(selectedTab: $selectedTab, tab: Tabs.category, tabIcon: "rectangle.stack", tabTitle: "Category")
                 TabbarButton(selectedTab: $selectedTab, tab: Tabs.settings, tabIcon: "gear", tabTitle: "Settings")
             }
             .padding(.top)
@@ -59,12 +67,4 @@ struct TabbarButton: View {
         }
         .frame(maxWidth: .infinity)
     }
-}
-
-#Preview {
-    ContentView()
-        .environmentObject(UserViewModel())
-        .environmentObject(CategoryViewModel())
-        .environmentObject(ExpenseViewModel())
-        .onAppear(perform: UIApplication.shared.addTapGestureRecognizer)
 }

@@ -26,12 +26,12 @@ struct ExpenseListView: View {
                 
                 VStack {
                     CategoryIconView(category: category)
-                    CategoryNameView(category: category)
+                    CategoryNameView(category: category, fontColor: .primary)
                 }
 
                 Spacer()
                 
-                AmountTextView(amount: ExpenseListView.calculateTotalExpense(sortedExpenses), font: .title, color: .black)
+                AmountTextView(amount: ExpenseListView.calculateTotalExpense(sortedExpenses), font: .title, color: .primary)
                 
                 Spacer()
             }
@@ -40,20 +40,15 @@ struct ExpenseListView: View {
             List {
                 ForEach(sortedExpenses) { expense in
                     NavigationLink(destination: ExpenseFormView (
-                        amount: String(expense.amount),
-                        category: expense.category,
-                        date: expense.date!,
-                        time: expense.date!,
-                        note: expense.note ?? "",
-                        navTitle: "Edit an expense",
-                        id: expense.id
+                        expense: expense,
+                        navTitle: "Edit an expense"
                     )) {
                         ExpenseListItemView(expense: expense)
                     }
                 }
                 .onDelete(perform: deleteExpenses)
             }
-            .listStyle(.plain)
+            .listStyle(.inset)
         }
         .navigationBarBackButtonHidden(true)
         .environment(\.editMode, $editMode)
@@ -91,17 +86,17 @@ struct ExpenseListView: View {
 private extension ExpenseListView {
     static func sortExpensesByCategoryAndBeforeDate(_ expenses: [Expense], _ category: Category, _ date: Date) -> [Expense] {
         var resultArray: [Expense] = []
-        let calendar = Calendar.current
-        
+        let currentDate = monthAndYearFromDate(date)
         for expense in expenses {
-            let monthAndYearDateComponent = calendar.dateComponents([.month, .year], from: date)
-            let monthAndYearExpenseDateComponent = calendar.dateComponents([.month, .year], from: expense.date!)
-            
-            if expense.category == category && calendar.date(from:monthAndYearExpenseDateComponent)! <= calendar.date(from: monthAndYearDateComponent)! {
+            guard let expenseDateRaw = expense.date,
+                  let expenseDate = monthAndYearFromDate(expenseDateRaw),
+                  let current = currentDate else {
+                continue // skip any expense with nil date or formatting error
+            }
+            if expense.category == category && expenseDate <= current {
                 resultArray.append(expense)
             }
         }
-        
         return resultArray.sorted { $0.date! > $1.date! }
     }
     static func calculateTotalExpense(_ expenses: [Expense]) -> Double {
@@ -137,7 +132,7 @@ struct ExpenseListItemView: View {
             
             Spacer()
             
-            AmountTextView(amount: expense.amount, font: .title3, color: .black)
+            AmountTextView(amount: expense.amount, font: .title3, color: .primary)
         }
     }
 }

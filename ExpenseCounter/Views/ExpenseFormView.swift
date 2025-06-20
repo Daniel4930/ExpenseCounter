@@ -23,13 +23,14 @@ struct ExpenseFormBindings {
 }
 
 struct ExpenseFormView: View {
+    @ObservedObject var expense: Expense
+    
     @State var amount: String
     @State var category: Category?
     @State var date: Date
     @State var time: Date
     @State var note: String
     let navTitle: String
-    let id: UUID?
     
     @State var readyToSubmit: Bool = false
     @State private var showCategoryPopUp = false
@@ -37,6 +38,30 @@ struct ExpenseFormView: View {
     @FocusState var focusedField: ExpenseFormField?
     
     @Environment(\.dismiss) private var dismiss
+    private let coreDataSharedInstance = CoreDataStack.shared
+    
+    init(expense: Expense?, navTitle: String) {
+        if let expense = expense {
+            self.expense = expense
+            self.amount = String(expense.amount)
+            self.category = expense.category
+            self.date = expense.date ?? Date()
+            self.time = extractTimeFromDate(expense.date!) ?? Date()
+            self.note = expense.note ?? ""
+            self.navTitle = navTitle
+            return
+        }
+        let context = coreDataSharedInstance.context
+        let newExpense = Expense(context: context)
+        
+        self.expense = newExpense
+        self.amount = ""
+        self.category = nil
+        self.date = Date()
+        self.time = Date()
+        self.note = ""
+        self.navTitle = navTitle
+    }
     
     var body: some View {
         ScrollView {
@@ -46,7 +71,6 @@ struct ExpenseFormView: View {
                         Text("$")
                         TextField(text: $amount) {
                             Text("Enter an amount")
-                                .foregroundStyle(Color("CustomGrayColor"))
                         }
                         .focused($focusedField, equals: ExpenseFormField.amount)
                         .onChange(of: amount) {newValue in
@@ -56,6 +80,7 @@ struct ExpenseFormView: View {
                             readyToSubmit = ExpenseFormView.validInputsBeforeSubmit(newValue, category)
                         }
                     }
+                    .foregroundStyle(.black)
                     .inputFormModifier()
                     .keyboardType(.decimalPad)
                 }
@@ -91,7 +116,7 @@ struct ExpenseFormView: View {
                         displayedComponents: .date,
                         label: {
                             Text("Select a date")
-                                .foregroundStyle(Color("CustomGrayColor"))
+                                .foregroundStyle(.black)
                         }
                     )
                     .inputFormModifier()
@@ -103,7 +128,7 @@ struct ExpenseFormView: View {
                         displayedComponents: .hourAndMinute,
                         label: {
                             Text("Select a time")
-                                .foregroundStyle(Color("CustomGrayColor"))
+                                .foregroundStyle(.black)
                         }
                     )
                     .inputFormModifier()
@@ -114,13 +139,15 @@ struct ExpenseFormView: View {
                         .focused($focusedField, equals: ExpenseFormField.note)
                         .frame(height: 150)
                         .font(.body)
-                        .foregroundColor(.primary)
-                        .background {
+                        .foregroundColor(.black)
+                        .scrollContentBackground(.hidden)
+                        .background(
                             RoundedRectangle(cornerRadius: 10)
-                        }
+                                .fill(Color.white)
+                        )
                         .overlay(
                             RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.black, lineWidth: 1)
+                                .stroke(Color.primary, lineWidth: 1)
                         )
                 }
                 
@@ -135,7 +162,7 @@ struct ExpenseFormView: View {
             .offset(y: focusedField == ExpenseFormField.note ? -keyboardHeight : 0)
             .addExpenseToolbarModifier(
                 navTitle,
-                id,
+                expense.id,
                 ExpenseFormBindings(
                     focusedField: $focusedField,
                     readyToSubmit: $readyToSubmit,
@@ -144,8 +171,17 @@ struct ExpenseFormView: View {
                     date: $date,
                     time: $time,
                     note: $note,
-                )
+                ),
+                expense
             )
+            .onAppear {
+                amount = String(format: "%.2f", expense.amount)
+                date = expense.date ?? Date()
+                time = extractTimeFromDate(expense.date ?? Date()) ?? Date()
+                note = expense.note ?? ""
+                category = expense.category
+                readyToSubmit = ExpenseFormView.validInputsBeforeSubmit(amount, category)
+            }
         }
         .scrollDismissesKeyboard(.interactively)
         .ignoresSafeArea(.keyboard)

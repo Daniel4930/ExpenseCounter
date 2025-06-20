@@ -41,27 +41,24 @@ struct CategorySpendingView: View {
 private extension CategorySpendingView {
     static func sortExpensesByCategoryAndBeforeDate(_ expenses: [Expense], _ category: Category, _ date: Date) -> [Expense] {
         var resultArray: [Expense] = []
-        let calendar = Calendar.current
-        
+        let currentDate = monthAndYearFromDate(date)
         for expense in expenses {
-            let monthAndYearDateComponent = calendar.dateComponents([.month, .year], from: date)
-            let monthAndYearExpenseDateComponent = calendar.dateComponents([.month, .year], from: expense.date!)
-            
-            if expense.category == category && calendar.date(from:monthAndYearExpenseDateComponent)! <= calendar.date(from: monthAndYearDateComponent)! {
+            guard let expenseDateRaw = expense.date,
+                  let expenseDate = monthAndYearFromDate(expenseDateRaw),
+                  let current = currentDate else {
+                continue // skip any expense with nil date or formatting error
+            }
+            if expense.category == category && expenseDate <= current {
                 resultArray.append(expense)
             }
         }
-        
         return resultArray.sorted { $0.date! > $1.date! }
     }
-    
     static func calculateTotalExpense(_ expenses: [Expense]) -> Double {
         var total: Double = 0
-        
         for expense in expenses {
             total += expense.amount
         }
-        
         return total
     }
 }
@@ -72,52 +69,48 @@ struct CategoryItemView: View {
     let totalSpend: Double
     
     var body: some View {
-        HStack(alignment: .center, spacing: 10) {
-            CategoryIconView(category: category)
-            
-            VStack(alignment: .leading, spacing: 4) {
-                CategoryNameView(category: category)
+        GeometryReader { proxy in
+            HStack(alignment: .center, spacing: 0) {
+                CategoryIconView(category: category)
+                    .frame(width: proxy.size.width * 0.15)
+                    .padding(.trailing, 5)
                 
-                if let expense = firstExpense {
-                    HStack(spacing: 8) {
-                        Text(expense.date?.formatted(.dateTime.day().month()) ?? "Error date")
-                        Divider()
-                            .frame(minWidth: 2)
-                            .frame(maxHeight: 15)
-                            .overlay(.black)
-                        Text(expense.date?.formatted(.dateTime.hour().minute()) ?? "Error time")
-                    }
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(Color("CustomDarkGrayColor"))
-                } else {
-                    Text("No expenses")
+                VStack(alignment: .leading, spacing: 0) {
+                    CategoryNameView(category: category)
+                    
+                    if let expense = firstExpense {
+                        HStack(spacing: 8) {
+                            Text(expense.date?.formatted(.dateTime.day().month()) ?? "Error date")
+                            Divider()
+                                .frame(minWidth: 2)
+                                .frame(maxHeight: 15)
+                                .overlay(.black)
+                            Text(expense.date?.formatted(.dateTime.hour().minute()) ?? "Error time")
+                        }
                         .font(.subheadline)
+                        .fontWeight(.semibold)
                         .foregroundStyle(Color("CustomDarkGrayColor"))
+                    } else {
+                        Text("Jun 15 | 10:00 PM")
+                            .font(.subheadline)
+                            .foregroundStyle(Color("CustomDarkGrayColor"))
+                    }
                 }
+                .frame(width: proxy.size.width * 0.35, alignment: .leading)
+                
+                Spacer()
+                
+                AmountTextView(amount: totalSpend, font: .title3, color: .black)
             }
-            .frame(width: 140, alignment: .leading)
-
-            Spacer()
-            
-            AmountTextView(amount: totalSpend, font: .title3, color: .black)
+            .frame(maxHeight: .infinity)
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color(.white))
+                    .shadow(color: .black.opacity(0.3), radius: 5)
+            )
+            .padding(.horizontal)
         }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(Color(.white))
-                .shadow(color: .black.opacity(0.3), radius: 5)
-        )
-        .padding(.horizontal)
+        .frame(height: 80)
     }
 }
-
-//#Preview {
-//    @State var previewDate = Date()
-//
-//    return CategorySpendingView(date: $previewDate)
-//        .environmentObject(UserViewModel())
-//        .environmentObject(CategoryViewModel())
-//        .environmentObject(ExpenseViewModel())
-//        .onAppear(perform: UIApplication.shared.addTapGestureRecognizer)
-//}

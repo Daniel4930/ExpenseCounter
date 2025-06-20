@@ -10,18 +10,18 @@ import SwiftUI
 
 struct CategoryIconView: View {
     let category: Category
-    
-    var width: CGFloat = 50
-    var height: CGFloat = 50
-    var cornerRadius: CGFloat = 10
-    var shadowOpacity: Double = 0.3
-    var shadowRadius: CGFloat = 5
-    var iconFontSize: CGFloat = 28
+    let width: CGFloat = 50
+    let height: CGFloat = 50
+    let cornerRadius: CGFloat = 10
+    let shadowOpacity: Double = 0.3
+    let shadowRadius: CGFloat = 5
+    let iconFontSize: CGFloat = 28
+    let color: Color = .white
     
     var body: some View {
         Image(systemName: category.icon ?? ErrorCategory.icon)
             .font(.system(size: iconFontSize))
-            .foregroundStyle(.white)
+            .foregroundStyle(color)
             .frame(width: width, height: height)
             .background(
                 RoundedRectangle(cornerRadius: cornerRadius)
