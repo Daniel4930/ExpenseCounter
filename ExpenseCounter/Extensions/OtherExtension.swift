@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SwiftUI
 
 extension UIApplication {
     func addTapGestureRecognizer() {
@@ -22,5 +23,12 @@ extension UIApplication {
         if !(window.gestureRecognizers?.contains(where: { $0 === tapGesture }) ?? false) {
             window.addGestureRecognizer(tapGesture)
         }
+    }
+}
+
+extension View {
+    func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
+                                        to: nil, from: nil, for: nil)
     }
 }

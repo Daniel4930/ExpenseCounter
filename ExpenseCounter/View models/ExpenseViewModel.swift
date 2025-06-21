@@ -15,10 +15,10 @@ class ExpenseViewModel: ObservableObject {
         fetchExpenses()
     }
     
-    private func expenseExists(id: UUID) -> Bool {
+    func expenseExists(id: UUID) -> Bool {
         let fetchRequest: NSFetchRequest<Expense> = Expense.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "id == %@", id as CVarArg)
-        fetchRequest.fetchLimit = 1 // Only need to check existence
+        fetchRequest.fetchLimit = 1
 
         do {
             let count = try coreDateStackInstance.context.count(for: fetchRequest)
@@ -28,20 +28,17 @@ class ExpenseViewModel: ObservableObject {
         }
     }
     
-    private func deleteAllExpenses() {
-        let context = CoreDataStack.shared.context
-        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = Expense.fetchRequest()
-        let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
-
-        do {
-            try context.execute(deleteRequest)
-            try context.save()
-            fetchExpenses()
-        } catch {
-            print("Failed to delete all expenses: \(error.localizedDescription)")
-        }
+    func whereIsMySQLite() {
+        let path = FileManager
+            .default
+            .urls(for: .applicationSupportDirectory, in: .userDomainMask)
+            .last?
+            .absoluteString
+            .replacingOccurrences(of: "file://", with: "")
+            .removingPercentEncoding
+        
+        print(path ?? "Not found")
     }
-
     
     func fetchExpenses() {
         let request = NSFetchRequest<Expense>(entityName: "Expense")
@@ -53,19 +50,20 @@ class ExpenseViewModel: ObservableObject {
         }
     }
     
-    func addExpense(_ expense: Expense, _ amount: String, _ category: Category, date: Date, time: Date, _ note: String?) {
+    func addExpense( _ title: String?, _ amount: String, _ category: Category, date: Date) {
         guard let amountValue = Double(amount) else {
             fatalError("Cannot convert amount '\(amount)' to Double.")
         }
+        let expense = Expense(context: coreDateStackInstance.context)
         expense.id = UUID()
         expense.amount = amountValue
         expense.category = category
         
-        let date = mergeDateAndTime(date, time)
+        let date = getDateAndTime(date)
         expense.date = date
         
-        if let note = note {
-            expense.note = note
+        if let currentTitle = title, currentTitle != "" {
+            expense.title = currentTitle
         }
         coreDateStackInstance.save()
         fetchExpenses()
@@ -77,7 +75,7 @@ class ExpenseViewModel: ObservableObject {
         fetchExpenses()
     }
     
-    func updateExpense(_ id: UUID, _ newAmount: String, _ newNote: String?, _ date: Date, _ time: Date, _ category: Category) {
+    func updateExpense(_ id: UUID, _ newTitle: String?, _ newAmount: String, _ category: Category, _ date: Date) {
         guard let amountValue = Double(newAmount) else {
             fatalError("Cannot convert amount '\(newAmount)' to Double.")
         }
@@ -90,16 +88,10 @@ class ExpenseViewModel: ObservableObject {
             if let existingExpense = try coreDateStackInstance.context.fetch(fetchRequest).first {
                 existingExpense.amount = amountValue
                 existingExpense.category = category
+                existingExpense.date =  getDateAndTime(date)
                 
-                let calendar = Calendar.current
-                var dateComponents = calendar.dateComponents([.year, .month, .day], from: date)
-                let timeComponents = calendar.dateComponents([.hour, .minute], from: time)
-                dateComponents.hour = timeComponents.hour
-                dateComponents.minute = timeComponents.minute
-                existingExpense.date =  calendar.date(from: dateComponents)
-                
-                if let note = newNote {
-                    existingExpense.note = note
+                if let title = newTitle, title != "" {
+                    existingExpense.title = title
                 }
                 coreDateStackInstance.save()
                 fetchExpenses()

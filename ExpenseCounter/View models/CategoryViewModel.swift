@@ -32,18 +32,18 @@ class CategoryViewModel: ObservableObject {
     }
     
     //Don't call this in production code
-    private func deleteAllCategories() {
-        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = Category.fetchRequest()
-        let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
-
-        do {
-            try coreDataSharedInstance.context.execute(batchDeleteRequest)
-            try coreDataSharedInstance.context.save()
-            fetchCategories() // refresh the local categories array if needed
-        } catch {
-            print("Failed to delete all categories: \(error)")
-        }
-    }
+//    private func deleteAllCategories() {
+//        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = Category.fetchRequest()
+//        let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+//
+//        do {
+//            try coreDataSharedInstance.context.execute(batchDeleteRequest)
+//            try coreDataSharedInstance.context.save()
+//            fetchCategories() // refresh the local categories array if needed
+//        } catch {
+//            print("Failed to delete all categories: \(error)")
+//        }
+//    }
     
     func fetchCategories() {
         let request = NSFetchRequest<Category>(entityName: "Category")

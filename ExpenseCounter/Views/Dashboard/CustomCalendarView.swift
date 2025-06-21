@@ -55,7 +55,7 @@ struct CurrentDateView: View {
                 Image(systemName: "chevron.right")
             })
         }
-        .font(.title2)
+        .font(AppFont.customFont(.title2))
     }
 }
 private extension CurrentDateView {
@@ -87,6 +87,7 @@ struct MonthGridView: View {
                 let isSelected = MonthGridView.sameMonthAndYear(selectedDate, monthDate)
                 
                 Text(months[index])
+                    .font(AppFont.customFont(.subheadline))
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 10)
                     .clipShape(RoundedRectangle(cornerRadius: 20))

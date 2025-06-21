@@ -35,16 +35,14 @@ struct TotalSpendingView: View {
     private var spendingSummary: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("Spends")
-                .font(.title2)
-                .fontWeight(.semibold)
+                .font(AppFont.customFont(font: .semibold, .title2))
 
             HStack(spacing: 3) {
-                Text("$")
+                Text(Locale.current.currencySymbol ?? "$")
                 Text(totalSpending.formatted(.number.precision(.fractionLength(0...2))))
                     .foregroundStyle(Color("CustomGreenColor"))
             }
-            .font(.title)
-            .fontWeight(.bold)
+            .font(AppFont.customFont(font: .bold, .title))
         }
         .foregroundStyle(Color("CustomDarkGrayColor"))
     }
@@ -60,16 +58,17 @@ struct TotalSpendingView: View {
     private var safeToSpendSection: some View {
         VStack(alignment: .center, spacing: 0) {
             Text("Safe to spend")
-                .font(.body)
-                .fontWeight(.semibold)
+                .font(AppFont.customFont(font: .semibold, .body))
                 .foregroundStyle(Color("CustomDarkGrayColor"))
                 .padding(.bottom, 5)
-
-            Button("Set Budget", action: {
+            Button {
                 // Action here
-            })
+            } label: {
+                Text("Set Budget")
+            }
             .buttonStyle(.borderedProminent)
             .tint(Color("CustomGreenColor"))
         }
+        .font(AppFont.customFont(.body))
     }
 }

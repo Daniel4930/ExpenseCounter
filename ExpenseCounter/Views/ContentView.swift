@@ -26,7 +26,7 @@ struct ContentView: View {
                 case .settings:
                     Text("Settings")
                 case .reports:
-                    Text("Report")
+                    ReportView()
                 case .category:
                     Text("Category")
                 }
@@ -34,14 +34,24 @@ struct ContentView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             
             HStack {
-                TabbarButton(selectedTab: $selectedTab, tab: Tabs.dashboard, tabIcon: "house", tabTitle: "Dashboard")
+                Spacer()
+                TabbarButton(selectedTab: $selectedTab, tab: Tabs.dashboard, tabIcon: "house", tabTitle: "Home")
                 TabbarButton(selectedTab: $selectedTab, tab: Tabs.reports, tabIcon: "list.bullet.clipboard", tabTitle: "Reports")
                 TabbarButton(selectedTab: $selectedTab, tab: Tabs.category, tabIcon: "rectangle.stack", tabTitle: "Category")
                 TabbarButton(selectedTab: $selectedTab, tab: Tabs.settings, tabIcon: "gear", tabTitle: "Settings")
+                Spacer()
             }
             .padding(.top)
-            .background(Color(.systemGray6))
+            .background(.white)
+            .overlay (
+                Rectangle()
+                    .frame(height: 1)
+                    .foregroundStyle(Color("CustomDarkGrayColor")),
+                alignment: .top
+            )
         }
+        .font(AppFont.customFont())
+        .background(Color("CustomGrayColor"))
         .ignoresSafeArea(.keyboard, edges: .bottom)
     }
 }
@@ -61,6 +71,7 @@ struct TabbarButton: View {
                     Image(systemName: tabIcon)
                         .foregroundStyle(selectedTab == tab ? Color("CustomGreenColor") : Color("CustomGrayColor"))
                     Text(tabTitle)
+                        .font(AppFont.customFont(.subheadline))
                         .foregroundStyle(selectedTab == tab ? Color("CustomGreenColor") : Color("CustomGrayColor"))
                 }
             }
@@ -68,3 +79,10 @@ struct TabbarButton: View {
         .frame(maxWidth: .infinity)
     }
 }
+
+//#Preview {
+//    ContentView()
+//        .environmentObject(UserViewModel())
+//        .environmentObject(ExpenseViewModel())
+//        .environmentObject(CategoryViewModel())
+//}

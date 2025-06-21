@@ -46,7 +46,7 @@ private extension CategorySpendingView {
             guard let expenseDateRaw = expense.date,
                   let expenseDate = monthAndYearFromDate(expenseDateRaw),
                   let current = currentDate else {
-                continue // skip any expense with nil date or formatting error
+                continue
             }
             if expense.category == category && expenseDate <= current {
                 resultArray.append(expense)
@@ -76,7 +76,7 @@ struct CategoryItemView: View {
                     .padding(.trailing, 5)
                 
                 VStack(alignment: .leading, spacing: 0) {
-                    CategoryNameView(category: category)
+                    CategoryNameView(name: category.name ?? "No name")
                     
                     if let expense = firstExpense {
                         HStack(spacing: 8) {
@@ -87,12 +87,11 @@ struct CategoryItemView: View {
                                 .overlay(.black)
                             Text(expense.date?.formatted(.dateTime.hour().minute()) ?? "Error time")
                         }
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
+                        .font(AppFont.customFont(font: .semibold ,.subheadline))
                         .foregroundStyle(Color("CustomDarkGrayColor"))
                     } else {
-                        Text("Jun 15 | 10:00 PM")
-                            .font(.subheadline)
+                        Text("No date available")
+                            .font(AppFont.customFont(.subheadline))
                             .foregroundStyle(Color("CustomDarkGrayColor"))
                     }
                 }
@@ -100,7 +99,7 @@ struct CategoryItemView: View {
                 
                 Spacer()
                 
-                AmountTextView(amount: totalSpend, font: .title3, color: .black)
+                AmountTextView(amount: totalSpend, fontSize: .title3, color: .black)
             }
             .frame(maxHeight: .infinity)
             .padding()

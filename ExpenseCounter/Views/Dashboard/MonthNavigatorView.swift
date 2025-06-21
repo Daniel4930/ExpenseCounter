@@ -20,7 +20,6 @@ struct MonthNavigatorView: View {
                 }
             }, label: {
                 Image(systemName: "chevron.left")
-                    .font(.title2)
                     .foregroundStyle(.white)
             })
             
@@ -28,7 +27,6 @@ struct MonthNavigatorView: View {
                 showCalendar.toggle()
             }) {
                 Text(date.formatted(.dateTime.month().year()))
-                    .font(.title2)
                     .foregroundStyle(.white)
             }
             .sheet(isPresented: $showCalendar) {
@@ -47,7 +45,6 @@ struct MonthNavigatorView: View {
                 }
             }, label: {
                 Image(systemName: "chevron.right")
-                    .font(.title2)
                     .foregroundStyle(monthIncreaseDisabled ? .gray : .white)
                     .onAppear {
                         if let newDate = incrementMonth(date: date) {
@@ -62,6 +59,7 @@ struct MonthNavigatorView: View {
             })
             .disabled(monthIncreaseDisabled)
         }
+        .font(AppFont.customFont(.title2))
         .padding([.top, .bottom], 10)
     }
 }

@@ -99,17 +99,13 @@ struct Header: View {
                     Text("\(user.firstName ?? "User")")
                     Text("\(user.lastName ?? "")")
                 }
-                .font(.title3)
-                .fontWeight(.bold)
+                .font(AppFont.customFont(font: .bold, .title3))
                 .foregroundStyle(.white)
             }
             
             Spacer()
         
-            NavigationLink(destination: ExpenseFormView (
-                expense: nil,
-                navTitle: "Add an expense"
-            )) {
+            NavigationLink(destination: ExpenseFormView(navTitle: "Add an expense", id: nil, isEditMode: false)) {
                 Image(systemName: "plus")
                     .resizable()
                     .scaledToFit()
@@ -124,14 +120,10 @@ struct Header: View {
 struct SpendFootnoteView: View {
     var body: some View {
         HStack(spacing: 0) {
-            VStack(alignment: .leading) {
-                Text("Spends")
-                    .foregroundStyle(Color("CustomGreenColor"))
-                Text("Today")
-            }
-            .font(.title3)
-            .fontWeight(.bold)
-            .padding(.leading, 30)
+            Text("Spends")
+                .foregroundStyle(Color("CustomGreenColor"))
+                .font(AppFont.customFont(font: .bold, .title3))
+                .padding(.leading, 30)
             
             Spacer()
             
@@ -146,6 +138,7 @@ struct SpendFootnoteView: View {
             .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 4)
             .padding(.trailing, 15)
         }
+        .font(AppFont.customFont(.title3))
         .padding(.bottom)
         .padding(.top)
     }

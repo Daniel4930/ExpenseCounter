@@ -39,13 +39,7 @@ struct CategoryGridItemView: View {
         }, label: {
             VStack {
                 CategoryIconView(category: category)
-
-                CategoryNameView(
-                    category: category,
-                    fontColor: .primary,
-                    font: .body,
-                    fontWeight: .regular
-                )
+                CategoryNameView(name: category.name ?? "No name", fontColor: .primary, font: .regular, fontSize: .body)
             }
             .padding()
             .overlay {

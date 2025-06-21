@@ -10,7 +10,15 @@ import Foundation
 func monthAndYearFromDate(_ date: Date) -> Date? {
     let calendar = Calendar.current
     
-    let monthAndYearComponent = calendar.dateComponents([.month, .year], from: date)
+    let monthAndYearComponent = calendar.dateComponents([.year, .month], from: date)
+    
+    return calendar.date(from: monthAndYearComponent)
+}
+
+func dayMonthYearFromDate(_ date: Date) -> Date? {
+    let calendar = Calendar.current
+    
+    let monthAndYearComponent = calendar.dateComponents([.year, .month, .day], from: date)
     
     return calendar.date(from: monthAndYearComponent)
 }
@@ -23,14 +31,10 @@ func extractTimeFromDate(_ date: Date) -> Date? {
     return calendar.date(from: hourAndMinuteComponent)
 }
 
-func mergeDateAndTime(_ date: Date, _ time: Date) -> Date? {
+func getDateAndTime(_ date: Date) -> Date? {
     let calendar = Calendar.current
 
-    var dateComponents = calendar.dateComponents([.year, .month, .day], from: date)
-    let timeComponents = calendar.dateComponents([.hour, .minute], from: time)
-    
-    dateComponents.hour = timeComponents.hour
-    dateComponents.minute = timeComponents.minute
+    let dateComponents = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: date)
 
     return calendar.date(from: dateComponents)
 }

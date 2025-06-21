@@ -20,20 +20,6 @@ extension View {
     func keyboardHeight(_ state: Binding<CGFloat>) -> some View {
         self.modifier(KeyboardProvider(keyboardHeight: state))
     }
-    
-    func addExpenseToolbarModifier(
-        _ navTitle: String,
-        _ id: UUID?,
-        _ bindings: ExpenseFormBindings,
-        _ expenseContext: Expense
-    ) -> some View {
-        self.modifier(AddExpenseToolbarModifier(
-            navTitle: navTitle,
-            id: id,
-            binding: bindings,
-            expenseContext: expenseContext
-        ))
-    }
 }
 
 struct MonthOverlayModifier: ViewModifier {
@@ -66,10 +52,6 @@ struct InputFormModifier: ViewModifier {
                 RoundedRectangle(cornerRadius: 10)
                     .fill(Color.white)
             )
-            .overlay(
-                RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color.black, lineWidth: 1)
-            )
             .shadow(color: .black.opacity(0.2), radius: 5, x: 0, y: 5)
     }
 }
@@ -90,111 +72,5 @@ struct KeyboardProvider: ViewModifier {
                          perform: { _ in
                 self.keyboardHeight.wrappedValue = 0
             })
-    }
-}
-
-struct AddExpenseToolbarModifier: ViewModifier {
-    let navTitle: String
-    let id: UUID?
-    var binding: ExpenseFormBindings
-    let expenseContext: Expense
-    
-    @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject var expenseViewModel: ExpenseViewModel
-
-    func body(content: Content) -> some View {
-        content
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button(action: {
-                        dismiss()
-                    }) {
-                        HStack {
-                            Image(systemName: "chevron.left")
-                            Text("Back")
-                        }
-                        .foregroundColor(.white)
-                    }
-                }
-                
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(action: {
-                        if let id = id {
-                            expenseViewModel.updateExpense(
-                                id,
-                                binding.amount.wrappedValue,
-                                binding.note.wrappedValue,
-                                binding.date.wrappedValue,
-                                binding.time.wrappedValue,
-                                binding.category.wrappedValue!
-                            )
-                        } else {
-                            expenseViewModel.addExpense(
-                                expenseContext,
-                                binding.amount.wrappedValue,
-                                binding.category.wrappedValue!,
-                                date: binding.date.wrappedValue,
-                                time: binding.time.wrappedValue,
-                                binding.note.wrappedValue
-                            )
-                        }
-                        dismiss()
-                    }, label: {
-                        Text("Submit")
-                            .foregroundColor(binding.readyToSubmit.wrappedValue ? .white : Color("CustomGrayColor"))
-                    })
-                    .disabled(!binding.readyToSubmit.wrappedValue)
-                }
-                
-                ToolbarItem(placement: .principal) {
-                    Text(navTitle)
-                        .foregroundColor(.white)
-                        .font(.title2)
-                }
-                ToolbarItemGroup(placement: .keyboard) {
-                    Button {
-                        binding.focusedField.wrappedValue = AddExpenseToolbarModifier.switchFocusedState(field: binding.focusedField.wrappedValue, direction: 1)
-                    } label: {
-                        Image(systemName: "chevron.up")
-                    }
-
-                    Button {
-                        binding.focusedField.wrappedValue = AddExpenseToolbarModifier.switchFocusedState(field: binding.focusedField.wrappedValue, direction: -1)
-                    } label: {
-                        Image(systemName: "chevron.down")
-                    }
-
-                    Spacer()
-
-                    Button("Done") {
-                        binding.focusedField.wrappedValue = nil
-                    }
-                }
-            }
-    }
-}
-
-private extension AddExpenseToolbarModifier {
-    static func switchFocusedState(field: ExpenseFormField?, direction: Int) -> ExpenseFormField? {
-        guard let field else { return nil }
-        
-        let allCases = ExpenseFormField.allCases
-        
-        guard var index = allCases.firstIndex(of: field) else { return nil }
-        
-        if direction == 1 {
-            index -= 1
-        } else {
-            index += 1
-        }
-        
-        let size = allCases.count
-        if index < 0 {
-            index = size - 1
-        } else if index >= size {
-            index = 0
-        }
-        
-        return allCases[index]
     }
 }

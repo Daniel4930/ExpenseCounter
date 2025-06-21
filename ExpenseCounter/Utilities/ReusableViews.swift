@@ -8,6 +8,34 @@
 import Foundation
 import SwiftUI
 
+enum FontSize: CGFloat {
+    case largeTitle = 34
+    case title = 28
+    case title2 = 22
+    case title3 = 20
+    case title4 = 19
+    case body = 17
+    case callout = 16
+    case subheadline = 15
+    case footnote = 13
+    case caption = 12
+    case caption2 = 11
+}
+
+enum CustomFont: String {
+    case regular = "OpenSans-Regular"
+    case bold = "OpenSans-Bold"
+    case semibold = "OpenSans-Semibold"
+}
+
+struct AppFont {
+    static let font: CustomFont = .regular
+    
+    static func customFont(font: CustomFont = .regular, _ size: FontSize = .body) -> Font {
+        .custom(font.rawValue, size: size.rawValue)
+    }
+}
+
 struct CategoryIconView: View {
     let category: Category
     let width: CGFloat = 50
@@ -15,12 +43,12 @@ struct CategoryIconView: View {
     let cornerRadius: CGFloat = 10
     let shadowOpacity: Double = 0.3
     let shadowRadius: CGFloat = 5
-    let iconFontSize: CGFloat = 28
+    let fontSize = FontSize.title
     let color: Color = .white
     
     var body: some View {
         Image(systemName: category.icon ?? ErrorCategory.icon)
-            .font(.system(size: iconFontSize))
+            .font(AppFont.customFont(fontSize))
             .foregroundStyle(color)
             .frame(width: width, height: height)
             .background(
@@ -36,32 +64,46 @@ struct CategoryIconView: View {
 }
 
 struct CategoryNameView: View {
-    let category: Category
-    var fontColor: Color = .black
-    var font: Font = .title3
-    var fontWeight: Font.Weight = .bold
+    let name: String
+    let fontColor: Color
+    let font: CustomFont
+    let fontSize: FontSize
+    
+    // Custom initializer with defaults
+    init(name: String, fontColor: Color = .black, font: CustomFont = .bold, fontSize: FontSize = .title3) {
+        self.name = name
+        self.fontColor = fontColor
+        self.font = font
+        self.fontSize = fontSize
+    }
 
     var body: some View {
-        Text(category.name ?? ErrorCategory.name)
+        Text(name)
+            .font(AppFont.customFont(font: font, fontSize))
             .foregroundStyle(fontColor)
-            .font(font)
-            .fontWeight(fontWeight)
     }
 }
 
 struct AmountTextView: View {
     let amount: Double
-    let font: Font
+    let fontSize: FontSize
     let color: Color
+    let font: CustomFont
+    
+    init(amount: Double, fontSize: FontSize, color: Color, font: CustomFont = .bold) {
+        self.amount = amount
+        self.fontSize = fontSize
+        self.color = color
+        self.font = font
+    }
 
     var body: some View {
         HStack(spacing: 0) {
-            Text("$")
+            Text("\(Locale.current.currencySymbol ?? "$")")
                 .padding(.trailing, 4)
-            Text("\(amount, specifier: "%.2f")")
+            Text(String(format: "%.2f", amount))
         }
+        .font(AppFont.customFont(font: font, fontSize))
         .foregroundStyle(color)
-        .font(font)
-        .bold()
     }
 }
