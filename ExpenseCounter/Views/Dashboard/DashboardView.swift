@@ -39,7 +39,7 @@ struct DashboardView: View {
                 .clipShape(BottomRoundedRectangle(radius: 15))
                 .shadow(color: .black, radius: 1)
                 
-                SpendFootnoteView()
+                SpendFootnoteView(date: date)
                 
                 ScrollView {
                     CategorySpendingView(date: $date)
@@ -118,6 +118,8 @@ struct Header: View {
 }
 
 struct SpendFootnoteView: View {
+    let date: Date
+    
     var body: some View {
         HStack(spacing: 0) {
             Text("Spends")
@@ -127,12 +129,10 @@ struct SpendFootnoteView: View {
             
             Spacer()
             
-            Button(action: {
-                
-            }, label: {
+            NavigationLink(destination: AllExpensesView(date: date)) {
                 Text("View all")
                     .padding([.leading, .trailing], 5)
-            })
+            }
             .buttonStyle(.borderedProminent)
             .tint(Color("CustomGreenColor"))
             .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 4)

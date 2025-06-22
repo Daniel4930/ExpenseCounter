@@ -37,7 +37,8 @@ struct AppFont {
 }
 
 struct CategoryIconView: View {
-    let category: Category
+    let categoryIcon: String
+    let categoryHexColor: String
     let width: CGFloat = 50
     let height: CGFloat = 50
     let cornerRadius: CGFloat = 10
@@ -47,15 +48,15 @@ struct CategoryIconView: View {
     let color: Color = .white
     
     var body: some View {
-        Image(systemName: category.icon ?? ErrorCategory.icon)
+        Image(systemName: categoryIcon)
             .font(AppFont.customFont(fontSize))
             .foregroundStyle(color)
             .frame(width: width, height: height)
             .background(
                 RoundedRectangle(cornerRadius: cornerRadius)
-                    .fill(Color(hex: category.colorHex ?? ErrorCategory.colorHex))
+                    .fill(Color(hex: categoryHexColor))
                     .shadow(
-                        color: Color(hex: category.colorHex ?? ErrorCategory.colorHex)
+                        color: Color(hex: categoryHexColor)
                             .opacity(shadowOpacity),
                         radius: shadowRadius
                     )
@@ -99,11 +100,20 @@ struct AmountTextView: View {
 
     var body: some View {
         HStack(spacing: 0) {
-            Text("\(Locale.current.currencySymbol ?? "$")")
-                .padding(.trailing, 4)
-            Text(String(format: "%.2f", amount))
+            Text(String(format: "\(Locale.current.currencySymbol ?? "$")%.2f", amount))
         }
         .font(AppFont.customFont(font: font, fontSize))
         .foregroundStyle(color)
+    }
+}
+
+struct NoExpenseFoundView: View {
+    var body: some View {
+        HStack {
+            Image(systemName: "magnifyingglass")
+            Text("No expenses found...")
+        }
+        .font(AppFont.customFont(font: .bold, .title2))
+        .padding(.top)
     }
 }

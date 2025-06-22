@@ -19,72 +19,54 @@ struct ExpenseListView: View {
     
     var sortedExpenses: [Expense] {
         let filtered = sortExpensesByCategoryAndBeforeDate(expenseViewModel.expenses, category, date)
-        return isAscending ? filtered.sorted { $0.date! < $1.date! } : filtered.sorted { $0.date! > $1.date! }
+        return isAscending ? filtered.reversed() : filtered
     }
-
+    private var leadingBackButton: some ToolbarContent {
+        ToolbarItem(placement: .topBarLeading) {
+            Button(action: { dismiss() }) {
+                HStack {
+                    Image(systemName: "chevron.left")
+                    Text("Back")
+                }
+                .foregroundColor(.white)
+            }
+        }
+    }
+    private var centerTitle: some ToolbarContent {
+        ToolbarItem(placement: .principal) {
+            Text(date.formatted(.dateTime.month(.wide).year()))
+                .foregroundColor(.white)
+                .font(AppFont.customFont(.title2))
+        }
+    }
+    private var trailingDeleteButton: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            Button(action: {
+                editMode = (editMode == .active) ? .inactive : .active
+            }) {
+                Text(editMode == .active ? "Done" : "Delete")
+                    .foregroundColor(.white)
+            }
+        }
+    }
     var body: some View {
         VStack(alignment: .center) {
-            HStack(alignment: .center) {
-                Spacer()
-                
-                VStack {
-                    CategoryIconView(category: category)
-                    CategoryNameView(name: category.name ?? "No name", fontColor: .primary)
-                }
-
-                Spacer()
-                
-                AmountTextView(amount: calculateTotalExpense(sortedExpenses), fontSize: .title, color: .primary)
-                
-                Spacer()
-            }
+            ExpenseHeader(category: category, totalExpense: {
+                calculateTotalExpense(sortedExpenses)
+            })
             .padding(.top)
             
-            HStack {
-                HStack {
-                    TextField("Search for a title", text: $searchText)
-                    Spacer()
-                    Button {
-                        searchText = ""
-                    } label: {
-                        Image(systemName: "xmark")
-                            .foregroundColor(.black)
-                    }
-                }
-                .padding(5)
-                .background(
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(Color.white)
-                        .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5)
-                )
-                Button(action: {
-                    hideKeyboard()
-                }, label: {
-                    Image(systemName: "magnifyingglass")
-                })
-                
-                Spacer()
-                
-                Button(action: {
-                    isAscending.toggle()
-                }, label: {
-                    Image(systemName: "arrow.up")
-                })
-            }
-            .padding(.horizontal)
+            ExpenseSearchAndSortBarView(searchText: $searchText, isAscending: $isAscending)
+                .padding(.horizontal)
             
             let filteredExpenses: [Expense] = filterExpense()
             if filteredExpenses.isEmpty {
-                HStack {
-                    Image(systemName: "magnifyingglass")
-                    Text("No expenses found...")
-                }
-                .font(AppFont.customFont(font: .bold, .title2))
-                .padding(.top)
+                NoExpenseFoundView()
+                
                 Spacer()
+                
             } else {
                 List {
-                    let filteredExpenses: [Expense] = filterExpense()
                     let groupedExpenses = groupExpensesByDay(filteredExpenses).sorted(by: { isAscending ? $0.key < $1.key : $0.key > $1.key })
                     ForEach(groupedExpenses, id: \.key) { (date, expensesForDate) in
                         Section {
@@ -113,30 +95,9 @@ struct ExpenseListView: View {
         .toolbarBackground(Color("CustomGreenColor"), for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button(action: {
-                    dismiss()
-                }) {
-                    HStack {
-                        Image(systemName: "chevron.left")
-                        Text("Back")
-                    }
-                    .foregroundColor(.white)
-                }
-            }
-            ToolbarItem(placement: .principal) {
-                Text(date.formatted(.dateTime.month(.wide).year()))
-                    .foregroundColor(.white)
-                    .font(AppFont.customFont(.title2))
-            }
-            ToolbarItem(placement: .topBarTrailing) {
-                Button(action: {
-                    editMode = (editMode == .active) ? .inactive : .active
-                }) {
-                    Text(editMode == .active ? "Done" : "Delete")
-                        .foregroundColor(.white)
-                }
-            }
+            leadingBackButton
+            centerTitle
+            trailingDeleteButton
         }
     }
 }
@@ -183,28 +144,47 @@ private extension ExpenseListView {
     }
 }
 
+struct ExpenseHeader: View {
+    let category: Category
+    let totalExpense: () -> Double
+    
+    var body: some View {
+        HStack(alignment: .center) {
+            Spacer()
+            VStack {
+                CategoryIconView(categoryIcon: category.icon ?? ErrorCategory.colorHex, categoryHexColor: category.colorHex ?? ErrorCategory.colorHex)
+                CategoryNameView(name: category.name ?? "No name", fontColor: .primary)
+            }
+            Spacer()
+            AmountTextView(amount: totalExpense(), fontSize: .title, color: .primary)
+            Spacer()
+        }
+    }
+}
+
 struct ExpenseListItemView: View {
     @ObservedObject var expense: Expense
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            if let title = expense.title {
-                Text(title)
-                    .font(AppFont.customFont(font: .bold))
-                    .padding(.bottom)
-            }
-            
             HStack {
-                HStack {
-                    Image(systemName: "clock")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 15, height: 15)
-                    if let date = expense.date {
-                        let hourMinute = date.formatted(.dateTime.hour().minute())
-                        Text("\(hourMinute)")
-                    } else {
-                        Text("Date unavailable")
+                VStack(alignment: .leading) {
+                    if let title = expense.title {
+                        Text(title)
+                            .font(AppFont.customFont(font: .bold))
+                            .padding(.bottom)
+                    }
+                    HStack {
+                        Image(systemName: "clock")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 15, height: 15)
+                        if let date = expense.date {
+                            let hourMinute = date.formatted(.dateTime.hour().minute())
+                            Text("\(hourMinute)")
+                        } else {
+                            Text("Date unavailable")
+                        }
                     }
                 }
                 Spacer()

@@ -5,9 +5,10 @@
 //  Created by Daniel Le on 6/15/25.
 //
 
+import SwiftUICore
+
 
 //Convert hex(string) to color
-import SwiftUI
 
 extension Color {
     init(hex: String) {

@@ -71,7 +71,7 @@ struct CategoryItemView: View {
     var body: some View {
         GeometryReader { proxy in
             HStack(alignment: .center, spacing: 0) {
-                CategoryIconView(category: category)
+                CategoryIconView(categoryIcon: category.icon ?? ErrorCategory.icon, categoryHexColor: category.colorHex ?? ErrorCategory.colorHex)
                     .frame(width: proxy.size.width * 0.15)
                     .padding(.trailing, 5)
                 

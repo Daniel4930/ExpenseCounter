@@ -38,7 +38,7 @@ struct CategoryGridItemView: View {
             dismiss()
         }, label: {
             VStack {
-                CategoryIconView(category: category)
+                CategoryIconView(categoryIcon: category.icon ?? ErrorCategory.icon, categoryHexColor: category.colorHex ?? ErrorCategory.colorHex)
                 CategoryNameView(name: category.name ?? "No name", fontColor: .primary, font: .regular, fontSize: .body)
             }
             .padding()
