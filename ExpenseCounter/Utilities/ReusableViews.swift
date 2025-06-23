@@ -8,6 +8,11 @@
 import Foundation
 import SwiftUI
 
+enum DateKey: Hashable {
+    case known(Date)
+    case unknown
+}
+
 enum FontSize: CGFloat {
     case largeTitle = 34
     case title = 28
@@ -38,6 +43,7 @@ struct AppFont {
 
 struct CategoryIconView: View {
     let categoryIcon: String
+    let isDefault: Bool
     let categoryHexColor: String
     let width: CGFloat = 50
     let height: CGFloat = 50
@@ -47,8 +53,17 @@ struct CategoryIconView: View {
     let fontSize = FontSize.title
     let color: Color = .white
     
+    @ViewBuilder
+    var icon: some View {
+        if isDefault {
+            Image(systemName: categoryIcon)
+        } else {
+            Text(categoryIcon)
+        }
+    }
+    
     var body: some View {
-        Image(systemName: categoryIcon)
+        icon
             .font(AppFont.customFont(fontSize))
             .foregroundStyle(color)
             .frame(width: width, height: height)
@@ -117,3 +132,4 @@ struct NoExpenseFoundView: View {
         .padding(.top)
     }
 }
+

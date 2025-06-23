@@ -152,8 +152,12 @@ struct ExpenseHeader: View {
         HStack(alignment: .center) {
             Spacer()
             VStack {
-                CategoryIconView(categoryIcon: category.icon ?? ErrorCategory.colorHex, categoryHexColor: category.colorHex ?? ErrorCategory.colorHex)
-                CategoryNameView(name: category.name ?? "No name", fontColor: .primary)
+                CategoryIconView(
+                    categoryIcon: category.icon ?? ErrorCategory.icon,
+                    isDefault: category.defaultCategory,
+                    categoryHexColor: category.colorHex ?? ErrorCategory.colorHex
+                )
+                CategoryNameView(name: category.name ?? ErrorCategory.name, fontColor: .primary)
             }
             Spacer()
             AmountTextView(amount: totalExpense(), fontSize: .title, color: .primary)

@@ -5,7 +5,7 @@
 //  Created by Daniel Le on 6/15/25.
 //
 import Foundation
-import SwiftUICore
+import SwiftUICore  
 
 struct BottomRoundedRectangle: Shape {
     var radius: CGFloat = 20

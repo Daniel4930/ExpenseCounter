@@ -38,8 +38,12 @@ struct CategoryGridItemView: View {
             dismiss()
         }, label: {
             VStack {
-                CategoryIconView(categoryIcon: category.icon ?? ErrorCategory.icon, categoryHexColor: category.colorHex ?? ErrorCategory.colorHex)
-                CategoryNameView(name: category.name ?? "No name", fontColor: .primary, font: .regular, fontSize: .body)
+                CategoryIconView(
+                    categoryIcon: category.icon ?? ErrorCategory.icon,
+                    isDefault: category.defaultCategory,
+                    categoryHexColor: category.colorHex ?? ErrorCategory.colorHex
+                )
+                CategoryNameView(name: category.name ?? ErrorCategory.name, fontColor: .primary, font: .regular, fontSize: .body)
             }
             .padding()
             .overlay {

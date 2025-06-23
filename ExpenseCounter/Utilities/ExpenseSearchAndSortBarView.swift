@@ -10,6 +10,7 @@ import SwiftUI
 struct ExpenseSearchAndSortBarView: View {
     @Binding var searchText: String
     @Binding var isAscending: Bool
+    @State private var showPopOver = false
     
     var body: some View {
         HStack {
@@ -46,9 +47,13 @@ struct ExpenseSearchAndSortBarView: View {
             
             Button(action: {
                 isAscending.toggle()
+                showPopOver.toggle()
             }, label: {
-                Image(systemName: "arrow.up")
+                Image(systemName: "arrow.up.arrow.down")
             })
+            .popover(isPresented: $showPopOver, attachmentAnchor: .point(.center), arrowEdge: .bottom) {
+                Text("Hello world")
+            }
         }
     }
 }

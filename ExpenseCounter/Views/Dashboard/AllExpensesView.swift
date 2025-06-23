@@ -14,7 +14,6 @@ struct AllExpensesView: View {
     @State private var searchText = ""
     @State private var isAscending = false
     @State private var editMode = false
-    @State private var selectedExpense: Expense? = nil
     @EnvironmentObject var expenseViewModel: ExpenseViewModel
     @Environment(\.dismiss) var dismiss
     
@@ -46,10 +45,8 @@ struct AllExpensesView: View {
             }
         }
     }
-    
     var sortedExpenses: [Expense] {
-        let sorted = sortExpensesByDate(expenseViewModel.expenses)
-        return isAscending ? sorted.reversed() : sorted
+        sortExpensesByDate(expenseViewModel.expenses)
     }
 
     var body: some View {
@@ -61,53 +58,66 @@ struct AllExpensesView: View {
                 .padding(.horizontal)
             
             let filteredExpenses = filterExpense()
+            let groupExpenses = groupExpensesByDate(filteredExpenses)
             if filteredExpenses.isEmpty {
                 NoExpenseFoundView()
                     .frame(maxWidth: .infinity, alignment: .center)
                 Spacer()
             } else {
                 ScrollView {
-                    ForEach(filteredExpenses) { expense in
-                        let category = expense.category ?? nil
+                    let sortedGroupExpenses = sortGroupExpenses(groupExpenses)
+                    ForEach(sortedGroupExpenses, id: \.key) {date, expenses in
                         
-                        GeometryReader { proxy in
-                            CustomSwipeView(
-                                isEditMode: $editMode,
-                                actions: [
-                                    SwipeAction(color: .red, systemImage: "trash.fill", action: {deleteAnExpense(expense)})
-                                ]
-                            ) {
-                                HStack(alignment: .center, spacing: 0) {
-                                    CategoryIconView(
-                                        categoryIcon: category?.icon ?? ErrorCategory.icon,
-                                        categoryHexColor: category?.colorHex ?? ErrorCategory.colorHex
+                        VStack(alignment: .leading, spacing: 5) {
+                            switch date {
+                            case DateKey.known(let actualDate):
+                                Text("\(actualDate.formatted(.dateTime.month().day()))")
+                                    .font(AppFont.customFont(font: .semibold, .title3))
+                            case DateKey.unknown:
+                                Text("Unknown")
+                                    .font(AppFont.customFont(font: .semibold, .title3))
+                            }
+                            
+                            ForEach(expenses) { expense in
+                                let category = expense.category ?? nil
+                                
+                                CustomSwipeView(
+                                    isEditMode: $editMode,
+                                    actions: [
+                                        SwipeAction(color: .red, systemImage: "trash.fill", action: {deleteAnExpense(expense)})
+                                    ]
+                                ) {
+                                    
+                                    HStack(alignment: .center, spacing: 0) {
+                                        CategoryIconView(
+                                            categoryIcon: category?.icon ?? ErrorCategory.icon,
+                                            isDefault: category?.defaultCategory ?? true,
+                                            categoryHexColor: category?.colorHex ?? ErrorCategory.colorHex
+                                        )
+                                        .padding(.trailing, 10)
+                                        
+                                        ExpenseInfo(
+                                            expenseTitle: expense.title ?? nil,
+                                            expenseDate: expense.date ?? nil,
+                                            categoryName: category?.name ?? ErrorCategory.name,
+                                            categoryColorHex: category?.colorHex ?? ErrorCategory.colorHex
+                                        )
+                                        
+                                        Spacer()
+                                        
+                                        AmountTextView(amount: expense.amount, fontSize: .title3, color: .black)
+                                    }
+                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                    .padding()
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 20)
+                                            .fill(Color(.white))
+                                            .shadow(color: .black.opacity(0.5), radius: 5)
                                     )
-                                    .frame(width: proxy.size.width * 0.15)
-                                    .padding(.trailing, 5)
-                                    
-                                    ExpenseInfo(
-                                        editMode: $editMode,
-                                        expenseTitle: expense.title ?? nil,
-                                        expenseDate: expense.date ?? nil,
-                                        categoryName: category?.name ?? ErrorCategory.name,
-                                        categoryColorHex: category?.colorHex ?? ErrorCategory.colorHex
-                                    )
-                                    .frame(width: proxy.size.width * 0.4, alignment: .leading)
-                                    
-                                    Spacer()
-                                    
-                                    AmountTextView(amount: expense.amount, fontSize: editMode ? .subheadline : .title3, color: .black)
                                 }
-                                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                                .padding(.horizontal)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 20)
-                                        .fill(Color(.white))
-                                        .shadow(color: .black.opacity(0.5), radius: 5)
-                                )
+                                .padding(.vertical, 5)
                             }
                         }
-                        .frame(height: 90)
                         .padding(.top)
                         .padding(.horizontal)
                     }
@@ -138,13 +148,13 @@ private extension AllExpensesView {
         expenses.sorted { lhs, rhs in
             switch (lhs.date, rhs.date) {
             case let (l?, r?):
-                return l > r
+                return l < r
             case (nil, nil):
                 return false
             case (nil, _):
-                return false
-            case (_, nil):
                 return true
+            case (_, nil):
+                return false
             }
         }
     }
@@ -154,13 +164,34 @@ private extension AllExpensesView {
             $0.title?.localizedCaseInsensitiveContains(searchText) == true
         }
     }
+    func groupExpensesByDate(_ filteredExpenses: [Expense]) -> [DateKey:[Expense]] {
+        Dictionary(grouping: filteredExpenses) {
+            if let date = $0.date {
+                DateKey.known(Calendar.current.startOfDay(for: date))
+            } else {
+                DateKey.unknown
+            }
+        }
+    }
+    func sortGroupExpenses(_ groupExpenses: [DateKey:[Expense]]) -> [(key: DateKey, value: [Expense])] {
+        groupExpenses
+            .sorted {
+                lhs, rhs in
+                switch (lhs.key, rhs.key) {
+                case let (.known(d1), .known(d2)):
+                    return isAscending ? d1 < d2 : d1 > d2
+                case (.unknown, .known): return false
+                case (.known, .unknown): return true
+                case (.unknown, .unknown): return false
+                }
+        }
+    }
     func deleteAnExpense(_ expense: Expense) {
         expenseViewModel.deleteAnExpense(expense)
     }
 }
 
 struct ExpenseInfo: View {
-    @Binding var editMode: Bool
     let expenseTitle: String?
     let expenseDate: Date?
     let categoryName: String
@@ -170,22 +201,18 @@ struct ExpenseInfo: View {
         VStack(alignment: .leading, spacing: 0) {
             if let title = expenseTitle {
                 Text(title)
+                    .font(AppFont.customFont(font: .bold, .title3))
                     .foregroundStyle(.black)
             }
             HStack(spacing: 8) {
                 if let date = expenseDate {
-                    Text(date.formatted(.dateTime.month().day()))
-                    Divider()
-                        .frame(minWidth: 2)
-                        .frame(maxHeight: 15)
-                        .overlay(.black)
                     Text(date.formatted(.dateTime.hour().minute()))
                 } else {
                     Text("No date")
                 }
             }
             .foregroundStyle(Color("CustomDarkGrayColor"))
-            .font(AppFont.customFont(font: .semibold, editMode ? .subheadline : .body))
+            .font(AppFont.customFont(font: .semibold, .body))
             .padding(.bottom, 7)
             
             HStack(spacing: 2) {

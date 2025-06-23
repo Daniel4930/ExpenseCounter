@@ -28,7 +28,7 @@ struct ContentView: View {
                 case .reports:
                     ReportView()
                 case .category:
-                    Text("Category")
+                    CategoryGridView()
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -51,7 +51,6 @@ struct ContentView: View {
             )
         }
         .font(AppFont.customFont())
-        .background(Color("CustomGrayColor"))
         .ignoresSafeArea(.keyboard, edges: .bottom)
     }
 }
@@ -80,9 +79,9 @@ struct TabbarButton: View {
     }
 }
 
-//#Preview {
-//    ContentView()
-//        .environmentObject(UserViewModel())
-//        .environmentObject(ExpenseViewModel())
-//        .environmentObject(CategoryViewModel())
-//}
+#Preview {
+    ContentView()
+        .environmentObject(UserViewModel())
+        .environmentObject(ExpenseViewModel())
+        .environmentObject(CategoryViewModel())
+}
