@@ -8,11 +8,12 @@
 import SwiftUI
 
 struct ExpenseListView: View {
-    @State private var editMode: EditMode = .inactive
-    @State private var searchText = ""
-    @State private var isAscending = false
     let category: Category
     let date: Date
+    
+    @State private var editMode = false
+    @State private var searchText = ""
+    @State private var isAscending = false
 
     @EnvironmentObject var expenseViewModel: ExpenseViewModel
     @Environment(\.dismiss) private var dismiss
@@ -42,9 +43,9 @@ struct ExpenseListView: View {
     private var trailingDeleteButton: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             Button(action: {
-                editMode = (editMode == .active) ? .inactive : .active
+                editMode.toggle()
             }) {
-                Text(editMode == .active ? "Done" : "Delete")
+                Text(editMode ? "Done" : "Delete")
                     .foregroundColor(.white)
             }
         }
@@ -62,36 +63,40 @@ struct ExpenseListView: View {
             let filteredExpenses: [Expense] = filterExpense()
             if filteredExpenses.isEmpty {
                 NoExpenseFoundView()
-                
                 Spacer()
-                
             } else {
-                List {
+                ScrollView {
                     let groupedExpenses = groupExpensesByDay(filteredExpenses).sorted(by: { isAscending ? $0.key < $1.key : $0.key > $1.key })
                     ForEach(groupedExpenses, id: \.key) { (date, expensesForDate) in
-                        Section {
-                            ForEach(expensesForDate) { expense in
-                                NavigationLink(destination: ExpenseFormView(navTitle: "Edit an expense", id: expense.id, isEditMode: true)) {
-                                    ExpenseListItemView(expense: expense)
-                                }
-                            }
-                            .onDelete { indexSet in
-                                for index in indexSet {
-                                    let expense = expensesForDate[index]
-                                    expenseViewModel.deleteAnExpense(expense)
-                                }
-                            }
-                        } header: {
+                        VStack(alignment: .leading, spacing: 0) {
                             Text(date.formatted(.dateTime.month().day()))
                                 .font(AppFont.customFont(font: .bold, .title4))
+                            ForEach(expensesForDate) { expense in
+                                NavigationLink(
+                                    destination: ExpenseFormView(
+                                        navTitle: "Edit an expense",
+                                        id: expense.id,
+                                        isEditMode: true)
+                                ) {
+                                    CustomSwipeView(
+                                        isEditMode: $editMode,
+                                        actions: [
+                                            SwipeAction(color: .red, systemImage: "trash.fill" ,action: {deleteExpense(expense)})
+                                        ],
+                                    ) {
+                                        ExpenseListItemView(expense: expense)
+                                            .disabled(editMode)
+                                    }
+                                    .padding(.vertical, 10)
+                                }
+                            }
                         }
+                        .padding()
                     }
                 }
-                .listStyle(.grouped)
             }
         }
         .navigationBarBackButtonHidden(true)
-        .environment(\.editMode, $editMode)
         .toolbarBackground(Color("CustomGreenColor"), for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .toolbar {
@@ -136,9 +141,8 @@ private extension ExpenseListView {
             $0.title?.localizedCaseInsensitiveContains(searchText) == true
         }
     }
-    func deleteExpenses(at offsets: IndexSet) {
-        for index in offsets {
-            let expense = sortedExpenses[index]
+    func deleteExpense(_ expense: Expense) {
+        withAnimation {
             expenseViewModel.deleteAnExpense(expense)
         }
     }
@@ -170,30 +174,37 @@ struct ExpenseListItemView: View {
     @ObservedObject var expense: Expense
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            HStack {
-                VStack(alignment: .leading) {
-                    if let title = expense.title {
-                        Text(title)
-                            .font(AppFont.customFont(font: .bold))
-                            .padding(.bottom)
-                    }
-                    HStack {
-                        Image(systemName: "clock")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 15, height: 15)
-                        if let date = expense.date {
-                            let hourMinute = date.formatted(.dateTime.hour().minute())
-                            Text("\(hourMinute)")
-                        } else {
-                            Text("Date unavailable")
-                        }
+        HStack(alignment: .center) {
+            VStack(alignment: .leading) {
+                if let title = expense.title {
+                    Text(title)
+                        .font(AppFont.customFont(font: .bold, .title3))
+                }
+                HStack {
+                    Image(systemName: "clock")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 15, height: 15)
+                    if let date = expense.date {
+                        let hourMinute = date.formatted(.dateTime.hour().minute())
+                        Text("\(hourMinute)")
+                    } else {
+                        Text("Date unavailable")
                     }
                 }
-                Spacer()
-                AmountTextView(amount: expense.amount, fontSize: .body, color: .primary, font: .regular)
             }
+            Spacer()
+            
+            AmountTextView(amount: expense.amount, fontSize: .title3, color: .primary, font: .bold)
+            
+            Image(systemName: "chevron.right")
         }
+        .tint(.black)
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(.white)
+                .shadow(color: .black.opacity(0.5), radius: 5)
+        )
     }
 }

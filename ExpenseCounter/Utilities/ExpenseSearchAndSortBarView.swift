@@ -52,12 +52,12 @@ struct ExpenseSearchAndSortBarView: View {
             })
             .popover(isPresented: $showPopOver, attachmentAnchor: .point(.center), arrowEdge: .top) {
                 VStack {
-                    Button("Most recent") {
+                    Button("Newest") {
                         isAscending = false
                         showPopOver = false
                     }
                     .padding(.bottom)
-                    Button("Least recent") {
+                    Button("Oldest") {
                         isAscending = true
                         showPopOver = false
                     }

@@ -187,7 +187,9 @@ private extension AllExpensesView {
         }
     }
     func deleteAnExpense(_ expense: Expense) {
-        expenseViewModel.deleteAnExpense(expense)
+        withAnimation {
+            expenseViewModel.deleteAnExpense(expense)
+        }
     }
 }
 
