@@ -42,6 +42,8 @@ struct TotalSpendingView: View {
                 Text(totalSpending.formatted(.number.precision(.fractionLength(0...2))))
                     .foregroundStyle(Color("CustomGreenColor"))
             }
+            .lineLimit(1)
+            .minimumScaleFactor(0.5)
             .font(AppFont.customFont(font: .bold, .title))
         }
         .foregroundStyle(Color("CustomDarkGrayColor"))

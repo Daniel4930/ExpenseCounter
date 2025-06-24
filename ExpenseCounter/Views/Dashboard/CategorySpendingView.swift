@@ -69,51 +69,46 @@ struct CategoryItemView: View {
     let totalSpend: Double
     
     var body: some View {
-        GeometryReader { proxy in
-            HStack(alignment: .center, spacing: 0) {
-                CategoryIconView(
-                    categoryIcon: category.icon ?? ErrorCategory.icon,
-                    isDefault: category.defaultCategory,
-                    categoryHexColor: category.colorHex ?? ErrorCategory.colorHex
-                )
-                    .frame(width: proxy.size.width * 0.15)
-                    .padding(.trailing, 5)
-                
-                VStack(alignment: .leading, spacing: 0) {
-                    CategoryNameView(name: category.name ?? "No name")
-                    
-                    if let expense = firstExpense {
-                        HStack(spacing: 8) {
-                            Text(expense.date?.formatted(.dateTime.day().month()) ?? "Error date")
-                            Divider()
-                                .frame(minWidth: 2)
-                                .frame(maxHeight: 15)
-                                .overlay(.black)
-                            Text(expense.date?.formatted(.dateTime.hour().minute()) ?? "Error time")
-                        }
-                        .font(AppFont.customFont(font: .semibold ,.subheadline))
-                        .foregroundStyle(Color("CustomDarkGrayColor"))
-                    } else {
-                        Text("No date available")
-                            .font(AppFont.customFont(.subheadline))
-                            .foregroundStyle(Color("CustomDarkGrayColor"))
-                    }
-                }
-                .frame(width: proxy.size.width * 0.35, alignment: .leading)
-                
-                Spacer()
-                
-                AmountTextView(amount: totalSpend, fontSize: .title3, color: .black)
-            }
-            .frame(maxHeight: .infinity)
-            .padding()
-            .background(
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(Color(.white))
-                    .shadow(color: .black.opacity(0.3), radius: 5)
+        HStack(alignment: .center, spacing: 0) {
+            CategoryIconView(
+                categoryIcon: category.icon ?? ErrorCategory.icon,
+                isDefault: category.defaultCategory,
+                categoryHexColor: category.colorHex ?? ErrorCategory.colorHex
             )
-            .padding(.horizontal)
+            .padding(.trailing, 5)
+            
+            VStack(alignment: .leading, spacing: 0) {
+                CategoryNameView(name: category.name ?? "No name")
+                
+                if let expense = firstExpense {
+                    HStack(spacing: 8) {
+                        Text(expense.date?.formatted(.dateTime.day().month()) ?? "Error date")
+                        Divider()
+                            .frame(minWidth: 2)
+                            .frame(maxHeight: 15)
+                            .overlay(.black)
+                        Text(expense.date?.formatted(.dateTime.hour().minute()) ?? "Error time")
+                    }
+                    .font(AppFont.customFont(font: .semibold ,.subheadline))
+                    .foregroundStyle(Color("CustomDarkGrayColor"))
+                } else {
+                    Text("No date available")
+                        .font(AppFont.customFont(.subheadline))
+                        .foregroundStyle(Color("CustomDarkGrayColor"))
+                }
+            }
+            
+            Spacer()
+            
+            AmountTextView(amount: totalSpend, fontSize: .title3, color: .black)
         }
-        .frame(height: 80)
+        .frame(maxHeight: .infinity)
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color(.white))
+                .shadow(color: .black.opacity(0.3), radius: 5)
+        )
+        .padding(.horizontal)
     }
 }

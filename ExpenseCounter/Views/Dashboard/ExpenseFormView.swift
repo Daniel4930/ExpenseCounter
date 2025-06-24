@@ -63,6 +63,7 @@ struct ExpenseFormView: View {
                     .inputFormModifier()
                     .foregroundColor(.black)
                 }
+                .padding()
                 
                 CustomSectionView(header: "Amount") {
                     HStack {
@@ -72,10 +73,10 @@ struct ExpenseFormView: View {
                         }
                         .focused($focusedField, equals: ExpenseFormField.amount)
                         .onChange(of: amount) {newValue in
-                            if ExpenseFormView.amountInputValid(newValue) == false {
+                            if amountInputValid(newValue) == false {
                                 amount = String(newValue.dropLast())
                             }
-                            readyToSubmit = ExpenseFormView.validInputsBeforeSubmit(newValue, category, showDate)
+                            readyToSubmit = validInputsBeforeSubmit(newValue, category, showDate)
                         }
                         Spacer()
                         Text(Locale.current.currencySymbol ?? "$")
@@ -84,6 +85,7 @@ struct ExpenseFormView: View {
                     .keyboardType(.decimalPad)
                     .foregroundColor( .black)
                 }
+                .padding()
                 
                 CustomSectionView(header: "Category") {
                     Button(action: {
@@ -104,9 +106,10 @@ struct ExpenseFormView: View {
                             .presentationDetents([.medium])
                     }
                     .onChange(of: category) { newValue in
-                        readyToSubmit = ExpenseFormView.validInputsBeforeSubmit(amount, newValue, showDate)
+                        readyToSubmit = validInputsBeforeSubmit(amount, newValue, showDate)
                     }
                 }
+                .padding()
                 
                 CustomSectionView(header: "Date") {
                     Button {
@@ -128,9 +131,10 @@ struct ExpenseFormView: View {
                             .presentationDetents([.fraction(0.3)])
                     }
                     .onChange(of: showDate) { newValue in
-                        readyToSubmit = ExpenseFormView.validInputsBeforeSubmit(amount, category, newValue)
+                        readyToSubmit = validInputsBeforeSubmit(amount, category, newValue)
                     }
                 }
+                .padding()
                 
                 Spacer()
             }
@@ -175,13 +179,13 @@ struct ExpenseFormView: View {
                 }
                 ToolbarItemGroup(placement: .keyboard) {
                     Button {
-                        focusedField = ExpenseFormView.switchFocusedState(field: focusedField, direction: 1)
+                        focusedField = switchFocusedState(field: focusedField, direction: 1)
                     } label: {
                         Image(systemName: "chevron.up")
                     }
 
                     Button {
-                        focusedField = ExpenseFormView.switchFocusedState(field: focusedField, direction: -1)
+                        focusedField = switchFocusedState(field: focusedField, direction: -1)
                     } label: {
                         Image(systemName: "chevron.down")
                     }
@@ -195,7 +199,7 @@ struct ExpenseFormView: View {
             }
             .onAppear {
                 if isEditMode {
-                    guard let id = id, let expense = ExpenseFormView.searchAnExpense(expenseViewModel.expenses, id) else {
+                    guard let id = id, let expense = searchAnExpense(expenseViewModel.expenses, id) else {
                         fatalError("ExpenseFormView: Can't edit a non-existing expense")
                     }
                     amount = String(format: "%.2f", expense.amount)
@@ -209,7 +213,7 @@ struct ExpenseFormView: View {
                     title = ""
                     category = nil
                 }
-                readyToSubmit = ExpenseFormView.validInputsBeforeSubmit(amount, category, showDate)
+                readyToSubmit = validInputsBeforeSubmit(amount, category, showDate)
             }
         }
         .scrollDismissesKeyboard(.interactively)
@@ -218,23 +222,23 @@ struct ExpenseFormView: View {
 }
 
 private extension ExpenseFormView {
-    static func searchAnExpense(_ expenses: [Expense], _ id: UUID) -> Expense? {
+    func searchAnExpense(_ expenses: [Expense], _ id: UUID) -> Expense? {
         return expenses.first { $0.id == id }
     }
-    static func amountInputValid(_ amount: String) -> Bool {
+    func amountInputValid(_ amount: String) -> Bool {
         let amountInputPattern = #"^\d*\.?\d{0,2}$"#
         if (amount.range(of: amountInputPattern, options: .regularExpression) != nil) {
             return true
         }
         return false
     }
-    static func validInputsBeforeSubmit(_ amount: String, _ category: Category?, _ showDate: Bool) -> Bool {
+    func validInputsBeforeSubmit(_ amount: String, _ category: Category?, _ showDate: Bool) -> Bool {
         if !amount.isEmpty && category != nil && showDate == true {
             return true
         }
         return false
     }
-    static func switchFocusedState(field: ExpenseFormField?, direction: Int) -> ExpenseFormField? {
+    func switchFocusedState(field: ExpenseFormField?, direction: Int) -> ExpenseFormField? {
         guard let field else { return nil }
         let allCases = ExpenseFormField.allCases
         guard var index = allCases.firstIndex(of: field) else { return nil }
@@ -266,7 +270,6 @@ struct CustomSectionView<Content: View>: View {
             inputView()
                 .padding(.top, 5)
         }
-        .padding()
     }
 }
 

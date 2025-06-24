@@ -19,8 +19,7 @@ struct ExpenseListView: View {
     @Environment(\.dismiss) private var dismiss
     
     var sortedExpenses: [Expense] {
-        let filtered = sortExpensesByCategoryAndBeforeDate(expenseViewModel.expenses, category, date)
-        return isAscending ? filtered.reversed() : filtered
+        sortExpensesByCategoryAndBeforeDate()
     }
     private var leadingBackButton: some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
@@ -66,11 +65,19 @@ struct ExpenseListView: View {
                 Spacer()
             } else {
                 ScrollView {
-                    let groupedExpenses = groupExpensesByDay(filteredExpenses).sorted(by: { isAscending ? $0.key < $1.key : $0.key > $1.key })
-                    ForEach(groupedExpenses, id: \.key) { (date, expensesForDate) in
+                    let groupedExpenses = groupExpensesByDate(filteredExpenses)
+                    let sortedGroupExpenses = sortGroupExpenses(groupedExpenses)
+                    ForEach(sortedGroupExpenses, id: \.key) { date, expensesForDate in
                         VStack(alignment: .leading, spacing: 0) {
-                            Text(date.formatted(.dateTime.month().day()))
-                                .font(AppFont.customFont(font: .bold, .title4))
+                            switch date {
+                            case DateKey.known(let actualDate):
+                                Text("\(actualDate.formatted(.dateTime.month().day()))")
+                                    .font(AppFont.customFont(font: .bold, .title4))
+                            case DateKey.unknown:
+                                Text("Unknown")
+                                    .font(AppFont.customFont(font: .bold, .title4))
+                            }
+                            
                             ForEach(expensesForDate) { expense in
                                 NavigationLink(
                                     destination: ExpenseFormView(
@@ -108,24 +115,41 @@ struct ExpenseListView: View {
 }
 
 private extension ExpenseListView {
-    func sortExpensesByCategoryAndBeforeDate(_ expenses: [Expense], _ category: Category, _ date: Date) -> [Expense] {
+    func sortExpensesByCategoryAndBeforeDate() -> [Expense] {
         var resultArray: [Expense] = []
-        let currentDate = monthAndYearFromDate(date)
-        for expense in expenses {
-            guard let expenseDateRaw = expense.date,
-                  let expenseDate = monthAndYearFromDate(expenseDateRaw),
-                  let current = currentDate else {
-                continue // skip any expense with nil date or formatting error
-            }
-            if expense.category == category && expenseDate <= current {
+        let currentDate = date.formatted(.dateTime.month())
+        for expense in expenseViewModel.expenses {
+            guard let expenseDate = expense.date else { continue }
+            let expenseDateFormatted = expenseDate.formatted(.dateTime.month())
+            
+            //If the expenses are in the same category and in the same month
+            if expense.category == category && expenseDateFormatted == currentDate {
                 resultArray.append(expense)
             }
         }
-        return resultArray.sorted { $0.date! > $1.date! }
+        //date is force-wrapped because the guard statement guarantees its safety
+        return resultArray.sorted { $0.date! < $1.date! }
     }
-    func groupExpensesByDay(_ expenses: [Expense]) -> [Date: [Expense]] {
-        Dictionary(grouping: expenses) {
-            Calendar.current.startOfDay(for: $0.date ?? Date())
+    func groupExpensesByDate(_ filteredExpenses: [Expense]) -> [DateKey:[Expense]] {
+        Dictionary(grouping: filteredExpenses) {
+            if let date = $0.date {
+                DateKey.known(Calendar.current.startOfDay(for: date))
+            } else {
+                DateKey.unknown
+            }
+        }
+    }
+    func sortGroupExpenses(_ groupExpenses: [DateKey:[Expense]]) -> [(key: DateKey, value: [Expense])] {
+        groupExpenses
+            .sorted {
+                lhs, rhs in
+                switch (lhs.key, rhs.key) {
+                case let (.known(d1), .known(d2)):
+                    return isAscending ? d1 < d2 : d1 > d2
+                case (.unknown, .known): return false
+                case (.known, .unknown): return true
+                case (.unknown, .unknown): return false
+                }
         }
     }
     func calculateTotalExpense(_ expenses: [Expense]) -> Double {

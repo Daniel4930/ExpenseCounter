@@ -31,7 +31,7 @@ struct CategoryGridView: View {
                             .foregroundStyle(.white)
                             .padding(.leading)
                         Spacer()
-                        NavigationLink(destination: CategoryFormView(isDefault: false)) {
+                        NavigationLink(destination: CategoryFormView(editMode: false, isDefault: false, navTitle: "Add a category")) {
                             Image(systemName: "plus.circle.fill")
                                 .resizable()
                                 .scaledToFit()
@@ -41,7 +41,6 @@ struct CategoryGridView: View {
                         }
                     }
                     .padding(.top)
-                    
                 }
                 .frame(maxHeight: 150)
                 .clipShape(BottomRoundedRectangle(radius: 15))
@@ -53,6 +52,7 @@ struct CategoryGridView: View {
                             CategoryGridRow(numItemPerRow: numItemPerRow, row: row, categories: categories)
                         }
                     }
+                    .padding()
                 }
                 .padding(.top)
             }
@@ -79,9 +79,16 @@ struct CategoryGridRow: View {
                             categoryHexColor: category.colorHex ?? ErrorCategory.colorHex
                         )
                         CategoryNameView(name: category.name ?? ErrorCategory.name)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.5)
                     }
                 }
             }
         }
     }
 }
+
+//#Preview {
+//    CategoryGridView()
+//        .environmentObject(CategoryViewModel())
+//}

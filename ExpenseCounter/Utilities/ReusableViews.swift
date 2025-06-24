@@ -13,19 +13,38 @@ enum DateKey: Hashable {
     case unknown
 }
 
-enum FontSize: CGFloat {
-    case largeTitle = 34
-    case title = 28
-    case title2 = 22
-    case title3 = 20
-    case title4 = 19
-    case body = 17
-    case callout = 16
-    case subheadline = 15
-    case footnote = 13
-    case caption = 12
-    case caption2 = 11
+enum FontSize {
+    case custom(CGFloat)
+    case largeTitle
+    case title
+    case title2
+    case title3
+    case title4
+    case body
+    case callout
+    case subheadline
+    case footnote
+    case caption
+    case caption2
+
+    var value: CGFloat {
+        switch self {
+        case .custom(let size): return size
+        case .largeTitle: return 34
+        case .title: return 28
+        case .title2: return 22
+        case .title3: return 20
+        case .title4: return 19
+        case .body: return 17
+        case .callout: return 16
+        case .subheadline: return 15
+        case .footnote: return 13
+        case .caption: return 12
+        case .caption2: return 11
+        }
+    }
 }
+
 
 enum CustomFont: String {
     case regular = "OpenSans-Regular"
@@ -37,7 +56,7 @@ struct AppFont {
     static let font: CustomFont = .regular
     
     static func customFont(font: CustomFont = .regular, _ size: FontSize = .body) -> Font {
-        .custom(font.rawValue, size: size.rawValue)
+        .custom(font.rawValue, size: size.value)
     }
 }
 
