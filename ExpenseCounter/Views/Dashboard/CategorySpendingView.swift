@@ -16,7 +16,7 @@ struct CategorySpendingView: View {
     var body: some View {
         VStack(spacing: 16) {
             ForEach(categoryViewModel.categories, id: \.id) { category in
-                let sortedExpenses = CategorySpendingView.sortExpensesByCategoryAndBeforeDate(expenseViewModel.expenses, category, date)
+                let sortedExpenses = sortExpensesByCategoryAndBeforeDate(expenseViewModel.expenses, category, date)
                 
                 if !sortedExpenses.isEmpty {
                     NavigationLink(
@@ -28,7 +28,7 @@ struct CategorySpendingView: View {
                         CategoryItemView(
                             category: category,
                             firstExpense: sortedExpenses.first,
-                            totalSpend: CategorySpendingView.calculateTotalExpense(sortedExpenses),
+                            totalSpend: calculateTotalExpense(sortedExpenses),
                         )
                     }
                 }
@@ -39,22 +39,18 @@ struct CategorySpendingView: View {
 }
 
 private extension CategorySpendingView {
-    static func sortExpensesByCategoryAndBeforeDate(_ expenses: [Expense], _ category: Category, _ date: Date) -> [Expense] {
+    func sortExpensesByCategoryAndBeforeDate(_ expenses: [Expense], _ category: Category, _ date: Date) -> [Expense] {
         var resultArray: [Expense] = []
-        let currentDate = monthAndYearFromDate(date)
+        let currentDate = date.formatted(.dateTime.month())
         for expense in expenses {
-            guard let expenseDateRaw = expense.date,
-                  let expenseDate = monthAndYearFromDate(expenseDateRaw),
-                  let current = currentDate else {
-                continue
-            }
-            if expense.category == category && expenseDate <= current {
+            guard let expenseDate = expense.date else { continue }
+            if expense.category == category && expenseDate.formatted(.dateTime.month()) == currentDate {
                 resultArray.append(expense)
             }
         }
         return resultArray.sorted { $0.date! > $1.date! }
     }
-    static func calculateTotalExpense(_ expenses: [Expense]) -> Double {
+    func calculateTotalExpense(_ expenses: [Expense]) -> Double {
         var total: Double = 0
         for expense in expenses {
             total += expense.amount

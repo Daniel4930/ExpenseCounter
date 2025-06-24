@@ -31,7 +31,7 @@ struct CategoryGridView: View {
                             .foregroundStyle(.white)
                             .padding(.leading)
                         Spacer()
-                        NavigationLink(destination: CategoryFormView(editMode: false, isDefault: false, navTitle: "Add a category")) {
+                        NavigationLink(destination: CategoryFormView(editMode: false, navTitle: "Add a category", id: nil)) {
                             Image(systemName: "plus.circle.fill")
                                 .resizable()
                                 .scaledToFit()

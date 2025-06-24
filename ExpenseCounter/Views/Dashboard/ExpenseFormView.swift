@@ -73,10 +73,10 @@ struct ExpenseFormView: View {
                         }
                         .focused($focusedField, equals: ExpenseFormField.amount)
                         .onChange(of: amount) {newValue in
-                            if amountInputValid(newValue) == false {
+                            if !amountInputValid(newValue) && !newValue.isEmpty {
                                 amount = String(newValue.dropLast())
                             }
-                            readyToSubmit = validInputsBeforeSubmit(newValue, category, showDate)
+                            readyToSubmit = validInputsBeforeSubmit(amount, category, showDate)
                         }
                         Spacer()
                         Text(Locale.current.currencySymbol ?? "$")

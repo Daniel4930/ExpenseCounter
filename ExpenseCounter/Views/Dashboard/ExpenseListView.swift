@@ -14,7 +14,7 @@ struct ExpenseListView: View {
     @State private var editMode = false
     @State private var searchText = ""
     @State private var isAscending = false
-
+    
     @EnvironmentObject var expenseViewModel: ExpenseViewModel
     @Environment(\.dismiss) private var dismiss
     
@@ -60,6 +60,7 @@ struct ExpenseListView: View {
                 .padding(.horizontal)
             
             let filteredExpenses: [Expense] = filterExpense()
+            
             if filteredExpenses.isEmpty {
                 NoExpenseFoundView()
                 Spacer()
@@ -79,20 +80,20 @@ struct ExpenseListView: View {
                             }
                             
                             ForEach(expensesForDate) { expense in
+                                let actions = [
+                                    SwipeAction(color: .red, systemImage: "trash.fill") {
+                                        deleteExpense(expense)
+                                    }
+                                ]
+                                
                                 NavigationLink(
                                     destination: ExpenseFormView(
                                         navTitle: "Edit an expense",
                                         id: expense.id,
                                         isEditMode: true)
                                 ) {
-                                    CustomSwipeView(
-                                        isEditMode: $editMode,
-                                        actions: [
-                                            SwipeAction(color: .red, systemImage: "trash.fill" ,action: {deleteExpense(expense)})
-                                        ],
-                                    ) {
+                                    CustomSwipeView(isEditMode: $editMode, actions: actions) {
                                         ExpenseListItemView(expense: expense)
-                                            .disabled(editMode)
                                     }
                                     .padding(.vertical, 10)
                                 }
@@ -203,6 +204,8 @@ struct ExpenseListItemView: View {
                 if let title = expense.title {
                     Text(title)
                         .font(AppFont.customFont(font: .bold, .title3))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
                 }
                 HStack {
                     Image(systemName: "clock")

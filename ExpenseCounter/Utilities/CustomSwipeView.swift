@@ -30,7 +30,6 @@ struct CustomSwipeView<Content: View>: View {
     var body: some View {
         HStack(alignment: .center, spacing: 0) {
             content()
-                .opacity(isEditMode ? 0.5 : 1)
             HStack(alignment: .center) {
                 ForEach(Array(actions.enumerated()), id: \.offset) { pair in
                     let action = pair.element

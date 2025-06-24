@@ -31,6 +31,53 @@ class CategoryViewModel: ObservableObject {
         fetchCategories()
     }
     
+    func fetchCategories() {
+        let request = NSFetchRequest<Category>(entityName: "Category")
+        
+        do {
+            categories = try coreDataSharedInstance.context.fetch(request)
+        } catch let error {
+            fatalError("Can't fetch categories with error -> \(error.localizedDescription)")
+        }
+    }
+    
+    func addCategory(_ name: String, _ colorHex: String, _ icon: String) {
+        let category = Category(context: coreDataSharedInstance.context)
+        category.id = UUID()
+        category.name = name
+        category.colorHex = colorHex
+        category.icon = icon
+        category.defaultCategory = false
+        
+        coreDataSharedInstance.save()
+        fetchCategories()
+    }
+    
+    func updateCategory(_ id: UUID, _ name: String, _ colorHex: String, _ icon: String) {
+        let fetchRequest: NSFetchRequest = Category.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        fetchRequest.fetchLimit = 1
+        
+        do {
+            if let existingCategory = try coreDataSharedInstance.context.fetch(fetchRequest).first {
+                existingCategory.name = name
+                existingCategory.colorHex = colorHex
+                existingCategory.icon = icon
+                
+                coreDataSharedInstance.save()
+                fetchCategories()
+            }
+        } catch let error {
+            fatalError("Error updating a category -> \(error.localizedDescription)")
+        }
+    }
+    
+    func deleteCategory(_ category: Category) {
+        coreDataSharedInstance.context.delete(category)
+        coreDataSharedInstance.save()
+        fetchCategories()
+    }
+    
     //Don't call this in production code
 //    private func deleteAllCategories() {
 //        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = Category.fetchRequest()
@@ -44,14 +91,4 @@ class CategoryViewModel: ObservableObject {
 //            print("Failed to delete all categories: \(error)")
 //        }
 //    }
-    
-    func fetchCategories() {
-        let request = NSFetchRequest<Category>(entityName: "Category")
-        
-        do {
-            categories = try coreDataSharedInstance.context.fetch(request)
-        } catch let error {
-            fatalError("Can't fetch categories with error -> \(error.localizedDescription)")
-        }
-    }
 }

@@ -80,14 +80,16 @@ struct AllExpensesView: View {
                             
                             ForEach(expenses) { expense in
                                 let category = expense.category ?? nil
+                                let actions = [
+                                    SwipeAction(color: .red, systemImage: "trash.fill") {
+                                        deleteAnExpense(expense)
+                                    }
+                                ]
                                 
                                 CustomSwipeView(
                                     isEditMode: $editMode,
-                                    actions: [
-                                        SwipeAction(color: .red, systemImage: "trash.fill", action: {deleteAnExpense(expense)})
-                                    ]
+                                    actions: actions
                                 ) {
-                                    
                                     HStack(alignment: .center, spacing: 0) {
                                         CategoryIconView(
                                             categoryIcon: category?.icon ?? ErrorCategory.icon,
@@ -108,6 +110,7 @@ struct AllExpensesView: View {
                                         AmountTextView(amount: expense.amount, fontSize: .title3, color: .black)
                                     }
                                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                    .opacity(editMode ? 0.5 : 1)
                                     .padding()
                                     .background(
                                         RoundedRectangle(cornerRadius: 20)
@@ -205,6 +208,8 @@ struct ExpenseInfo: View {
                 Text(title)
                     .font(AppFont.customFont(font: .bold, .title3))
                     .foregroundStyle(.black)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
             }
             HStack(spacing: 8) {
                 if let date = expenseDate {

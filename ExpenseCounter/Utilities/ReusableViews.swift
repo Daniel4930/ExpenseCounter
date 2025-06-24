@@ -64,8 +64,8 @@ struct CategoryIconView: View {
     let categoryIcon: String
     let isDefault: Bool
     let categoryHexColor: String
-    let width: CGFloat = 50
-    let height: CGFloat = 50
+    let width: CGFloat = 60
+    let height: CGFloat = 60
     let cornerRadius: CGFloat = 10
     let shadowOpacity: Double = 0.3
     let shadowRadius: CGFloat = 5

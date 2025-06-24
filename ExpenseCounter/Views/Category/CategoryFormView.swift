@@ -12,10 +12,12 @@ enum CategoryFormField: Hashable, CaseIterable {
     case icon
 }
 
+
+//Default categories shouldn't be shown in the form
 struct CategoryFormView: View {
     let editMode: Bool
-    let isDefault: Bool
     let navTitle: String
+    let id: UUID?
     
     @State private var name: String = ""
     @State private var color: Color = .yellow
@@ -23,13 +25,15 @@ struct CategoryFormView: View {
     @State private var readyToSubmit: Bool = false
     @FocusState private var focusedField: CategoryFormField?
     @Environment(\.dismiss) var dismiss
+    @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var categoryViewModel: CategoryViewModel
     
     var body: some View {
         ScrollView {
             VStack {
                 CategoryIconView(
                     categoryIcon: icon,
-                    isDefault: isDefault,
+                    isDefault: false,
                     categoryHexColor: color.toHex() ?? ErrorCategory.colorHex
                 )
                 .padding(.top)
@@ -44,7 +48,7 @@ struct CategoryFormView: View {
                         }
                         .focused($focusedField, equals: .name)
                         .onChange(of: name) { newValue in
-                            readyToSubmit = validInputsBeforeSubmit(name, icon)
+                            readyToSubmit = validInputsBeforeSubmit(newValue, icon)
                         }
                         
                         Spacer()
@@ -60,7 +64,18 @@ struct CategoryFormView: View {
                 
                 CustomSectionView(header: "Color") {
                     HStack {
-                        Text("Select a color")
+                        let rbgColor = color.toRGB()
+                        Text(
+                            String(
+                                format: "r: %.2f, b: %.2f, g: %.2f, alpha: %.2f",
+                                rbgColor?.red ?? 0,
+                                rbgColor?.blue ?? 0,
+                                rbgColor?.green ?? 0,
+                                rbgColor?.alpha ?? 1
+                            )
+                        )
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
                         Spacer()
                         ColorPicker("", selection: $color)
                             .labelsHidden()
@@ -74,10 +89,15 @@ struct CategoryFormView: View {
                 CustomSectionView(header: "Icon") {
                     HStack {
                         TextField(text: $icon) {
-                            Text("Enter an emote")
+                            Text("Please enter up to two emojis or characters.")
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.5)
                                 .foregroundStyle(Color("CustomGrayColor"))
                         }
-                        .onChange(of: name) { newValue in
+                        .onChange(of: icon) { newValue in
+                            if !iconInputValid(newValue) && !newValue.isEmpty {
+                                icon = String(newValue.dropLast())
+                            }
                             readyToSubmit = validInputsBeforeSubmit(name, icon)
                         }
                         
@@ -111,10 +131,19 @@ struct CategoryFormView: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
+                        if let hexColor = color.toHex() {
+                            if editMode {
+                                if let id = id {
+                                    categoryViewModel.updateCategory(id, name, hexColor, icon)
+                                }
+                            } else {
+                                categoryViewModel.addCategory(name, hexColor, icon)
+                            }
+                        }
                         dismiss()
                     } label: {
                         Text("Submit")
-                            .foregroundColor(.white)
+                            .foregroundColor(readyToSubmit ? .white : Color("CustomGrayColor"))
                     }
                     .disabled(!readyToSubmit)
                 }
@@ -148,6 +177,13 @@ struct CategoryFormView: View {
 }
 
 private extension CategoryFormView {
+    func iconInputValid(_ icon: String) -> Bool {
+        let iconInputPattern = #"^.{1,2}$"#
+        if (icon.range(of: iconInputPattern, options: .regularExpression) != nil) {
+            return true
+        }
+        return false
+    }
     func switchFocusedState(field: CategoryFormField?, direction: Int) -> CategoryFormField? {
         guard let field else { return nil }
         let allCases = CategoryFormField.allCases
