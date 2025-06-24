@@ -46,13 +46,25 @@ struct ExpenseSearchAndSortBarView: View {
             Spacer()
             
             Button(action: {
-                isAscending.toggle()
-                showPopOver.toggle()
+                showPopOver = true
             }, label: {
                 Image(systemName: "arrow.up.arrow.down")
             })
-            .popover(isPresented: $showPopOver, attachmentAnchor: .point(.center), arrowEdge: .bottom) {
-                Text("Hello world")
+            .popover(isPresented: $showPopOver, attachmentAnchor: .point(.center), arrowEdge: .top) {
+                VStack {
+                    Button("Most recent") {
+                        isAscending = false
+                        showPopOver = false
+                    }
+                    .padding(.bottom)
+                    Button("Least recent") {
+                        isAscending = true
+                        showPopOver = false
+                    }
+                }
+                .font(AppFont.customFont(.title3))
+                .padding()
+                .presentationCompactAdaptation(.popover)
             }
         }
     }
