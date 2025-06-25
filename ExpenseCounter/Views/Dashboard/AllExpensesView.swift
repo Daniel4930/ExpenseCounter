@@ -56,6 +56,7 @@ struct AllExpensesView: View {
 
             ExpenseSearchAndSortBarView(searchText: $searchText, isAscending: $isAscending)
                 .padding(.horizontal)
+                .padding(.bottom)
             
             let filteredExpenses = filterExpense()
             let groupExpenses = groupExpensesByDate(filteredExpenses)
@@ -72,10 +73,10 @@ struct AllExpensesView: View {
                             switch date {
                             case DateKey.known(let actualDate):
                                 Text("\(actualDate.formatted(.dateTime.month().day()))")
-                                    .font(AppFont.customFont(font: .semibold, .title3))
+                                    .font(AppFont.customFont(font: .bold, .title3))
                             case DateKey.unknown:
                                 Text("Unknown")
-                                    .font(AppFont.customFont(font: .semibold, .title3))
+                                    .font(AppFont.customFont(font: .bold, .title3))
                             }
                             
                             ForEach(expenses) { expense in
@@ -86,39 +87,47 @@ struct AllExpensesView: View {
                                     }
                                 ]
                                 
-                                CustomSwipeView(
-                                    isEditMode: $editMode,
-                                    actions: actions
+                                NavigationLink(
+                                    destination:
+                                        ExpenseFormView(
+                                            navTitle: "Edit an expense",
+                                            id: expense.id,
+                                            isEditMode: true
+                                        )
                                 ) {
-                                    HStack(alignment: .center, spacing: 0) {
-                                        CategoryIconView(
-                                            categoryIcon: category?.icon ?? ErrorCategory.icon,
-                                            isDefault: category?.defaultCategory ?? true,
-                                            categoryHexColor: category?.colorHex ?? ErrorCategory.colorHex
+                                    CustomSwipeView(
+                                        isEditMode: $editMode,
+                                        actions: actions
+                                    ) {
+                                        HStack(alignment: .center, spacing: 0) {
+                                            CategoryIconView(
+                                                categoryIcon: category?.icon ?? ErrorCategory.icon,
+                                                isDefault: category?.defaultCategory ?? true,
+                                                categoryHexColor: category?.colorHex ?? ErrorCategory.colorHex
+                                            )
+                                            .padding(.trailing, 10)
+                                            
+                                            ExpenseInfo(
+                                                expenseTitle: expense.title ?? nil,
+                                                expenseDate: expense.date ?? nil,
+                                                categoryName: category?.name ?? ErrorCategory.name,
+                                                categoryColorHex: category?.colorHex ?? ErrorCategory.colorHex
+                                            )
+                                            
+                                            Spacer()
+                                            
+                                            AmountTextView(amount: expense.amount, fontSize: .title3, color: .black)
+                                        }
+                                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                        .padding()
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 20)
+                                                .fill(Color(.white))
+                                                .shadow(color: .black.opacity(0.5), radius: 5)
                                         )
-                                        .padding(.trailing, 10)
-                                        
-                                        ExpenseInfo(
-                                            expenseTitle: expense.title ?? nil,
-                                            expenseDate: expense.date ?? nil,
-                                            categoryName: category?.name ?? ErrorCategory.name,
-                                            categoryColorHex: category?.colorHex ?? ErrorCategory.colorHex
-                                        )
-                                        
-                                        Spacer()
-                                        
-                                        AmountTextView(amount: expense.amount, fontSize: .title3, color: .black)
                                     }
-                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                                    .opacity(editMode ? 0.5 : 1)
-                                    .padding()
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 20)
-                                            .fill(Color(.white))
-                                            .shadow(color: .black.opacity(0.5), radius: 5)
-                                    )
+                                    .padding(.vertical, 5)
                                 }
-                                .padding(.vertical, 5)
                             }
                         }
                         .padding(.top)
@@ -206,7 +215,7 @@ struct ExpenseInfo: View {
         VStack(alignment: .leading, spacing: 0) {
             if let title = expenseTitle {
                 Text(title)
-                    .font(AppFont.customFont(font: .bold, .title3))
+                    .font(AppFont.customFont(.title4))
                     .foregroundStyle(.black)
                     .lineLimit(1)
                     .minimumScaleFactor(0.5)

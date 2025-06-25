@@ -78,10 +78,3 @@ struct TabbarButton: View {
         .frame(maxWidth: .infinity)
     }
 }
-
-#Preview {
-    ContentView()
-        .environmentObject(UserViewModel())
-        .environmentObject(ExpenseViewModel())
-        .environmentObject(CategoryViewModel())
-}

@@ -6,7 +6,7 @@
 //
 
 struct ErrorCategory {
-    static let name = "Unknown"
+    static let name = "Uncategorized"
     static let icon = "questionmark"
     static let colorHex = "#FF0000"
 }

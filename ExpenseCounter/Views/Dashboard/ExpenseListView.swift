@@ -73,10 +73,10 @@ struct ExpenseListView: View {
                             switch date {
                             case DateKey.known(let actualDate):
                                 Text("\(actualDate.formatted(.dateTime.month().day()))")
-                                    .font(AppFont.customFont(font: .bold, .title4))
+                                    .font(AppFont.customFont(font: .bold, .title3))
                             case DateKey.unknown:
                                 Text("Unknown")
-                                    .font(AppFont.customFont(font: .bold, .title4))
+                                    .font(AppFont.customFont(font: .bold, .title3))
                             }
                             
                             ForEach(expensesForDate) { expense in
@@ -203,7 +203,7 @@ struct ExpenseListItemView: View {
             VStack(alignment: .leading) {
                 if let title = expense.title {
                     Text(title)
-                        .font(AppFont.customFont(font: .bold, .title3))
+                        .font(AppFont.customFont(.title4))
                         .lineLimit(1)
                         .minimumScaleFactor(0.5)
                 }

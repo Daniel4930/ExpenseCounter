@@ -218,6 +218,7 @@ struct ExpenseFormView: View {
         }
         .scrollDismissesKeyboard(.interactively)
         .ignoresSafeArea(.keyboard)
+        .tint(Color("CustomGreenColor"))
     }
 }
 

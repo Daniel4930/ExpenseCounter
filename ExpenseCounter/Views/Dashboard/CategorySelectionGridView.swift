@@ -49,7 +49,7 @@ struct CategoryGridItemView: View {
             .overlay {
                 if selectedCategory == category {
                     RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.blue, lineWidth: 2)
+                        .stroke(Color("CustomGreenColor"), lineWidth: 2)
                 }
             }
         })

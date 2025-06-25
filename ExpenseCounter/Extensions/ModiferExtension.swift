@@ -12,8 +12,8 @@ extension View {
         self.modifier(MonthOverlayModifier(isSelected: isSelected, isDisabled: isDisabled))
     }
     
-    func inputFormModifier() -> some View {
-        self.modifier(InputFormModifier())
+    func inputFormModifier(_ fillColor: Color = .white) -> some View {
+        self.modifier(InputFormModifier(fillColor: fillColor))
     }
     
     //Push the view up when the keyboard appears
@@ -44,13 +44,15 @@ struct MonthOverlayModifier: ViewModifier {
 
 
 struct InputFormModifier: ViewModifier {
+    let fillColor: Color
+    
     func body(content: Content) -> some View {
         content
             .padding(.horizontal)
             .padding(.vertical, 10)
             .background(
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(Color.white)
+                    .fill(fillColor)
             )
             .shadow(color: .black.opacity(0.2), radius: 5, x: 0, y: 5)
     }

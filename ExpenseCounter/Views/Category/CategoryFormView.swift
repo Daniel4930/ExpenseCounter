@@ -12,16 +12,14 @@ enum CategoryFormField: Hashable, CaseIterable {
     case icon
 }
 
-
 //Default categories shouldn't be shown in the form
 struct CategoryFormView: View {
-    let editMode: Bool
     let navTitle: String
     let id: UUID?
     
-    @State private var name: String = ""
-    @State private var color: Color = .yellow
-    @State private var icon: String = ""
+    @State var name: String
+    @State var color: Color
+    @State var icon: String
     @State private var readyToSubmit: Bool = false
     @FocusState private var focusedField: CategoryFormField?
     @Environment(\.dismiss) var dismiss
@@ -64,25 +62,11 @@ struct CategoryFormView: View {
                 
                 CustomSectionView(header: "Color") {
                     HStack {
-                        let rbgColor = color.toRGB()
-                        Text(
-                            String(
-                                format: "r: %.2f, b: %.2f, g: %.2f, alpha: %.2f",
-                                rbgColor?.red ?? 0,
-                                rbgColor?.blue ?? 0,
-                                rbgColor?.green ?? 0,
-                                rbgColor?.alpha ?? 1
-                            )
-                        )
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.5)
                         Spacer()
                         ColorPicker("", selection: $color)
                             .labelsHidden()
                     }
-                    .frame(maxWidth: .infinity)
-                    .inputFormModifier()
-                    .foregroundColor(.black)
+                    .inputFormModifier(color)
                 }
                 .padding([.leading, .trailing, .top])
                 
@@ -112,6 +96,16 @@ struct CategoryFormView: View {
                     .foregroundColor(.black)
                 }
                 .padding([.leading, .trailing, .top])
+                
+                if let id = id {
+                    Button("Delete") {
+                        categoryViewModel.deleteCategory(id)
+                        dismiss()
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .padding([.leading, .trailing, .top])
+                    .tint(.red)
+                }
             }
             .navigationBarBackButtonHidden(true)
             .toolbarBackground(Color("CustomGreenColor"), for: .navigationBar)
@@ -132,10 +126,8 @@ struct CategoryFormView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         if let hexColor = color.toHex() {
-                            if editMode {
-                                if let id = id {
-                                    categoryViewModel.updateCategory(id, name, hexColor, icon)
-                                }
+                            if let id = id {
+                                categoryViewModel.updateCategory(id, name, hexColor, icon)
                             } else {
                                 categoryViewModel.addCategory(name, hexColor, icon)
                             }
@@ -172,7 +164,11 @@ struct CategoryFormView: View {
                     }
                 }
             }
+            .onAppear {
+                readyToSubmit = validInputsBeforeSubmit(name, icon)
+            }
         }
+        .scrollDismissesKeyboard(.interactively)
     }
 }
 
