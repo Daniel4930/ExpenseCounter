@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-enum CategoryFormField: Hashable, CaseIterable {
+enum CategoryFormField: FocusableField {
     case name
     case icon
 }
@@ -40,19 +40,16 @@ struct CategoryFormView: View {
 
                 CustomSectionView(header: "Name") {
                     HStack {
-                        TextField(text: $name) {
+                        CustomTextField(focusedField: $focusedField, text: $name, field: .name) {
                             Text("Enter a name")
                                 .foregroundStyle(Color("CustomGrayColor"))
                         }
-                        .focused($focusedField, equals: .name)
                         .onChange(of: name) { newValue in
                             readyToSubmit = validInputsBeforeSubmit(newValue, icon)
                         }
                         
                         Spacer()
                         Image(systemName: "tag")
-                            .resizable()
-                            .scaledToFit()
                             .frame(width: 25, height: 25)
                     }
                     .inputFormModifier()
@@ -72,7 +69,7 @@ struct CategoryFormView: View {
                 
                 CustomSectionView(header: "Icon") {
                     HStack {
-                        TextField(text: $icon) {
+                        CustomTextField(focusedField: $focusedField, text: $icon, field: .icon) {
                             Text("Please enter up to two emojis or characters.")
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.5)
@@ -87,11 +84,8 @@ struct CategoryFormView: View {
                         
                         Spacer()
                         Image(systemName: "face.smiling")
-                            .resizable()
-                            .scaledToFit()
                             .frame(width: 25, height: 25)
                     }
-                    .focused($focusedField, equals: .icon)
                     .inputFormModifier()
                     .foregroundColor(.black)
                 }
@@ -112,17 +106,7 @@ struct CategoryFormView: View {
             .toolbarBackground(.visible, for: .navigationBar)
             .animation(.easeInOut(duration: 0.3), value: focusedField)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        HStack {
-                            Image(systemName: "chevron.left")
-                            Text("Back")
-                        }
-                        .foregroundColor(.white)
-                    }
-                }
+                BackButtonToolBarItem()
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         if let hexColor = color.toHex() {
@@ -139,30 +123,8 @@ struct CategoryFormView: View {
                     }
                     .disabled(!readyToSubmit)
                 }
-                ToolbarItem(placement: .principal) {
-                    Text(navTitle)
-                        .foregroundColor(.white)
-                        .font(AppFont.customFont(.title2))
-                }
-                ToolbarItemGroup(placement: .keyboard) {
-                    Button {
-                        focusedField = switchFocusedState(field: focusedField, direction: 1)
-                    } label: {
-                        Image(systemName: "chevron.up")
-                    }
-
-                    Button {
-                        focusedField = switchFocusedState(field: focusedField, direction: -1)
-                    } label: {
-                        Image(systemName: "chevron.down")
-                    }
-
-                    Spacer()
-
-                    Button("Done") {
-                        focusedField = nil
-                    }
-                }
+                NavbarTitle(title: navTitle)
+                KeyboardToolBarGroup(focusedField: $focusedField)
             }
             .onAppear {
                 readyToSubmit = validInputsBeforeSubmit(name, icon)
@@ -179,23 +141,6 @@ private extension CategoryFormView {
             return true
         }
         return false
-    }
-    func switchFocusedState(field: CategoryFormField?, direction: Int) -> CategoryFormField? {
-        guard let field else { return nil }
-        let allCases = CategoryFormField.allCases
-        guard var index = allCases.firstIndex(of: field) else { return nil }
-        if direction == 1 {
-            index -= 1
-        } else {
-            index += 1
-        }
-        let size = allCases.count
-        if index < 0 {
-            index = size - 1
-        } else if index >= size {
-            index = 0
-        }
-        return allCases[index]
     }
     func validInputsBeforeSubmit(_ name: String, _ icon: String) -> Bool {
         if !name.isEmpty && !icon.isEmpty {

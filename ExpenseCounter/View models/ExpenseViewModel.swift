@@ -73,9 +73,10 @@ class ExpenseViewModel: ObservableObject {
         fetchExpensesOfMonthYear(date)
     }
     
-    func deleteAnExpense(_ expense: Expense) {
+    func deleteAnExpense(_ expense: Expense, _ date: Date) {
         coreDateStackInstance.context.delete(expense)
         coreDateStackInstance.save()
+        fetchExpensesOfMonthYear(date)
     }
     
     func updateExpense(_ id: UUID, _ newTitle: String?, _ newAmount: String, _ category: Category, _ date: Date) {

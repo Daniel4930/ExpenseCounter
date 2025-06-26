@@ -17,24 +17,6 @@ struct AllExpensesView: View {
     @EnvironmentObject var expenseViewModel: ExpenseViewModel
     @Environment(\.dismiss) var dismiss
     
-    private var leadingBackButton: some ToolbarContent {
-        ToolbarItem(placement: .topBarLeading) {
-            Button(action: { dismiss() }) {
-                HStack {
-                    Image(systemName: "chevron.left")
-                    Text("Back")
-                }
-                .foregroundColor(.white)
-            }
-        }
-    }
-    private var centerTitle: some ToolbarContent {
-        ToolbarItem(placement: .principal) {
-            Text(date.formatted(.dateTime.month(.wide).year()))
-                .foregroundColor(.white)
-                .font(AppFont.customFont(.title2))
-        }
-    }
     private var trailingDeleteButton: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             Button(action: {
@@ -44,9 +26,6 @@ struct AllExpensesView: View {
                     .foregroundColor(.white)
             }
         }
-    }
-    var sortedExpenses: [Expense] {
-        sortExpensesByDate(expenseViewModel.expenses)
     }
 
     var body: some View {
@@ -65,20 +44,11 @@ struct AllExpensesView: View {
                     .frame(maxWidth: .infinity, alignment: .center)
                 Spacer()
             } else {
+                let sortedGroupExpenses = sortGroupExpenses(groupExpenses)
                 ScrollView {
-                    let sortedGroupExpenses = sortGroupExpenses(groupExpenses)
                     ForEach(sortedGroupExpenses, id: \.key) {date, expenses in
-                        
                         VStack(alignment: .leading, spacing: 5) {
-                            switch date {
-                            case DateKey.known(let actualDate):
-                                Text("\(actualDate.formatted(.dateTime.month().day()))")
-                                    .font(AppFont.customFont(font: .bold, .title3))
-                            case DateKey.unknown:
-                                Text("Unknown")
-                                    .font(AppFont.customFont(font: .bold, .title3))
-                            }
-                            
+                            ExpenseDate(date: date)
                             ForEach(expenses) { expense in
                                 let category = expense.category ?? nil
                                 let actions = [
@@ -86,48 +56,7 @@ struct AllExpensesView: View {
                                         deleteAnExpense(expense)
                                     }
                                 ]
-                                
-                                NavigationLink(
-                                    destination:
-                                        ExpenseFormView(
-                                            navTitle: "Edit an expense",
-                                            id: expense.id,
-                                            isEditMode: true
-                                        )
-                                ) {
-                                    CustomSwipeView(
-                                        isEditMode: $editMode,
-                                        actions: actions
-                                    ) {
-                                        HStack(alignment: .center, spacing: 0) {
-                                            CategoryIconView(
-                                                categoryIcon: category?.icon ?? ErrorCategory.icon,
-                                                isDefault: category?.defaultCategory ?? true,
-                                                categoryHexColor: category?.colorHex ?? ErrorCategory.colorHex
-                                            )
-                                            .padding(.trailing, 10)
-                                            
-                                            ExpenseInfo(
-                                                expenseTitle: expense.title ?? nil,
-                                                expenseDate: expense.date ?? nil,
-                                                categoryName: category?.name ?? ErrorCategory.name,
-                                                categoryColorHex: category?.colorHex ?? ErrorCategory.colorHex
-                                            )
-                                            
-                                            Spacer()
-                                            
-                                            AmountTextView(amount: expense.amount, fontSize: .title3, color: .black)
-                                        }
-                                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                                        .padding()
-                                        .background(
-                                            RoundedRectangle(cornerRadius: 20)
-                                                .fill(Color(.white))
-                                                .shadow(color: .black.opacity(0.5), radius: 5)
-                                        )
-                                    }
-                                    .padding(.vertical, 5)
-                                }
+                                ExpenseView(editMode: $editMode, expense: expense, category: category, actions: actions)
                             }
                         }
                         .padding(.top)
@@ -140,21 +69,18 @@ struct AllExpensesView: View {
         .toolbarBackground(Color("CustomGreenColor"), for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .toolbar {
-            leadingBackButton
-            centerTitle
+            BackButtonToolBarItem()
+            NavbarTitle(title: date.formatted(.dateTime.month(.wide).year()))
             trailingDeleteButton
         }
     }
 }
 private extension AllExpensesView {
-    func getExpensesFromDate() -> [Expense] {
-        var resultExpenses: [Expense] = []
-        for expense in self.sortedExpenses {
-            if let date = expense.date, date.formatted(.dateTime.month().day()) == self.date.formatted(.dateTime.month().day()) {
-                resultExpenses.append(expense)
-            }
+    func filterExpense() -> [Expense] {
+        expenseViewModel.expenses.filter {
+            searchText.isEmpty ||
+            $0.title?.localizedCaseInsensitiveContains(searchText) == true
         }
-        return resultExpenses
     }
     func sortExpensesByDate(_ expenses: [Expense]) -> [Expense] {
         expenses.sorted { lhs, rhs in
@@ -168,12 +94,6 @@ private extension AllExpensesView {
             case (_, nil):
                 return false
             }
-        }
-    }
-    func filterExpense() -> [Expense] {
-        sortedExpenses.filter {
-            searchText.isEmpty ||
-            $0.title?.localizedCaseInsensitiveContains(searchText) == true
         }
     }
     func groupExpensesByDate(_ filteredExpenses: [Expense]) -> [DateKey:[Expense]] {
@@ -200,7 +120,64 @@ private extension AllExpensesView {
     }
     func deleteAnExpense(_ expense: Expense) {
         withAnimation {
-            expenseViewModel.deleteAnExpense(expense)
+            expenseViewModel.deleteAnExpense(expense, date)
+        }
+    }
+}
+
+struct ExpenseDate: View {
+    let date: DateKey
+    
+    var body: some View {
+        switch date {
+        case DateKey.known(let actualDate):
+            Text("\(actualDate.formatted(.dateTime.month().day()))")
+                .font(AppFont.customFont(font: .bold, .title3))
+        case DateKey.unknown:
+            Text("Unknown")
+                .font(AppFont.customFont(font: .bold, .title3))
+        }
+    }
+}
+
+struct ExpenseView: View {
+    let formTitle = "Edit an expense"
+    @Binding var editMode: Bool
+    let expense: Expense
+    let category: Category?
+    let actions: [SwipeAction]
+    
+    var body: some View {
+        NavigationLink(destination: ExpenseFormView(navTitle: formTitle, id: expense.id, isEditMode: true)) {
+            CustomSwipeView(isEditMode: $editMode, actions: actions) {
+                HStack(alignment: .center, spacing: 0) {
+                    CategoryIconView(
+                        categoryIcon: category?.icon ?? ErrorCategory.icon,
+                        isDefault: category?.defaultCategory ?? true,
+                        categoryHexColor: category?.colorHex ?? ErrorCategory.colorHex
+                    )
+                    .padding(.trailing, 10)
+                    
+                    ExpenseInfo(
+                        expenseTitle: expense.title ?? nil,
+                        expenseDate: expense.date ?? nil,
+                        categoryName: category?.name ?? ErrorCategory.name,
+                        categoryColorHex: category?.colorHex ?? ErrorCategory.colorHex
+                    )
+                    
+                    Spacer()
+                    
+                    AmountTextView(amount: expense.amount, fontSize: .title3, color: .black)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(Color(.white))
+                        .shadow(color: .black.opacity(0.5), radius: 5)
+                )
+            }
+            .padding(.vertical, 5)
         }
     }
 }

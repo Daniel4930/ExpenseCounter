@@ -18,11 +18,7 @@ struct DashboardView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 ZStack {
-                    LinearGradient(
-                        colors: [Color("GradientColor1"), Color("GradientColor2")],
-                        startPoint: .topTrailing,
-                        endPoint: .bottomLeading
-                    )
+                    LinearGradientBackgroundView()
                     
                     VStack(spacing: 0) {
                         Header(user: userViewModel.user.first!)
@@ -84,17 +80,17 @@ struct Header: View {
     var body: some View {
         HStack {
             HStack {
-                Image("\(user.profileIcon ?? "face.smilling.inverse")")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 60, height: 60)
-                    .clipShape(Circle())
-                    .padding(3)
-                    .foregroundStyle(.white)
-                    .overlay {
-                        Circle()
-                            .stroke(.white, lineWidth: 2)
+                NavigationLink(destination: ProfileView()) {
+                    if let avatar = user.profileIcon {
+                        Image("\(avatar)")
+                            .resizable()
+                            .modifier(AvatarModifier(width: 60, height: 60))
+                    } else {
+                        Image(systemName: "face.smiling.inverse")
+                            .modifier(AvatarModifier(width: 60, height: 60))
                     }
+                }
+                
                 VStack(alignment: .leading) {
                     Text("\(user.firstName ?? "User")")
                     Text("\(user.lastName ?? "")")
@@ -107,8 +103,6 @@ struct Header: View {
         
             NavigationLink(destination: ExpenseFormView(navTitle: "Add an expense", id: nil, isEditMode: false)) {
                 Image(systemName: "plus")
-                    .resizable()
-                    .scaledToFit()
                     .frame(maxWidth: 20, maxHeight: 20)
                     .foregroundStyle(.white)
             }

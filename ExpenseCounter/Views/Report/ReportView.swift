@@ -28,11 +28,7 @@ struct ReportView: View {
     var body: some View {
         VStack {
             ZStack {
-                LinearGradient(
-                    colors: [Color("GradientColor1"), Color("GradientColor2")],
-                    startPoint: .topTrailing,
-                    endPoint: .bottomLeading
-                )
+                LinearGradientBackgroundView()
                 Text("Report")
                     .font(AppFont.customFont(.title2))
             }

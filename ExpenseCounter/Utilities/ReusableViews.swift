@@ -119,6 +119,26 @@ struct CategoryNameView: View {
     }
 }
 
+struct LinearGradientBackgroundView: View {
+    let colors: [Color]
+    let startPoint: UnitPoint
+    let endPoint: UnitPoint
+    
+    init(colors: [Color] = [Color("GradientColor1"), Color("GradientColor2")], startPoint: UnitPoint = .topTrailing, endPoint: UnitPoint = .bottomLeading) {
+        self.colors = colors
+        self.startPoint = startPoint
+        self.endPoint = endPoint
+    }
+    
+    var body: some View {
+        LinearGradient(
+            colors: colors,
+            startPoint: startPoint,
+            endPoint: endPoint
+        )
+    }
+}
+
 struct AmountTextView: View {
     let amount: Double
     let fontSize: FontSize
@@ -152,3 +172,16 @@ struct NoExpenseFoundView: View {
     }
 }
 
+struct CustomTextField<FieldType: FocusableField, Label: View>: View {
+    var focusedField: FocusState<FieldType?>.Binding
+    @Binding var text: String
+    var field: FieldType
+    var label: () -> Label
+    
+    var body: some View {
+        TextField(text: $text) {
+            label()
+        }
+        .focused(focusedField, equals: field)
+    }
+}

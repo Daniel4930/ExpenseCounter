@@ -21,24 +21,6 @@ struct ExpenseListView: View {
     var sortedExpenses: [Expense] {
         sortExpensesByCategoryAndBeforeDate()
     }
-    private var leadingBackButton: some ToolbarContent {
-        ToolbarItem(placement: .topBarLeading) {
-            Button(action: { dismiss() }) {
-                HStack {
-                    Image(systemName: "chevron.left")
-                    Text("Back")
-                }
-                .foregroundColor(.white)
-            }
-        }
-    }
-    private var centerTitle: some ToolbarContent {
-        ToolbarItem(placement: .principal) {
-            Text(date.formatted(.dateTime.month(.wide).year()))
-                .foregroundColor(.white)
-                .font(AppFont.customFont(.title2))
-        }
-    }
     private var trailingDeleteButton: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             Button(action: {
@@ -108,8 +90,8 @@ struct ExpenseListView: View {
         .toolbarBackground(Color("CustomGreenColor"), for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .toolbar {
-            leadingBackButton
-            centerTitle
+            BackButtonToolBarItem()
+            NavbarTitle(title: date.formatted(.dateTime.month(.wide).year()))
             trailingDeleteButton
         }
     }
@@ -118,13 +100,11 @@ struct ExpenseListView: View {
 private extension ExpenseListView {
     func sortExpensesByCategoryAndBeforeDate() -> [Expense] {
         var resultArray: [Expense] = []
-        let currentDate = date.formatted(.dateTime.month())
         for expense in expenseViewModel.expenses {
-            guard let expenseDate = expense.date else { continue }
-            let expenseDateFormatted = expenseDate.formatted(.dateTime.month())
+            guard let _ = expense.date else { continue }
             
-            //If the expenses are in the same category and in the same month
-            if expense.category == category && expenseDateFormatted == currentDate {
+            //If the expenses are in the same category
+            if expense.category == category {
                 resultArray.append(expense)
             }
         }
@@ -168,7 +148,7 @@ private extension ExpenseListView {
     }
     func deleteExpense(_ expense: Expense) {
         withAnimation {
-            expenseViewModel.deleteAnExpense(expense)
+            expenseViewModel.deleteAnExpense(expense, date)
         }
     }
 }
@@ -209,8 +189,6 @@ struct ExpenseListItemView: View {
                 }
                 HStack {
                     Image(systemName: "clock")
-                        .resizable()
-                        .scaledToFit()
                         .frame(width: 15, height: 15)
                     if let date = expense.date {
                         let hourMinute = date.formatted(.dateTime.hour().minute())
@@ -222,7 +200,7 @@ struct ExpenseListItemView: View {
             }
             Spacer()
             
-            AmountTextView(amount: expense.amount, fontSize: .title3, color: .primary, font: .bold)
+            AmountTextView(amount: expense.amount, fontSize: .title3, color: .black, font: .bold)
             
             Image(systemName: "chevron.right")
         }

@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-enum ExpenseFormField: Hashable, CaseIterable {
+enum ExpenseFormField: FocusableField {
     case title
     case amount
 }
@@ -49,17 +49,14 @@ struct ExpenseFormView: View {
             VStack {
                 CustomSectionView(header: "Title (Optional)") {
                     HStack {
-                        TextField(text: $title) {
+                        CustomTextField(focusedField: $focusedField, text: $title, field: .title) {
                             Text("Enter a title")
                                 .foregroundStyle(Color("CustomGrayColor"))
                         }
                         Spacer()
                         Image(systemName: "list.bullet.rectangle")
-                            .resizable()
-                            .scaledToFit()
                             .frame(width: 25, height: 25)
                     }
-                    .focused($focusedField, equals: ExpenseFormField.title)
                     .inputFormModifier()
                     .foregroundColor(.black)
                 }
@@ -67,11 +64,10 @@ struct ExpenseFormView: View {
                 
                 CustomSectionView(header: "Amount") {
                     HStack {
-                        TextField(text: $amount) {
+                        CustomTextField(focusedField: $focusedField, text: $amount, field: .amount) {
                             Text("Enter an amount")
                                 .foregroundStyle(Color("CustomGrayColor"))
                         }
-                        .focused($focusedField, equals: ExpenseFormField.amount)
                         .onChange(of: amount) {newValue in
                             if !amountInputValid(newValue) && !newValue.isEmpty {
                                 amount = String(newValue.dropLast())
@@ -95,8 +91,6 @@ struct ExpenseFormView: View {
                             Text(category?.name ?? "Select a category")
                             Spacer()
                             Image(systemName: "list.bullet")
-                                .resizable()
-                                .scaledToFit()
                                 .frame(width: 25, height: 25)
                         }
                     })
@@ -120,8 +114,6 @@ struct ExpenseFormView: View {
                             Text(showDate ? date.formatted(date: .abbreviated, time: .shortened) : "Select a date")
                             Spacer()
                             Image(systemName: "calendar")
-                                .resizable()
-                                .scaledToFit()
                                 .frame(width: 25, height: 25)
                         }
                     }
@@ -145,18 +137,7 @@ struct ExpenseFormView: View {
             .padding(.bottom, focusedField == ExpenseFormField.amount ? keyboardHeight : 0)
             .animation(.easeInOut(duration: 0.3), value: focusedField)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        HStack {
-                            Image(systemName: "chevron.left")
-                            Text("Back")
-                        }
-                        .foregroundColor(.white)
-                    }
-                }
-                
+                BackButtonToolBarItem()
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         if isEditMode {
@@ -171,31 +152,8 @@ struct ExpenseFormView: View {
                     }
                     .disabled(!readyToSubmit)
                 }
-                
-                ToolbarItem(placement: .principal) {
-                    Text(navTitle)
-                        .foregroundColor(.white)
-                        .font(AppFont.customFont(.title2))
-                }
-                ToolbarItemGroup(placement: .keyboard) {
-                    Button {
-                        focusedField = switchFocusedState(field: focusedField, direction: 1)
-                    } label: {
-                        Image(systemName: "chevron.up")
-                    }
-
-                    Button {
-                        focusedField = switchFocusedState(field: focusedField, direction: -1)
-                    } label: {
-                        Image(systemName: "chevron.down")
-                    }
-
-                    Spacer()
-
-                    Button("Done") {
-                        focusedField = nil
-                    }
-                }
+                NavbarTitle(title: navTitle)
+                KeyboardToolBarGroup(focusedField: $focusedField)
             }
             .onAppear {
                 if isEditMode {
@@ -238,23 +196,6 @@ private extension ExpenseFormView {
             return true
         }
         return false
-    }
-    func switchFocusedState(field: ExpenseFormField?, direction: Int) -> ExpenseFormField? {
-        guard let field else { return nil }
-        let allCases = ExpenseFormField.allCases
-        guard var index = allCases.firstIndex(of: field) else { return nil }
-        if direction == 1 {
-            index -= 1
-        } else {
-            index += 1
-        }
-        let size = allCases.count
-        if index < 0 {
-            index = size - 1
-        } else if index >= size {
-            index = 0
-        }
-        return allCases[index]
     }
 }
 

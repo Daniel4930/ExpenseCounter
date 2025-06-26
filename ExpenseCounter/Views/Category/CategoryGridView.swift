@@ -16,11 +16,7 @@ struct CategoryGridView: View {
         NavigationStack {
             VStack {
                 ZStack {
-                    LinearGradient(
-                        colors: [Color("GradientColor1"), Color("GradientColor2")],
-                        startPoint: .topTrailing,
-                        endPoint: .bottomLeading
-                    )
+                    LinearGradientBackgroundView()
                     HStack(spacing: 0) {
                         Text("Category")
                             .font(AppFont.customFont(.largeTitle))
@@ -37,8 +33,6 @@ struct CategoryGridView: View {
                             )
                         ) {
                             Image(systemName: "plus.circle.fill")
-                                .resizable()
-                                .scaledToFit()
                                 .frame(width: 40, height: 40)
                                 .foregroundStyle(.white)
                                 .padding(.trailing)
