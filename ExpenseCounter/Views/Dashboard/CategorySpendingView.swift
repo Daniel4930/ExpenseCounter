@@ -16,9 +16,8 @@ struct CategorySpendingView: View {
     var body: some View {
         VStack(spacing: 16) {
             ForEach(categoryViewModel.categories, id: \.id) { category in
-                let sortedExpenses = sortExpensesByCategoryAndBeforeDate(expenseViewModel.expenses, category, date)
-                
-                if !sortedExpenses.isEmpty {
+                let expenses = expenseViewModel.fetchExpensesInCategory(category)
+                if !expenses.isEmpty {
                     NavigationLink(
                         destination: ExpenseListView (
                             category: category,
@@ -27,8 +26,7 @@ struct CategorySpendingView: View {
                     ) {
                         CategoryItemView(
                             category: category,
-                            firstExpense: sortedExpenses.first,
-                            totalSpend: calculateTotalExpense(sortedExpenses),
+                            expensesInCategory: expenses
                         )
                     }
                 }
@@ -39,17 +37,6 @@ struct CategorySpendingView: View {
 }
 
 private extension CategorySpendingView {
-    func sortExpensesByCategoryAndBeforeDate(_ expenses: [Expense], _ category: Category, _ date: Date) -> [Expense] {
-        var resultArray: [Expense] = []
-        let currentDate = date.formatted(.dateTime.month())
-        for expense in expenses {
-            guard let expenseDate = expense.date else { continue }
-            if expense.category == category && expenseDate.formatted(.dateTime.month()) == currentDate {
-                resultArray.append(expense)
-            }
-        }
-        return resultArray.sorted { $0.date! > $1.date! }
-    }
     func calculateTotalExpense(_ expenses: [Expense]) -> Double {
         var total: Double = 0
         for expense in expenses {
@@ -61,8 +48,7 @@ private extension CategorySpendingView {
 
 struct CategoryItemView: View {
     let category: Category
-    let firstExpense: Expense?
-    let totalSpend: Double
+    let expensesInCategory: [Expense]
     
     var body: some View {
         HStack(alignment: .center, spacing: 0) {
@@ -71,12 +57,12 @@ struct CategoryItemView: View {
                 isDefault: category.defaultCategory,
                 categoryHexColor: category.colorHex ?? ErrorCategory.colorHex
             )
-            .padding(.trailing, 5)
+            .padding(.trailing, 9)
             
             VStack(alignment: .leading, spacing: 0) {
                 CategoryNameView(name: category.name ?? "No name")
                 
-                if let expense = firstExpense {
+                if let expense = getLastestExpense() {
                     HStack(spacing: 8) {
                         Text(expense.date?.formatted(.dateTime.day().month()) ?? "Error date")
                         Divider()
@@ -96,9 +82,8 @@ struct CategoryItemView: View {
             
             Spacer()
             
-            AmountTextView(amount: totalSpend, fontSize: .title3, color: .black)
+            AmountTextView(amount: calculateTotalExpense(), fontSize: .title3, color: .black)
         }
-        .frame(maxHeight: .infinity)
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 20)
@@ -106,5 +91,19 @@ struct CategoryItemView: View {
                 .shadow(color: .black.opacity(0.3), radius: 5)
         )
         .padding(.horizontal)
+    }
+}
+
+extension CategoryItemView {
+    func getLastestExpense() -> Expense? {
+        let dates = expensesInCategory.compactMap{ $0.date }
+        return expensesInCategory.first{ $0.date == dates.max() }
+    }
+    func calculateTotalExpense() -> Double {
+        var total: Double = 0
+        for expense in expensesInCategory {
+            total += expense.amount
+        }
+        return total
     }
 }

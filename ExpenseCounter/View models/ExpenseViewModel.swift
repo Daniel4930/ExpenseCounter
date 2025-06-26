@@ -36,6 +36,18 @@ class ExpenseViewModel: ObservableObject {
         print(path ?? "Not found")
     }
     
+    func fetchExpensesInCategory(_ category: Category) -> [Expense] {
+        let request = NSFetchRequest<Expense>(entityName: "Expense")
+        request.predicate = NSPredicate(format: "category == %@", category)
+        
+        do {
+            let resultedExpenses = try coreDateStackInstance.context.fetch(request)
+            return resultedExpenses
+        } catch let error {
+            fatalError("Can't get expenses from category -> \(error.localizedDescription)")
+        }
+    }
+    
     func fetchExpensesOfMonthYear(_ date: Date) {
         let calendar = Calendar.current
         let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: date))!

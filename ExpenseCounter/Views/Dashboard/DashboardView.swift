@@ -103,6 +103,7 @@ struct Header: View {
         
             NavigationLink(destination: ExpenseFormView(navTitle: "Add an expense", id: nil, isEditMode: false)) {
                 Image(systemName: "plus")
+                    .resizable()
                     .frame(maxWidth: 20, maxHeight: 20)
                     .foregroundStyle(.white)
             }

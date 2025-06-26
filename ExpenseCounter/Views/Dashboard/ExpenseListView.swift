@@ -19,7 +19,7 @@ struct ExpenseListView: View {
     @Environment(\.dismiss) private var dismiss
     
     var sortedExpenses: [Expense] {
-        sortExpensesByCategoryAndBeforeDate()
+        sortExpensesBeforeDate()
     }
     private var trailingDeleteButton: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
@@ -98,18 +98,20 @@ struct ExpenseListView: View {
 }
 
 private extension ExpenseListView {
-    func sortExpensesByCategoryAndBeforeDate() -> [Expense] {
-        var resultArray: [Expense] = []
-        for expense in expenseViewModel.expenses {
-            guard let _ = expense.date else { continue }
-            
-            //If the expenses are in the same category
-            if expense.category == category {
-                resultArray.append(expense)
+    func sortExpensesBeforeDate() -> [Expense] {
+        let expenses = expenseViewModel.fetchExpensesInCategory(category)
+        return expenses.sorted { first, second in
+            switch (first.date, second.date) {
+            case let (date1?, date2?):
+                return date1 < date2
+            case (nil, _?):
+                return false
+            case (_?, nil):
+                return true
+            case (nil, nil):
+                return false
             }
         }
-        //date is force-wrapped because the guard statement guarantees its safety
-        return resultArray.sorted { $0.date! < $1.date! }
     }
     func groupExpensesByDate(_ filteredExpenses: [Expense]) -> [DateKey:[Expense]] {
         Dictionary(grouping: filteredExpenses) {
