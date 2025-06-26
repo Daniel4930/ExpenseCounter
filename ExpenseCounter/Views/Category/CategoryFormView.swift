@@ -36,7 +36,7 @@ struct CategoryFormView: View {
                 )
                 .padding(.top)
                 
-                CategoryNameView(name: name)
+                CategoryNameView(name: name, fontColor: colorScheme == .light ? .black : .white)
 
                 CustomSectionView(header: "Name") {
                     HStack {

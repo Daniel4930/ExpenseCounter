@@ -26,7 +26,7 @@ struct DashboardView: View {
                     
                     VStack(spacing: 0) {
                         Header(user: userViewModel.user.first!)
-                        TotalSpendingView(totalSpending: DashboardView.calculateTotalExpense(expensesViewModel.expenses, date))
+                        TotalSpendingView(totalSpending: calculateTotalExpense())
                         MonthNavigatorView(showCalendar: $showCalendar, date: $date)
                     }
                     .padding(.top, 55)
@@ -47,21 +47,21 @@ struct DashboardView: View {
             }
             .ignoresSafeArea()
         }
+        .task {
+            expensesViewModel.fetchExpensesOfMonthYear(date)
+        }
+        .onChange(of: date) {newValue in
+            DispatchQueue.main.async {
+                expensesViewModel.fetchExpensesOfMonthYear(newValue)
+            }
+        }
     }
 }
 private extension DashboardView {
-    static func calculateTotalExpense(_ expenses: [Expense], _ date: Date) -> Double {
-        let calendar = Calendar.current
-        let targetComponents = calendar.dateComponents([.year, .month], from: date)
+    func calculateTotalExpense() -> Double {
         var total: Double = 0
-        for expense in expenses {
-            if let expenseDate = expense.date {
-                let expenseComponents = calendar.dateComponents([.year, .month], from: expenseDate)
-                if expenseComponents.year == targetComponents.year &&
-                   expenseComponents.month == targetComponents.month {
-                    total += expense.amount
-                }
-            }
+        for expense in expensesViewModel.expenses {
+            total += expense.amount
         }
         return total
     }

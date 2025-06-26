@@ -11,10 +11,6 @@ class ExpenseViewModel: ObservableObject {
     @Published var expenses: [Expense] = []
     private let coreDateStackInstance = CoreDataStack.shared
     
-    init() {
-        fetchExpenses()
-    }
-    
     func expenseExists(id: UUID) -> Bool {
         let fetchRequest: NSFetchRequest<Expense> = Expense.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "id == %@", id as CVarArg)
@@ -40,8 +36,16 @@ class ExpenseViewModel: ObservableObject {
         print(path ?? "Not found")
     }
     
-    func fetchExpenses() {
+    func fetchExpensesOfMonthYear(_ date: Date) {
+        let calendar = Calendar.current
+        let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: date))!
+        var components = DateComponents()
+        components.month = 1
+        components.second = -1
+        let endOfMonth = calendar.date(byAdding: components, to: startOfMonth)!
+
         let request = NSFetchRequest<Expense>(entityName: "Expense")
+        request.predicate = NSPredicate(format: "date >= %@ AND date <= %@", startOfMonth as NSDate, endOfMonth as NSDate)
         
         do {
             expenses = try coreDateStackInstance.context.fetch(request)
@@ -59,20 +63,19 @@ class ExpenseViewModel: ObservableObject {
         expense.amount = amountValue
         expense.category = category
         
-        let date = getDateAndTime(date)
-        expense.date = date
+        let formattedDate = getDateAndTime(date)
+        expense.date = formattedDate
         
         if let currentTitle = title, currentTitle != "" {
             expense.title = currentTitle
         }
         coreDateStackInstance.save()
-        fetchExpenses()
+        fetchExpensesOfMonthYear(date)
     }
     
     func deleteAnExpense(_ expense: Expense) {
         coreDateStackInstance.context.delete(expense)
         coreDateStackInstance.save()
-        fetchExpenses()
     }
     
     func updateExpense(_ id: UUID, _ newTitle: String?, _ newAmount: String, _ category: Category, _ date: Date) {
@@ -94,7 +97,7 @@ class ExpenseViewModel: ObservableObject {
                     existingExpense.title = title
                 }
                 coreDateStackInstance.save()
-                fetchExpenses()
+                fetchExpensesOfMonthYear(date)
             }
         } catch let error {
             fatalError("Error updating an expense -> \(error.localizedDescription)")
