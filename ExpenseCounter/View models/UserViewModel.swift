@@ -43,6 +43,7 @@ class UserViewModel: ObservableObject {
     
     func addUser(_ firstName: String, _ lastName: String, _ imageData: Data?) {
         let user = User(context: sharedCoreDataInstance.context)
+        user.id = UUID()
         user.firstName = firstName
         user.lastName = lastName
         user.profileIcon = imageData

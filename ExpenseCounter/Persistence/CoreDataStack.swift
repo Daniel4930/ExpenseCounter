@@ -13,7 +13,7 @@ class CoreDataStack: ObservableObject {
     let context: NSManagedObjectContext
     
     private init() {
-//        CoreDataStack.whereIsMySQLite()
+        CoreDataStack.whereIsMySQLite()
         container = NSPersistentContainer(name: "ExpenseCounter")
         container.loadPersistentStores { _, error in
             if let error {
