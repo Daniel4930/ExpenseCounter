@@ -8,7 +8,7 @@
 import CoreData
 
 class UserViewModel: ObservableObject {
-    @Published var user: [User] = []
+    @Published var user: User?
     private let sharedCoreDataInstance = CoreDataStack.shared
     
     init() {
@@ -21,7 +21,6 @@ class UserViewModel: ObservableObject {
         user.firstName = "Daniel"
         user.lastName = "Le"
         user.income = 10000.00
-        user.profileIcon = "UserIcon"
         
         sharedCoreDataInstance.save()
         fetchUser()
@@ -29,16 +28,44 @@ class UserViewModel: ObservableObject {
     
     func fetchUser() {
         let request = NSFetchRequest<User>(entityName: "User")
+        request.fetchLimit = 1
         
         do {
-            user = try sharedCoreDataInstance.context.fetch(request)
-            
-            if user.isEmpty {
-                createTestUser()
+            let result = try sharedCoreDataInstance.context.fetch(request)
+            if let firstUser = result.first {
+                user = firstUser
             }
             
         } catch let error {
             fatalError("Failed to fetch user with error -> \(error.localizedDescription)")
+        }
+    }
+    
+    func addUser(_ firstName: String, _ lastName: String, _ imageData: Data?) {
+        let user = User(context: sharedCoreDataInstance.context)
+        user.firstName = firstName
+        user.lastName = lastName
+        user.profileIcon = imageData
+        
+        sharedCoreDataInstance.save()
+        fetchUser()
+    }
+    func updateUser(_ id: UUID, _ firstName: String, _ lastName: String, _ imageData: Data?) {
+        let request = NSFetchRequest<User>(entityName: "User")
+        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        request.fetchLimit = 1
+        
+        do {
+            if let existedUser = try sharedCoreDataInstance.context.fetch(request).first {
+                existedUser.firstName = firstName
+                existedUser.lastName = lastName
+                existedUser.profileIcon = imageData
+                
+                sharedCoreDataInstance.save()
+                fetchUser()
+            }
+        } catch let error {
+            fatalError("Can't update the user -> \(error.localizedDescription)")
         }
     }
 }

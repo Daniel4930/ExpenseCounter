@@ -137,7 +137,7 @@ struct ExpenseFormView: View {
             .padding(.bottom, focusedField == ExpenseFormField.amount ? keyboardHeight : 0)
             .animation(.easeInOut(duration: 0.3), value: focusedField)
             .toolbar {
-                BackButtonToolBarItem()
+                BackButtonToolbarItem()
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         if isEditMode {
@@ -153,7 +153,7 @@ struct ExpenseFormView: View {
                     .disabled(!readyToSubmit)
                 }
                 NavbarTitle(title: navTitle)
-                KeyboardToolBarGroup(focusedField: $focusedField)
+                KeyboardToolbarGroup(focusedField: $focusedField)
             }
             .onAppear {
                 if isEditMode {

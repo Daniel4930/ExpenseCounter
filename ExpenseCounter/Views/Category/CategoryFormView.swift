@@ -106,7 +106,7 @@ struct CategoryFormView: View {
             .toolbarBackground(.visible, for: .navigationBar)
             .animation(.easeInOut(duration: 0.3), value: focusedField)
             .toolbar {
-                BackButtonToolBarItem()
+                BackButtonToolbarItem()
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         if let hexColor = color.toHex() {
@@ -124,7 +124,7 @@ struct CategoryFormView: View {
                     .disabled(!readyToSubmit)
                 }
                 NavbarTitle(title: navTitle)
-                KeyboardToolBarGroup(focusedField: $focusedField)
+                KeyboardToolbarGroup(focusedField: $focusedField)
             }
             .onAppear {
                 readyToSubmit = validInputsBeforeSubmit(name, icon)

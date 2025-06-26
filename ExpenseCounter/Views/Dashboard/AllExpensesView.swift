@@ -69,7 +69,7 @@ struct AllExpensesView: View {
         .toolbarBackground(Color("CustomGreenColor"), for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .toolbar {
-            BackButtonToolBarItem()
+            BackButtonToolbarItem()
             NavbarTitle(title: date.formatted(.dateTime.month(.wide).year()))
             trailingDeleteButton
         }

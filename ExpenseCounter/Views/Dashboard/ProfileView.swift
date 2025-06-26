@@ -8,27 +8,43 @@
 import SwiftUI
 
 struct ProfileView: View {
+    let defaultFirstName = "User"
+    let defaultLastName = ""
     
-    @Environment(\.dismiss) var dismiss
-    
+    @EnvironmentObject var userViewModel: UserViewModel
     var body: some View {
         ZStack {
             LinearGradientBackgroundView()
                 .ignoresSafeArea()
             VStack(alignment: .center) {
                 HStack {
-                    Image(systemName: "face.smiling.inverse")
-                        .resizable()
-                        .modifier(AvatarModifier(width: 80, height: 80))
-                        .padding(.trailing)
+                    if let data = userViewModel.user?.profileIcon, let uiImage = UIImage(data: data) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .modifier(AvatarModifier(width: 80, height: 80))
+                            .padding(.trailing)
+                    } else {
+                        Image(systemName: "face.smiling.inverse")
+                            .resizable()
+                            .modifier(AvatarModifier(width: 80, height: 80))
+                            .padding(.trailing)
+                    }
                     VStack(alignment: .leading) {
-                        Text("Daniel Le")
-                        Text(String("daniel@gmail.com"))
+                        Text("\(userViewModel.user?.firstName ?? defaultFirstName)")
+                        Text("\(userViewModel.user?.lastName ?? defaultLastName)")
                     }
                     .font(AppFont.customFont(.title2))
-                    .padding(.trailing)
+                    .padding(.trailing, 25)
                     .overlay(alignment: .topTrailing) {
-                        NavigationLink(destination: EditProfileFormView()) {
+                        NavigationLink(
+                            destination:
+                                EditProfileFormView(
+                                    id: userViewModel.user?.id,
+                                    firstName: userViewModel.user?.firstName ?? defaultFirstName,
+                                    lastName: userViewModel.user?.lastName ?? defaultLastName,
+                                    data: userViewModel.user?.profileIcon
+                                )
+                        ) {
                             Image(systemName: "pencil.circle.fill")
                         }
                     }
@@ -54,15 +70,7 @@ struct ProfileView: View {
         }
         .navigationBarBackButtonHidden()
         .toolbar {
-            BackButtonToolBarItem()
+            BackButtonToolbarItem()
         }
     }
 }
-
-//#Preview {
-//    ContentView()
-//        .environmentObject(UserViewModel())
-//        .environmentObject(ExpenseViewModel())
-//        .environmentObject(CategoryViewModel())
-//    ProfileView()
-//}

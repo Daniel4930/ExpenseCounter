@@ -16,17 +16,15 @@ struct CategorySpendingView: View {
     var body: some View {
         VStack(spacing: 16) {
             ForEach(categoryViewModel.categories, id: \.id) { category in
-                let expenses = expenseViewModel.fetchExpensesInCategory(category)
-                if !expenses.isEmpty {
+                if !expenseViewModel.getExpensesInCategory(category).isEmpty {
                     NavigationLink(
-                        destination: ExpenseListView (
+                        destination: CategorizedExpenseListView (
                             category: category,
                             date: date
                         )
                     ) {
                         CategoryItemView(
-                            category: category,
-                            expensesInCategory: expenses
+                            category: category
                         )
                     }
                 }
@@ -36,19 +34,9 @@ struct CategorySpendingView: View {
     }
 }
 
-private extension CategorySpendingView {
-    func calculateTotalExpense(_ expenses: [Expense]) -> Double {
-        var total: Double = 0
-        for expense in expenses {
-            total += expense.amount
-        }
-        return total
-    }
-}
-
 struct CategoryItemView: View {
     let category: Category
-    let expensesInCategory: [Expense]
+    @EnvironmentObject var expenseViewModel: ExpenseViewModel
     
     var body: some View {
         HStack(alignment: .center, spacing: 0) {
@@ -96,12 +84,13 @@ struct CategoryItemView: View {
 
 extension CategoryItemView {
     func getLastestExpense() -> Expense? {
-        let dates = expensesInCategory.compactMap{ $0.date }
-        return expensesInCategory.first{ $0.date == dates.max() }
+        let expenses = expenseViewModel.getExpensesInCategory(category)
+        let dates = expenses.compactMap{ $0.date }
+        return expenses.first{ $0.date == dates.max() }
     }
     func calculateTotalExpense() -> Double {
         var total: Double = 0
-        for expense in expensesInCategory {
+        for expense in expenseViewModel.getExpensesInCategory(category) {
             total += expense.amount
         }
         return total

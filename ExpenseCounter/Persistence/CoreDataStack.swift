@@ -13,6 +13,7 @@ class CoreDataStack: ObservableObject {
     let context: NSManagedObjectContext
     
     private init() {
+//        CoreDataStack.whereIsMySQLite()
         container = NSPersistentContainer(name: "ExpenseCounter")
         container.loadPersistentStores { _, error in
             if let error {
@@ -20,6 +21,18 @@ class CoreDataStack: ObservableObject {
             }
         }
         context = container.viewContext
+    }
+    
+    private static func whereIsMySQLite() {
+        let path = FileManager
+            .default
+            .urls(for: .applicationSupportDirectory, in: .userDomainMask)
+            .last?
+            .absoluteString
+            .replacingOccurrences(of: "file://", with: "")
+            .removingPercentEncoding
+        
+        print(path ?? "Not found")
     }
     
     func save() {

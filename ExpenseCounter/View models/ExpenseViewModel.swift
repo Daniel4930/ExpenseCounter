@@ -24,30 +24,6 @@ class ExpenseViewModel: ObservableObject {
         }
     }
     
-    func whereIsMySQLite() {
-        let path = FileManager
-            .default
-            .urls(for: .applicationSupportDirectory, in: .userDomainMask)
-            .last?
-            .absoluteString
-            .replacingOccurrences(of: "file://", with: "")
-            .removingPercentEncoding
-        
-        print(path ?? "Not found")
-    }
-    
-    func fetchExpensesInCategory(_ category: Category) -> [Expense] {
-        let request = NSFetchRequest<Expense>(entityName: "Expense")
-        request.predicate = NSPredicate(format: "category == %@", category)
-        
-        do {
-            let resultedExpenses = try coreDateStackInstance.context.fetch(request)
-            return resultedExpenses
-        } catch let error {
-            fatalError("Can't get expenses from category -> \(error.localizedDescription)")
-        }
-    }
-    
     func fetchExpensesOfMonthYear(_ date: Date) {
         let calendar = Calendar.current
         let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: date))!
@@ -115,5 +91,9 @@ class ExpenseViewModel: ObservableObject {
         } catch let error {
             fatalError("Error updating an expense -> \(error.localizedDescription)")
         }
+    }
+    
+    func getExpensesInCategory(_ category: Category) -> [Expense] {
+        expenses.filter { $0.category == category }
     }
 }

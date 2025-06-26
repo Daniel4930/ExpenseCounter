@@ -107,7 +107,7 @@ struct KeyboardProvider: ViewModifier {
     }
 }
 
-struct BackButtonToolBarItem: ToolbarContent {
+struct BackButtonToolbarItem: ToolbarContent {
     @Environment(\.dismiss) var dismiss
     var body: some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
@@ -136,7 +136,7 @@ struct NavbarTitle: ToolbarContent {
 }
 
 protocol FocusableField: Hashable, CaseIterable {}
-struct KeyboardToolBarGroup<Field: FocusableField>: ToolbarContent {
+struct KeyboardToolbarGroup<Field: FocusableField>: ToolbarContent {
     var focusedField: FocusState<Field?>.Binding
     
     var body: some ToolbarContent {
@@ -161,7 +161,7 @@ struct KeyboardToolBarGroup<Field: FocusableField>: ToolbarContent {
         }
     }
 }
-private extension KeyboardToolBarGroup {
+private extension KeyboardToolbarGroup {
     func switchFocusedState(direction: Int) -> Field? {
         let allCases = Array(Field.allCases)
         guard let current = focusedField.wrappedValue, var index = allCases.firstIndex(of: current) else { return nil }

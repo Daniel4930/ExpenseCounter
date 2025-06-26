@@ -21,7 +21,7 @@ struct DashboardView: View {
                     LinearGradientBackgroundView()
                     
                     VStack(spacing: 0) {
-                        Header(user: userViewModel.user.first!)
+                        Header(user: userViewModel.user)
                         TotalSpendingView(totalSpending: calculateTotalExpense())
                         MonthNavigatorView(showCalendar: $showCalendar, date: $date)
                     }
@@ -75,25 +75,26 @@ private extension DashboardView {
 }
 
 struct Header: View {
-    let user: User
+    let user: User?
     
     var body: some View {
         HStack {
             HStack {
                 NavigationLink(destination: ProfileView()) {
-                    if let avatar = user.profileIcon {
-                        Image("\(avatar)")
+                    if let imageData = user?.profileIcon, let uiImage = UIImage(data: imageData) {
+                        Image(uiImage: uiImage)
                             .resizable()
                             .modifier(AvatarModifier(width: 60, height: 60))
                     } else {
                         Image(systemName: "face.smiling.inverse")
+                            .resizable()
                             .modifier(AvatarModifier(width: 60, height: 60))
                     }
                 }
                 
                 VStack(alignment: .leading) {
-                    Text("\(user.firstName ?? "User")")
-                    Text("\(user.lastName ?? "")")
+                    Text("\(user?.firstName ?? "User")")
+                    Text("\(user?.lastName ?? "")")
                 }
                 .font(AppFont.customFont(font: .bold, .title3))
                 .foregroundStyle(.white)

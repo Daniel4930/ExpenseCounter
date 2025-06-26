@@ -1,5 +1,5 @@
 //
-//  ExpenseListView.swift
+//  CategorizedExpenseListView.swift
 //  ExpenseCounter
 //
 //  Created by Daniel Le on 6/18/25.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ExpenseListView: View {
+struct CategorizedExpenseListView: View {
     let category: Category
     let date: Date
     
@@ -90,17 +90,23 @@ struct ExpenseListView: View {
         .toolbarBackground(Color("CustomGreenColor"), for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .toolbar {
-            BackButtonToolBarItem()
+            BackButtonToolbarItem()
             NavbarTitle(title: date.formatted(.dateTime.month(.wide).year()))
             trailingDeleteButton
         }
     }
 }
 
-private extension ExpenseListView {
+private extension CategorizedExpenseListView {
     func sortExpensesBeforeDate() -> [Expense] {
-        let expenses = expenseViewModel.fetchExpensesInCategory(category)
-        return expenses.sorted { first, second in
+        var resultArray: [Expense] = []
+        
+        for expense in expenseViewModel.expenses {
+            if expense.category == category {
+                resultArray.append(expense)
+            }
+        }
+        return resultArray.sorted { first, second in
             switch (first.date, second.date) {
             case let (date1?, date2?):
                 return date1 < date2
