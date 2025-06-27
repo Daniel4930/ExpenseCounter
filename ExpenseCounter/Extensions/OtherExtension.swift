@@ -9,6 +9,7 @@ import UIKit
 import SwiftUI
 
 extension UIApplication {
+    // Hide the keyboard when pressed anywhere outside the textField
     func addTapGestureRecognizer() {
         guard
             let windowScene = connectedScenes.first as? UIWindowScene,
@@ -27,6 +28,7 @@ extension UIApplication {
 }
 
 extension View {
+    //Hide keyboard when pressed the done button on the keyboard
     func hideKeyboard() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }

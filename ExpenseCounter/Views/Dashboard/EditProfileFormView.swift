@@ -35,8 +35,8 @@ struct EditProfileFormView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
-                if avatar != nil {
-                    PreviewAvatarView(avatar: $avatar, firstName: $firstName, lastName: $lastName)
+                if let data = imageData, let uiImage = UIImage(data: data) {
+                    PreviewAvatarView(avatar: Image(uiImage: uiImage), firstName: firstName, lastName: lastName)
                 }
                 
                 CustomSectionView(header: "First name") {
@@ -44,6 +44,7 @@ struct EditProfileFormView: View {
                         Text("Enter a first name")
                     }
                     .inputFormModifier()
+                    .foregroundStyle(.black)
                     .onChange(of: firstName) { newValue in
                         readyToSubmit = validateInput(newValue, lastName)
                     }
@@ -53,6 +54,7 @@ struct EditProfileFormView: View {
                         Text("Enter a last name")
                     }
                     .inputFormModifier()
+                    .foregroundStyle(.black)
                     .onChange(of: lastName) { newValue in
                         readyToSubmit = validateInput(firstName, newValue)
                     }
@@ -121,9 +123,9 @@ extension EditProfileFormView {
 }
 
 struct PreviewAvatarView: View {
-    @Binding var avatar: Image?
-    @Binding var firstName: String
-    @Binding var lastName: String
+    let avatar: Image?
+    let firstName: String
+    let lastName: String
     
     @Environment(\.colorScheme) var colorScheme
     var body: some View {

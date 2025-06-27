@@ -36,9 +36,9 @@ struct ContentView: View {
             HStack {
                 Spacer()
                 TabbarButton(selectedTab: $selectedTab, tab: Tabs.dashboard, tabIcon: "house", tabTitle: "Home")
-                TabbarButton(selectedTab: $selectedTab, tab: Tabs.reports, tabIcon: "list.bullet.clipboard", tabTitle: "Reports")
+//                TabbarButton(selectedTab: $selectedTab, tab: Tabs.reports, tabIcon: "list.bullet.clipboard", tabTitle: "Reports")
                 TabbarButton(selectedTab: $selectedTab, tab: Tabs.category, tabIcon: "rectangle.stack", tabTitle: "Category")
-                TabbarButton(selectedTab: $selectedTab, tab: Tabs.settings, tabIcon: "gear", tabTitle: "Settings")
+//                TabbarButton(selectedTab: $selectedTab, tab: Tabs.settings, tabIcon: "gear", tabTitle: "Settings")
                 Spacer()
             }
             .padding(.top)

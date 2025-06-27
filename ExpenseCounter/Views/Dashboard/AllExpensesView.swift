@@ -77,7 +77,7 @@ struct AllExpensesView: View {
 }
 private extension AllExpensesView {
     func filterExpense() -> [Expense] {
-        expenseViewModel.expenses.filter {
+        expenseViewModel.expensesOfMonth.filter {
             searchText.isEmpty ||
             $0.title?.localizedCaseInsensitiveContains(searchText) == true
         }
@@ -120,7 +120,7 @@ private extension AllExpensesView {
     }
     func deleteAnExpense(_ expense: Expense) {
         withAnimation {
-            expenseViewModel.deleteAnExpense(expense, date)
+            expenseViewModel.deleteAnExpense(expense)
         }
     }
 }

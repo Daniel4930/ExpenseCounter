@@ -56,14 +56,11 @@ struct CategoryFormView: View {
                     .foregroundColor(.black)
                 }
                 .padding([.leading, .trailing, .top])
-                
+
                 CustomSectionView(header: "Color") {
-                    HStack {
-                        Spacer()
-                        ColorPicker("", selection: $color)
-                            .labelsHidden()
-                    }
-                    .inputFormModifier(color)
+                    ColorPicker("", selection: $color)
+                        .frame(maxWidth: .infinity)
+                        .inputFormModifier(color)
                 }
                 .padding([.leading, .trailing, .top])
                 

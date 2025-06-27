@@ -12,16 +12,17 @@ class CategoryViewModel: ObservableObject {
     @Published var customCategories: [Category] = []
     @Published var defaultCategories: [Category] = []
     
-    private let coreDataSharedInstance = CoreDataStack.shared
+    private let coreDataSharedInstance = PersistenceContainer.shared
     
-    init() {
-        fetchCategories()
-        if categories.isEmpty {
-            addDefaultCategories()
-        }
-    }
+//    init() {
+//        fetchCategories()
+//
+//        if defaultCategories.isEmpty {
+//            addDefaultCategories()
+//        }
+//    }
     
-    private func addDefaultCategories() {
+    func addDefaultCategories() {
         for category in DefaultCategory.categories {
             let newCategory = Category(context: coreDataSharedInstance.context)
             newCategory.id = UUID()

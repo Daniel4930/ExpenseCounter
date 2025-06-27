@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct DashboardView: View {
-    @State private var date: Date = generateDate() ?? Date()
     @State private var showCalendar = false
     
     @EnvironmentObject var expensesViewModel: ExpenseViewModel
@@ -22,7 +21,7 @@ struct DashboardView: View {
                     VStack(spacing: 0) {
                         Header()
                         TotalSpendingView(totalSpending: calculateTotalExpense())
-                        MonthNavigatorView(showCalendar: $showCalendar, date: $date)
+                        MonthNavigatorView(showCalendar: $showCalendar, date: $expensesViewModel.date)
                     }
                     .padding(.top, 55)
                     .overlay(
@@ -34,20 +33,20 @@ struct DashboardView: View {
                 .clipShape(BottomRoundedRectangle(radius: 15))
                 .shadow(color: .black, radius: 1)
                 
-                SpendFootnoteView(date: date)
+                SpendFootnoteView(date: expensesViewModel.date)
                 
                 ScrollView {
-                    CategorySpendingView(date: $date)
+                    CategorySpendingView(date: expensesViewModel.date)
                 }
             }
             .ignoresSafeArea()
         }
         .task {
-            expensesViewModel.fetchExpensesOfMonthYear(date)
+            expensesViewModel.fetchExpensesOfMonthYear()
         }
-        .onChange(of: date) {newValue in
+        .onChange(of: expensesViewModel.date) {newValue in
             DispatchQueue.main.async {
-                expensesViewModel.fetchExpensesOfMonthYear(newValue)
+                expensesViewModel.fetchExpensesOfMonthYear()
             }
         }
     }
@@ -55,21 +54,10 @@ struct DashboardView: View {
 private extension DashboardView {
     func calculateTotalExpense() -> Double {
         var total: Double = 0
-        for expense in expensesViewModel.expenses {
+        for expense in expensesViewModel.expensesOfMonth {
             total += expense.amount
         }
         return total
-    }
-    static func generateDate() -> Date? {
-        let now = Date()
-        let calendar = Calendar.current
-        
-        let components = calendar.dateComponents([.year, .month], from: now)
-        
-        if let beginningOfMonth = calendar.date(from: components) {
-            return beginningOfMonth
-        }
-        return nil
     }
 }
 
@@ -78,8 +66,16 @@ struct Header: View {
     var body: some View {
         HStack {
             HStack {
-                NavigationLink(destination: ProfileView()) {
-                    if let imageData = userViewModel.user?.profileIcon, let uiImage = UIImage(data: imageData) {
+                NavigationLink(
+                    destination:
+                        EditProfileFormView(
+                            id: userViewModel.user?.id,
+                            firstName: userViewModel.user?.firstName ?? "User",
+                            lastName: userViewModel.user?.lastName ?? "",
+                            data: userViewModel.user?.avatarData
+                        )
+                ) {
+                    if let imageData = userViewModel.user?.avatarData, let uiImage = UIImage(data: imageData) {
                         Image(uiImage: uiImage)
                             .resizable()
                             .modifier(AvatarModifier(width: 60, height: 60))
@@ -88,14 +84,13 @@ struct Header: View {
                             .resizable()
                             .modifier(AvatarModifier(width: 60, height: 60))
                     }
+                    VStack(alignment: .leading) {
+                        Text("\(userViewModel.user?.firstName ?? "User")")
+                        Text("\(userViewModel.user?.lastName ?? "")")
+                    }
+                    .font(AppFont.customFont(font: .bold, .title3))
+                    .foregroundStyle(.white)
                 }
-                
-                VStack(alignment: .leading) {
-                    Text("\(userViewModel.user?.firstName ?? "User")")
-                    Text("\(userViewModel.user?.lastName ?? "")")
-                }
-                .font(AppFont.customFont(font: .bold, .title3))
-                .foregroundStyle(.white)
             }
             
             Spacer()

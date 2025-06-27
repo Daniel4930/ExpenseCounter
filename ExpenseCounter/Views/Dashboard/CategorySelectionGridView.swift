@@ -9,7 +9,7 @@ import SwiftUI
 
 struct CategorySelectionGridView: View {
     @Binding var selectedCategory: Category?
-    @StateObject private var categoryViewModel = CategoryViewModel()
+    @EnvironmentObject var categoryViewModel: CategoryViewModel
     let columns = [
         GridItem(.flexible()), GridItem(.flexible())
     ]

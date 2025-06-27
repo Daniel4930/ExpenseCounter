@@ -85,20 +85,12 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		7A2F3AF32E06D6D200E3EC2F /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
 		7A84E0662DFCB3490093FA22 = {
 			isa = PBXGroup;
 			children = (
 				7A84E0712DFCB3490093FA22 /* ExpenseCounter */,
 				7A84E0842DFCB34B0093FA22 /* ExpenseCounterTests */,
 				7A84E08E2DFCB34B0093FA22 /* ExpenseCounterUITests */,
-				7A2F3AF32E06D6D200E3EC2F /* Frameworks */,
 				7A84E0702DFCB3490093FA22 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -417,6 +409,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = ExpenseCounter/ExpenseCounter.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 4GFZH8QBGY;
@@ -452,6 +445,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = ExpenseCounter/ExpenseCounter.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 4GFZH8QBGY;

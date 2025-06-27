@@ -101,7 +101,7 @@ private extension CategorizedExpenseListView {
     func sortExpensesBeforeDate() -> [Expense] {
         var resultArray: [Expense] = []
         
-        for expense in expenseViewModel.expenses {
+        for expense in expenseViewModel.expensesOfMonth {
             if expense.category == category {
                 resultArray.append(expense)
             }
@@ -156,7 +156,7 @@ private extension CategorizedExpenseListView {
     }
     func deleteExpense(_ expense: Expense) {
         withAnimation {
-            expenseViewModel.deleteAnExpense(expense, date)
+            expenseViewModel.deleteAnExpense(expense)
         }
     }
 }

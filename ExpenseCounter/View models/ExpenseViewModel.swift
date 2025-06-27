@@ -8,8 +8,25 @@
 import CoreData
 
 class ExpenseViewModel: ObservableObject {
-    @Published var expenses: [Expense] = []
-    private let coreDateStackInstance = CoreDataStack.shared
+    @Published var expensesOfMonth: [Expense] = []
+    @Published var date: Date
+    private let coreDateStackInstance = PersistenceContainer.shared
+    
+    init() {
+        date = ExpenseViewModel.generateDate()
+    }
+    
+    private static func generateDate() -> Date {
+        let now = Date()
+        let calendar = Calendar.current
+        
+        let components = calendar.dateComponents([.year, .month], from: now)
+        
+        if let beginningOfMonth = calendar.date(from: components) {
+            return beginningOfMonth
+        }
+        fatalError("Can't get date")
+    }
     
     func expenseExists(id: UUID) -> Bool {
         let fetchRequest: NSFetchRequest<Expense> = Expense.fetchRequest()
@@ -24,7 +41,7 @@ class ExpenseViewModel: ObservableObject {
         }
     }
     
-    func fetchExpensesOfMonthYear(_ date: Date) {
+    func fetchExpensesOfMonthYear() {
         let calendar = Calendar.current
         let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: date))!
         var components = DateComponents()
@@ -36,7 +53,7 @@ class ExpenseViewModel: ObservableObject {
         request.predicate = NSPredicate(format: "date >= %@ AND date <= %@", startOfMonth as NSDate, endOfMonth as NSDate)
         
         do {
-            expenses = try coreDateStackInstance.context.fetch(request)
+            expensesOfMonth = try coreDateStackInstance.context.fetch(request)
         } catch let error {
             fatalError("Can't fetch expenses with error -> \(error.localizedDescription)")
         }
@@ -58,13 +75,15 @@ class ExpenseViewModel: ObservableObject {
             expense.title = currentTitle
         }
         coreDateStackInstance.save()
-        fetchExpensesOfMonthYear(date)
+        if date.formatted(.dateTime.month().year()) == self.date.formatted(.dateTime.month().year()) {
+            fetchExpensesOfMonthYear()
+        }
     }
     
-    func deleteAnExpense(_ expense: Expense, _ date: Date) {
+    func deleteAnExpense(_ expense: Expense) {
         coreDateStackInstance.context.delete(expense)
         coreDateStackInstance.save()
-        fetchExpensesOfMonthYear(date)
+        fetchExpensesOfMonthYear()
     }
     
     func updateExpense(_ id: UUID, _ newTitle: String?, _ newAmount: String, _ category: Category, _ date: Date) {
@@ -86,14 +105,33 @@ class ExpenseViewModel: ObservableObject {
                     existingExpense.title = title
                 }
                 coreDateStackInstance.save()
-                fetchExpensesOfMonthYear(date)
+                if date.formatted(.dateTime.month().year()) == self.date.formatted(.dateTime.month().year()) {
+                    fetchExpensesOfMonthYear()
+                }
             }
         } catch let error {
             fatalError("Error updating an expense -> \(error.localizedDescription)")
         }
     }
     
-    func getExpensesInCategory(_ category: Category) -> [Expense] {
-        expenses.filter { $0.category == category }
+    func getExpensesInCategoryInDate(_ category: Category, _ date: Date) -> [Expense] {
+        let expenses = expensesOfMonth.filter { $0.category == category }
+        
+        let calendar = Calendar.current
+        let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: date))!
+        var components = DateComponents()
+        components.month = 1
+        components.second = -1
+        let endOfMonth = calendar.date(byAdding: components, to: startOfMonth)!
+        
+        var result = [Expense]()
+        for expense in expenses {
+            if let expenseDate = expense.date {
+                if startOfMonth <= expenseDate && expenseDate <= endOfMonth {
+                    result.append(expense)
+                }
+            }
+        }
+        return result
     }
 }

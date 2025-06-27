@@ -9,22 +9,11 @@ import CoreData
 
 class UserViewModel: ObservableObject {
     @Published var user: User?
-    private let sharedCoreDataInstance = CoreDataStack.shared
+    private let sharedCoreDataInstance = PersistenceContainer.shared
     
-    init() {
-        fetchUser()
-    }
-    
-    private func createTestUser() {
-        let user = User(context: sharedCoreDataInstance.context)
-        user.id = UUID()
-        user.firstName = "Daniel"
-        user.lastName = "Le"
-        user.income = 10000.00
-        
-        sharedCoreDataInstance.save()
-        fetchUser()
-    }
+//    init() {
+//        fetchUser()
+//    }
     
     func fetchUser() {
         let request = NSFetchRequest<User>(entityName: "User")
@@ -46,7 +35,7 @@ class UserViewModel: ObservableObject {
         user.id = UUID()
         user.firstName = firstName
         user.lastName = lastName
-        user.profileIcon = imageData
+        user.avatarData = imageData
         
         sharedCoreDataInstance.save()
         fetchUser()
@@ -60,7 +49,7 @@ class UserViewModel: ObservableObject {
             if let existedUser = try sharedCoreDataInstance.context.fetch(request).first {
                 existedUser.firstName = firstName
                 existedUser.lastName = lastName
-                existedUser.profileIcon = imageData
+                existedUser.avatarData = imageData
                 
                 sharedCoreDataInstance.save()
                 fetchUser()

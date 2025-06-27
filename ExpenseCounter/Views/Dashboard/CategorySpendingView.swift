@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct CategorySpendingView: View {
-    @Binding var date: Date
+   let date: Date
     
     @EnvironmentObject var categoryViewModel: CategoryViewModel
     @EnvironmentObject var expenseViewModel: ExpenseViewModel
@@ -16,7 +16,7 @@ struct CategorySpendingView: View {
     var body: some View {
         VStack(spacing: 16) {
             ForEach(categoryViewModel.categories, id: \.id) { category in
-                if !expenseViewModel.getExpensesInCategory(category).isEmpty {
+                if !expenseViewModel.getExpensesInCategoryInDate(category, date).isEmpty {
                     NavigationLink(
                         destination: CategorizedExpenseListView (
                             category: category,
@@ -24,7 +24,8 @@ struct CategorySpendingView: View {
                         )
                     ) {
                         CategoryItemView(
-                            category: category
+                            category: category,
+                            date: date
                         )
                     }
                 }
@@ -36,6 +37,7 @@ struct CategorySpendingView: View {
 
 struct CategoryItemView: View {
     let category: Category
+    let date: Date
     @EnvironmentObject var expenseViewModel: ExpenseViewModel
     
     var body: some View {
@@ -84,13 +86,13 @@ struct CategoryItemView: View {
 
 extension CategoryItemView {
     func getLastestExpense() -> Expense? {
-        let expenses = expenseViewModel.getExpensesInCategory(category)
+        let expenses = expenseViewModel.getExpensesInCategoryInDate(category, date)
         let dates = expenses.compactMap{ $0.date }
         return expenses.first{ $0.date == dates.max() }
     }
     func calculateTotalExpense() -> Double {
         var total: Double = 0
-        for expense in expenseViewModel.getExpensesInCategory(category) {
+        for expense in expenseViewModel.getExpensesInCategoryInDate(category, date) {
             total += expense.amount
         }
         return total

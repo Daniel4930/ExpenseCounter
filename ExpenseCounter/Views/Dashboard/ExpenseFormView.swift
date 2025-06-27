@@ -10,6 +10,8 @@ import SwiftUI
 enum ExpenseFormField: FocusableField {
     case title
     case amount
+    case category
+    case date
 }
 
 struct ExpenseFormView: View {
@@ -31,7 +33,7 @@ struct ExpenseFormView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var expenseViewModel: ExpenseViewModel
-    private let coreDataSharedInstance = CoreDataStack.shared
+    private let coreDataSharedInstance = PersistenceContainer.shared
     
     init(navTitle: String, id: UUID?, isEditMode: Bool) {
         self.navTitle = navTitle
@@ -157,7 +159,7 @@ struct ExpenseFormView: View {
             }
             .onAppear {
                 if isEditMode {
-                    guard let id = id, let expense = searchAnExpense(expenseViewModel.expenses, id) else {
+                    guard let id = id, let expense = searchAnExpense(expenseViewModel.expensesOfMonth, id) else {
                         fatalError("ExpenseFormView: Can't edit a non-existing expense")
                     }
                     amount = String(format: "%.2f", expense.amount)
