@@ -15,22 +15,25 @@ class CategoryViewModel: ObservableObject {
     
     func ensureDefaultCategoriesExist(completion: @escaping () -> Void) {
         CloudKitDatabase.queryCategoryIds { existingIDs in
-            DispatchQueue.main.async {
-                for defaultCat in DefaultCategory.categories {
-                    if existingIDs.contains(defaultCat.id) {
-                        continue
-                    }
-                    let newCategory = Category(context: self.coreDataSharedInstance.context)
-                    newCategory.id = defaultCat.id
-                    newCategory.name = defaultCat.name
-                    newCategory.icon = defaultCat.icon
-                    newCategory.colorHex = defaultCat.colorHex
-                    newCategory.defaultCategory = true
-                    self.coreDataSharedInstance.save()
+            for defaultCat in DefaultCategory.categories {
+                if existingIDs.contains(defaultCat.id) {
+                    continue
                 }
-                self.fetchCategories()
-                completion()
+                if self.searchCategory(defaultCat.id) != nil {
+                    continue
+                }
+                let newCategory = Category(context: self.coreDataSharedInstance.context)
+                newCategory.id = defaultCat.id
+                newCategory.name = defaultCat.name
+                newCategory.icon = defaultCat.icon
+                newCategory.colorHex = defaultCat.colorHex
+                newCategory.defaultCategory = true
+                self.coreDataSharedInstance.save()
             }
+            DispatchQueue.main.async {
+                self.fetchCategories()
+            }
+            completion()
         }
     }
 

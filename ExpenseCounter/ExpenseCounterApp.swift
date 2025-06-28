@@ -22,7 +22,8 @@ struct ExpenseCounterApp: App {
                     .onAppear {
                         performCloudKitSync {
                             userViewModel.fetchUser()
-                            categoryViewModel.ensureDefaultCategoriesExist {
+                            expenseViewModel.fetchExpensesOfMonthYear()
+                            categoryViewModel.ensureDefaultCategoriesExist() {
                                 isLoading = false
                             }
                         }
@@ -43,7 +44,7 @@ struct ExpenseCounterApp: App {
             return
         }
         
-        var observer: NSObjectProtocol?
+        var observer: NSObjectProtocol
         observer = NotificationCenter.default.addObserver(
             forName: .NSPersistentStoreRemoteChange,
             object: persistence.container.persistentStoreCoordinator,
@@ -51,22 +52,15 @@ struct ExpenseCounterApp: App {
         ) { _ in
             print("CloudKit sync detected")
             UserDefaults.standard.set(true, forKey: "hasSyncedWithCloudKit")
-            if let observer = observer {
-                NotificationCenter.default.removeObserver(observer)
-            }
             completion()
         }
-        
-        // Fallback after 10 seconds
         DispatchQueue.main.asyncAfter(deadline: .now() + 10) {
             if !UserDefaults.standard.bool(forKey: "hasSyncedWithCloudKit") {
                 print("Timeout fallback, assume synced")
-                if let observer = observer {
-                    NotificationCenter.default.removeObserver(observer)
-                }
                 UserDefaults.standard.set(true, forKey: "hasSyncedWithCloudKit")
                 completion()
             }
         }
+        NotificationCenter.default.removeObserver(observer)
     }
 }

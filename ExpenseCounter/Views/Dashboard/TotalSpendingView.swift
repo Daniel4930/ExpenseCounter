@@ -14,11 +14,8 @@ struct TotalSpendingView: View {
         GeometryReader { proxy in
             HStack(spacing: 0) {
                 spendingSummary
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .frame(width: proxy.size.width * 0.40)
-                divider
-                safeToSpendSection
-                    .frame(width: proxy.size.width * 0.40)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+                    .padding(.leading, 30)
             }
             .frame(maxWidth: .infinity)
             .background(Color.white)

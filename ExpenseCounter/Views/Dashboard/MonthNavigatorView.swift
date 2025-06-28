@@ -33,6 +33,7 @@ struct MonthNavigatorView: View {
                 CustomCalendarView(showCalendar: $showCalendar, date: $date, currentDate: date, selectedDate: date)
                     .presentationDetents([.medium])
             }
+            .padding(.horizontal)
             
             Button(action: {
                 if let newDate = incrementMonth(date: date) {

@@ -89,13 +89,20 @@ struct CategoryFormView: View {
                 .padding([.leading, .trailing, .top])
                 
                 if let id = id {
-                    Button("Delete") {
+                    Button {
                         categoryViewModel.deleteCategory(id)
                         dismiss()
+                    } label: {
+                        Text("Delete")
+                            .font(AppFont.customFont(.title3))
                     }
-                    .buttonStyle(.borderedProminent)
+                    .frame(width: 150, height: 50)
+                    .foregroundStyle(.white)
+                    .background(
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(.red)
+                    )
                     .padding([.leading, .trailing, .top])
-                    .tint(.red)
                 }
             }
             .navigationBarBackButtonHidden(true)
