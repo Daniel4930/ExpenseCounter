@@ -20,13 +20,11 @@ struct ExpenseCounterApp: App {
             if isLoading {
                 ProgressView("Loading...")
                     .onAppear {
-                        performInitialCloudKitSync { result in
+                        performCloudKitSync {
                             userViewModel.fetchUser()
-                            categoryViewModel.fetchCategories()
-                            if categoryViewModel.defaultCategories.isEmpty {
-                                categoryViewModel.addDefaultCategories()
+                            categoryViewModel.ensureDefaultCategoriesExist {
+                                isLoading = false
                             }
-                            isLoading = result
                         }
                     }
             } else {
@@ -38,31 +36,37 @@ struct ExpenseCounterApp: App {
             }
         }
     }
-    func performInitialCloudKitSync(completion: @escaping (Bool) -> Void) {
-        let isFirstLaunch = !UserDefaults.standard.bool(forKey: "hasSyncedWithCloudKit")
-        guard isFirstLaunch else {
-            completion(false)
+    func performCloudKitSync(completion: @escaping () -> Void) {
+        let didSyncBefore = UserDefaults.standard.bool(forKey: "hasSyncedWithCloudKit")
+        if didSyncBefore {
+            completion()
             return
         }
-
-        // Declare observer as a constant assigned immediately
-        let observer = NotificationCenter.default.addObserver(
+        
+        var observer: NSObjectProtocol?
+        observer = NotificationCenter.default.addObserver(
             forName: .NSPersistentStoreRemoteChange,
             object: persistence.container.persistentStoreCoordinator,
             queue: .main
         ) { _ in
-            print("Remote change observed - assuming initial sync complete")
+            print("CloudKit sync detected")
             UserDefaults.standard.set(true, forKey: "hasSyncedWithCloudKit")
-            completion(false)
+            if let observer = observer {
+                NotificationCenter.default.removeObserver(observer)
+            }
+            completion()
         }
-
+        
+        // Fallback after 10 seconds
         DispatchQueue.main.asyncAfter(deadline: .now() + 10) {
             if !UserDefaults.standard.bool(forKey: "hasSyncedWithCloudKit") {
-                print("No sync detected - fallback after 10 seconds")
+                print("Timeout fallback, assume synced")
+                if let observer = observer {
+                    NotificationCenter.default.removeObserver(observer)
+                }
                 UserDefaults.standard.set(true, forKey: "hasSyncedWithCloudKit")
-                completion(false)
+                completion()
             }
         }
-        NotificationCenter.default.removeObserver(observer)
     }
 }

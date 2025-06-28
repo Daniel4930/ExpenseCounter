@@ -4,7 +4,7 @@
         <attribute name="colorHex" optional="YES" attributeType="String"/>
         <attribute name="defaultCategory" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="icon" optional="YES" attributeType="String"/>
-        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="id" optional="YES" attributeType="String"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <relationship name="expenses" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Expense" inverseName="category" inverseEntity="Expense"/>
     </entity>

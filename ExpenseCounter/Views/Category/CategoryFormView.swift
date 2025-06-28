@@ -15,7 +15,7 @@ enum CategoryFormField: FocusableField {
 //Default categories shouldn't be shown in the form
 struct CategoryFormView: View {
     let navTitle: String
-    let id: UUID?
+    let id: String?
     
     @State var name: String
     @State var color: Color

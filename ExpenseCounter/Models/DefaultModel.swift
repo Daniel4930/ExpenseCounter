@@ -12,14 +12,14 @@ struct ErrorCategory {
 }
 
 struct DefaultCategory {
-    static let categories: [(name: String, icon: String, colorHex: String)] = [
-        ("Food", "fork.knife", "#FF9F1C"),
-        ("Transport", "car.fill", "#2EC4B6"),
-        ("Entertainment", "gamecontroller.fill", "#E71D36"),
-        ("Shopping", "bag.fill", "#011627"),
-        ("Bills", "bolt.fill", "#FFBF69"),
-        ("Health", "heart.fill", "#FF6B6B"),
-        ("Travel", "airplane", "#6A0572"),
-        ("Education", "book.fill", "#4ECDC4")
+    static let categories: [(id: String, name: String, icon: String, colorHex: String)] = [
+        ("food-category-id", "Food", "fork.knife", "#FF9F1C"),
+        ("transport-category-id", "Transport", "car.fill", "#2EC4B6"),
+        ("entertainment-category-id", "Entertainment", "gamecontroller.fill", "#E71D36"),
+        ("shopping-category-id", "Shopping", "bag.fill", "#011627"),
+        ("bills-category-id", "Bills", "bolt.fill", "#FFBF69"),
+        ("health-category-id", "Health", "heart.fill", "#FF6B6B"),
+        ("travel-category-id", "Travel", "airplane", "#6A0572"),
+        ("education-category-id", "Education", "book.fill", "#4ECDC4")
     ]
 }

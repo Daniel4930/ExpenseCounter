@@ -11,10 +11,6 @@ class UserViewModel: ObservableObject {
     @Published var user: User?
     private let sharedCoreDataInstance = PersistenceContainer.shared
     
-//    init() {
-//        fetchUser()
-//    }
-    
     func fetchUser() {
         let request = NSFetchRequest<User>(entityName: "User")
         request.fetchLimit = 1

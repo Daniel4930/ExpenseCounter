@@ -11,33 +11,32 @@ class CategoryViewModel: ObservableObject {
     @Published var categories: [Category] = []
     @Published var customCategories: [Category] = []
     @Published var defaultCategories: [Category] = []
-    
     private let coreDataSharedInstance = PersistenceContainer.shared
     
-//    init() {
-//        fetchCategories()
-//
-//        if defaultCategories.isEmpty {
-//            addDefaultCategories()
-//        }
-//    }
-    
-    func addDefaultCategories() {
-        for category in DefaultCategory.categories {
-            let newCategory = Category(context: coreDataSharedInstance.context)
-            newCategory.id = UUID()
-            newCategory.name = category.name
-            newCategory.icon = category.icon
-            newCategory.colorHex = category.colorHex
-            newCategory.defaultCategory = true
+    func ensureDefaultCategoriesExist(completion: @escaping () -> Void) {
+        CloudKitDatabase.queryCategoryIds { existingIDs in
+            DispatchQueue.main.async {
+                for defaultCat in DefaultCategory.categories {
+                    if existingIDs.contains(defaultCat.id) {
+                        continue
+                    }
+                    let newCategory = Category(context: self.coreDataSharedInstance.context)
+                    newCategory.id = defaultCat.id
+                    newCategory.name = defaultCat.name
+                    newCategory.icon = defaultCat.icon
+                    newCategory.colorHex = defaultCat.colorHex
+                    newCategory.defaultCategory = true
+                    self.coreDataSharedInstance.save()
+                }
+                self.fetchCategories()
+                completion()
+            }
         }
-        coreDataSharedInstance.save()
-        fetchCategories()
     }
-    
-    private func searchCategory(_ id: UUID) -> Category? {
+
+    private func searchCategory(_ id: String) -> Category? {
         let fetchRequest: NSFetchRequest = Category.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        fetchRequest.predicate = NSPredicate(format: "id == %@", id)
         fetchRequest.fetchLimit = 1
         
         do {
@@ -73,7 +72,7 @@ class CategoryViewModel: ObservableObject {
     
     func addCategory(_ name: String, _ colorHex: String, _ icon: String) {
         let category = Category(context: coreDataSharedInstance.context)
-        category.id = UUID()
+        category.id = UUID().uuidString
         category.name = name
         category.colorHex = colorHex
         category.icon = icon
@@ -83,7 +82,7 @@ class CategoryViewModel: ObservableObject {
         fetchCategories()
     }
     
-    func updateCategory(_ id: UUID, _ name: String, _ colorHex: String, _ icon: String) {
+    func updateCategory(_ id: String, _ name: String, _ colorHex: String, _ icon: String) {
         let searchedCategory = searchCategory(id)
         
         if searchedCategory != nil {
@@ -98,7 +97,7 @@ class CategoryViewModel: ObservableObject {
         }
     }
     
-    func deleteCategory(_ id: UUID) {
+    func deleteCategory(_ id: String) {
         let searchedCategory = searchCategory(id)
         
         if let category = searchedCategory {
