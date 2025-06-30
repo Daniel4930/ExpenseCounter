@@ -47,18 +47,20 @@ struct CategoryGridView: View {
                 
                 ScrollView {
                     VStack(alignment: .leading) {
-                        Text("Custom categories")
-                            .font(AppFont.customFont(font: .bold, .title2))
-                        Grid(horizontalSpacing: 40, verticalSpacing: 40) {
-                            let numRows = Int(ceil(Double(categoryViewModel.customCategories.count) / Double(numItemPerRow)))
-                            ForEach(0..<numRows, id: \.self) { row in
-                                CategoryGridRow(row: row, defaultItem: false)
+                        if !categoryViewModel.customCategories.isEmpty {
+                            Text("Custom categories")
+                                .font(AppFont.customFont(font: .bold, .title2))
+                            Grid(horizontalSpacing: 40, verticalSpacing: 40) {
+                                let numRows = Int(ceil(Double(categoryViewModel.customCategories.count) / Double(numItemPerRow)))
+                                ForEach(0..<numRows, id: \.self) { row in
+                                    CategoryGridRow(row: row, defaultItem: false)
+                                }
                             }
+                            .padding(.bottom, 20)
+                            
+                            Text("Default categories")
+                                .font(AppFont.customFont(font: .bold, .title2))
                         }
-                        .padding(.bottom, 20)
-                        
-                        Text("Default categories")
-                            .font(AppFont.customFont(font: .bold, .title2))
                         Grid(horizontalSpacing: 40, verticalSpacing: 40) {
                             let numRows = Int(ceil(Double(categoryViewModel.defaultCategories.count) / Double(numItemPerRow)))
                             ForEach(0..<numRows, id: \.self) { row in
@@ -138,8 +140,6 @@ extension CategoryGridRow {
                 name: category.name ?? ErrorCategory.name,
                 fontColor: colorScheme == .dark ? .white : .black
             )
-            .lineLimit(1)
-            .minimumScaleFactor(0.5)
         }
     }
     

@@ -18,7 +18,9 @@ class UserViewModel: ObservableObject {
         do {
             let result = try sharedCoreDataInstance.context.fetch(request)
             if let firstUser = result.first {
-                user = firstUser
+                DispatchQueue.main.async {
+                    self.user = firstUser
+                }
             }
             
         } catch let error {
@@ -36,13 +38,26 @@ class UserViewModel: ObservableObject {
         sharedCoreDataInstance.save()
         fetchUser()
     }
-    func updateUser(_ id: UUID, _ firstName: String, _ lastName: String, _ imageData: Data?) {
+    func addUserFromRemote(_ id: UUID, _ firstName: String, _ lastName: String, _ imageData: Data?) {
+        let user = User(context: sharedCoreDataInstance.context)
+        user.id = id
+        user.firstName = firstName
+        user.lastName = lastName
+        user.avatarData = imageData
+        
+        sharedCoreDataInstance.save()
+        fetchUser()
+    }
+    func updateUser(_ id: UUID, _ remoteId: UUID?, _ firstName: String, _ lastName: String, _ imageData: Data?) {
         let request = NSFetchRequest<User>(entityName: "User")
         request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
         request.fetchLimit = 1
         
         do {
             if let existedUser = try sharedCoreDataInstance.context.fetch(request).first {
+                if let remoteUserId = remoteId {
+                    existedUser.id = remoteUserId
+                }
                 existedUser.firstName = firstName
                 existedUser.lastName = lastName
                 existedUser.avatarData = imageData

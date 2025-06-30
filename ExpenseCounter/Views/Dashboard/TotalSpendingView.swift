@@ -11,26 +11,24 @@ struct TotalSpendingView: View {
     var totalSpending: Double
 
     var body: some View {
-        GeometryReader { proxy in
-            HStack(spacing: 0) {
-                spendingSummary
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                    .padding(.leading, 30)
-            }
-            .frame(maxWidth: .infinity)
-            .background(Color.white)
-            .clipShape(RoundedRectangle(cornerRadius: 15))
-            .overlay(
-                RoundedRectangle(cornerRadius: 15)
-                    .stroke(Color("CustomGreenColor"), lineWidth: 1)
-            )
-            .padding(.horizontal)
-            .shadow(color: .black.opacity(0.2), radius: 4)
+        HStack(spacing: 0) {
+            spendingSummary
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+//                .padding(.leading, 30)
         }
+        .frame(maxWidth: .infinity)
+        .background(Color.white)
+        .clipShape(RoundedRectangle(cornerRadius: 15))
+        .overlay(
+            RoundedRectangle(cornerRadius: 15)
+                .stroke(Color("CustomGreenColor"), lineWidth: 1)
+        )
+        .padding(.horizontal)
+        .shadow(color: .black.opacity(0.2), radius: 4)
     }
 
     private var spendingSummary: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .center, spacing: 0) {
             Text("Spends")
                 .font(AppFont.customFont(font: .semibold, .title2))
 

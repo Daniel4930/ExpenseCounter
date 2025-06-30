@@ -17,16 +17,8 @@ struct CategorySpendingView: View {
         VStack(spacing: 16) {
             ForEach(categoryViewModel.categories, id: \.id) { category in
                 if !expenseViewModel.getExpensesInCategoryInDate(category, date).isEmpty {
-                    NavigationLink(
-                        destination: CategorizedExpenseListView (
-                            category: category,
-                            date: date
-                        )
-                    ) {
-                        CategoryItemView(
-                            category: category,
-                            date: date
-                        )
+                    NavigationLink(destination: CategorizedExpenseListView(category: category, date: date)) {
+                        CategoryItemView(category: category, date: date)
                     }
                 }
             }
@@ -45,12 +37,14 @@ struct CategoryItemView: View {
             CategoryIconView(
                 categoryIcon: category.icon ?? ErrorCategory.icon,
                 isDefault: category.defaultCategory,
-                categoryHexColor: category.colorHex ?? ErrorCategory.colorHex
+                categoryHexColor: category.colorHex ?? ErrorCategory.colorHex,
+                width: 50,
+                height: 50
             )
-            .padding(.trailing, 9)
+            .padding(.trailing)
             
             VStack(alignment: .leading, spacing: 0) {
-                CategoryNameView(name: category.name ?? "No name")
+                CategoryNameView(name: category.name ?? "No name", font: .bold)
                 
                 if let expense = getLastestExpense() {
                     HStack(spacing: 8) {
@@ -72,9 +66,10 @@ struct CategoryItemView: View {
             
             Spacer()
             
-            AmountTextView(amount: calculateTotalExpense(), fontSize: .title3, color: .black)
+            AmountTextView(amount: calculateTotalExpense(), fontSize: .title3, color: .black, font: .semibold)
         }
         .padding()
+        .padding(.vertical, 3)
         .background(
             RoundedRectangle(cornerRadius: 20)
                 .fill(Color(.white))

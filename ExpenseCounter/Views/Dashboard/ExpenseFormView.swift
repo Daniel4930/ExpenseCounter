@@ -49,7 +49,7 @@ struct ExpenseFormView: View {
     var body: some View {
         ScrollView {
             VStack {
-                CustomSectionView(header: "Title (Optional)") {
+                CustomSectionView(header: "Title") {
                     HStack {
                         CustomTextField(focusedField: $focusedField, text: $title, field: .title) {
                             Text("Enter a title")
@@ -57,7 +57,7 @@ struct ExpenseFormView: View {
                         }
                         Spacer()
                         Image(systemName: "list.bullet.rectangle")
-                            .frame(width: 25, height: 25)
+                            .foregroundStyle(Color("CustomGreenColor"))
                     }
                     .inputFormModifier()
                     .foregroundColor(.black)
@@ -78,6 +78,7 @@ struct ExpenseFormView: View {
                         }
                         Spacer()
                         Text(Locale.current.currencySymbol ?? "$")
+                            .foregroundStyle(Color("CustomGreenColor"))
                     }
                     .inputFormModifier()
                     .keyboardType(.decimalPad)
@@ -93,7 +94,6 @@ struct ExpenseFormView: View {
                             Text(category?.name ?? "Select a category")
                             Spacer()
                             Image(systemName: "list.bullet")
-                                .frame(width: 25, height: 25)
                         }
                     })
                     .inputFormModifier()
@@ -116,7 +116,6 @@ struct ExpenseFormView: View {
                             Text(showDate ? date.formatted(date: .abbreviated, time: .shortened) : "Select a date")
                             Spacer()
                             Image(systemName: "calendar")
-                                .frame(width: 25, height: 25)
                         }
                     }
                     .inputFormModifier()

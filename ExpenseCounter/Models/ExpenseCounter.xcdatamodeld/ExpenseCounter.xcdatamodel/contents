@@ -7,6 +7,11 @@
         <attribute name="id" optional="YES" attributeType="String"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <relationship name="expense" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Expense" inverseName="category" inverseEntity="Expense"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
     </entity>
     <entity name="Expense" representedClassName="Expense" syncable="YES" codeGenerationType="class">
         <attribute name="amount" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
@@ -14,6 +19,11 @@
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="title" optional="YES" attributeType="String"/>
         <relationship name="category" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Category" inverseName="expense" inverseEntity="Category"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
     </entity>
     <entity name="RemoteCategory" representedClassName="RemoteCategory" syncable="YES" codeGenerationType="class">
         <attribute name="colorHex" optional="YES" attributeType="String"/>
@@ -43,11 +53,16 @@
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="income" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="lastName" optional="YES" attributeType="String"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
     </entity>
     <configuration name="Cloud" usedWithCloudKit="YES">
+        <memberEntity name="RemoteUser"/>
         <memberEntity name="RemoteCategory"/>
         <memberEntity name="RemoteExpense"/>
-        <memberEntity name="RemoteUser"/>
     </configuration>
     <configuration name="Local">
         <memberEntity name="User"/>

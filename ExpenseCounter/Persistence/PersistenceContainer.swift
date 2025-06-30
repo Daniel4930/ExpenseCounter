@@ -29,9 +29,9 @@ class PersistenceContainer {
         cloudStoreDescription.configuration = "Cloud"
         
         cloudStoreDescription.cloudKitContainerOptions = NSPersistentCloudKitContainerOptions(containerIdentifier: cloudKitContainerIdentifier)
+        cloudStoreDescription.setOption(true as NSNumber, forKey: NSPersistentHistoryTrackingKey)
         
-        container.persistentStoreDescriptions = [localStoreDescription, cloudStoreDescription]
-        
+        container.persistentStoreDescriptions = [cloudStoreDescription, localStoreDescription]
         container.loadPersistentStores { _, error in
             if let error = error as NSError? {
                 fatalError("Failed to load stores \(error), \(error.userInfo)")
@@ -55,7 +55,6 @@ class PersistenceContainer {
         
         print(path ?? "Not found")
     }
-    
     func save() {
         guard context.hasChanges else { return }
         do {

@@ -25,6 +25,8 @@ struct CategoryFormView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var categoryViewModel: CategoryViewModel
+    @EnvironmentObject var remoteCategoryViewModel: RemoteCategoryViewModel
+    @AppStorage("syncedWithCloudKit") var syncWithCloudKit: Bool = false
     
     var body: some View {
         ScrollView {
@@ -37,6 +39,7 @@ struct CategoryFormView: View {
                 .padding(.top)
                 
                 CategoryNameView(name: name, fontColor: colorScheme == .light ? .black : .white)
+                    .frame(height: 20)
 
                 CustomSectionView(header: "Name") {
                     HStack {
@@ -91,12 +94,16 @@ struct CategoryFormView: View {
                 if let id = id {
                     Button {
                         categoryViewModel.deleteCategory(id)
+                        if syncWithCloudKit {
+                            syncToCloudKitData(idToDelete: id)
+                        }
                         dismiss()
                     } label: {
                         Text("Delete")
                             .font(AppFont.customFont(.title3))
                     }
-                    .frame(width: 150, height: 50)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 50)
                     .foregroundStyle(.white)
                     .background(
                         RoundedRectangle(cornerRadius: 10)
@@ -115,11 +122,15 @@ struct CategoryFormView: View {
                     Button {
                         if let hexColor = color.toHex() {
                             if let id = id {
-                                categoryViewModel.updateCategory(id, name, hexColor, icon)
+                                categoryViewModel.updateCategory(id, nil, name, hexColor, icon)
                             } else {
-                                categoryViewModel.addCategory(name, hexColor, icon)
+                                categoryViewModel.addCategory(nil, name, hexColor, icon)
                             }
                         }
+                        if syncWithCloudKit {
+                            syncToCloudKitData(idToDelete: nil)
+                        }
+                        
                         dismiss()
                     } label: {
                         Text("Submit")
@@ -151,5 +162,58 @@ private extension CategoryFormView {
             return true
         }
         return false
+    }
+    func syncToCloudKitData(idToDelete: String?) {
+        // When the user clicks sync, combine local data with CloudKit, prioritizing local data
+        categoryViewModel.fetchCategories()
+        
+        DispatchQueue.main.async {
+            CloudKitService.sharedInstance.queryCloudKitCategories { result in
+                switch result {
+                case .failure(let error):
+                    print("Failed to fetch category ids with error\n\(error)")
+                    
+                case .success(let records):
+                    // Ensure remoteCategory is fetched and consistent with CloudKit
+                    while !compareCloudKitDataWithRemoteCategoryData(records, remoteCategoryViewModel) {
+                        self.remoteCategoryViewModel.fetchRemoteCategories()
+                    }
+                    if let id = idToDelete {
+                        self.remoteCategoryViewModel.deleteRemoteCategory(id)
+                    } else {
+                        if self.remoteCategoryViewModel.remoteCategories.isEmpty {
+                            // No category data in CloudKit: upload local category data
+                            uploadLocalCategoryToCloudKit(categoryViewModel, remoteCategoryViewModel)
+                            
+                        } else {
+                            // overwrite CloudKit with local with what CloudKit doesn't have
+                            self.overwriteCloudKitWithLocal()
+                        }
+                    }
+                }
+            }
+        }
+    }
+    func overwriteCloudKitWithLocal() {
+        for category in categoryViewModel.categories {
+            guard let id = category.id,
+                  let name = category.name,
+                  let colorHex = category.colorHex,
+                  let icon = category.icon else {
+                continue
+            }
+
+            // Try to find remote category with same ID
+            if let remote = remoteCategoryViewModel.remoteCategories.first(where: { $0.id == id }) {
+                // Exists in CloudKit -> check for differences
+                if remote.defaultCategory { continue }
+                if remote.name != name || remote.colorHex != colorHex || remote.icon != icon {
+                    remoteCategoryViewModel.updateRemoteCategory(id, nil, name, colorHex, icon)
+                }
+            } else {
+                // Doesn't exist in CloudKit -> add it
+                remoteCategoryViewModel.addRemoteCategory(id, name, colorHex, icon, category.defaultCategory)
+            }
+        }
     }
 }

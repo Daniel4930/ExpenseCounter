@@ -46,7 +46,8 @@ struct ContentView: View {
             .overlay (
                 Rectangle()
                     .frame(height: 1)
-                    .foregroundStyle(Color("CustomDarkGrayColor")),
+                    .foregroundStyle(Color("CustomGrayColor"))
+                    .opacity(0.5),
                 alignment: .top
             )
         }

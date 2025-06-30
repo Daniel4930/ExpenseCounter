@@ -11,7 +11,7 @@ struct DashboardView: View {
     @State private var showCalendar = false
     
     @EnvironmentObject var expensesViewModel: ExpenseViewModel
-    
+    @EnvironmentObject var userViewModel: UserViewModel
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
@@ -29,7 +29,7 @@ struct DashboardView: View {
                             .stroke(Color("CustomGreenColor"), lineWidth: 3)
                     )
                 }
-                .frame(maxHeight: 290)
+                .frame(maxHeight: UIScreen.main.bounds.height * 0.3)
                 .clipShape(BottomRoundedRectangle(radius: 15))
                 .shadow(color: .black, radius: 1)
                 
@@ -43,6 +43,7 @@ struct DashboardView: View {
         }
         .task {
             expensesViewModel.fetchExpensesOfMonthYear()
+            userViewModel.fetchUser()
         }
         .onChange(of: expensesViewModel.date) {newValue in
             DispatchQueue.main.async {
@@ -63,21 +64,16 @@ private extension DashboardView {
 
 struct Header: View {
     @EnvironmentObject var userViewModel: UserViewModel
+    
     var body: some View {
         HStack {
             HStack {
                 NavigationLink(
-                    destination:
-                        EditProfileFormView(
-                            id: userViewModel.user?.id,
-                            firstName: userViewModel.user?.firstName ?? "User",
-                            lastName: userViewModel.user?.lastName ?? "",
-                            data: userViewModel.user?.avatarData
-                        )
-                ) {
+                    destination: ProfileView(syncWithCloudKit: UserDefaults.standard.bool(forKey: "syncWithCloudKit"))) {
                     if let imageData = userViewModel.user?.avatarData, let uiImage = UIImage(data: imageData) {
                         Image(uiImage: uiImage)
                             .resizable()
+                            .aspectRatio(contentMode: .fill)
                             .modifier(AvatarModifier(width: 60, height: 60))
                     } else {
                         Image(systemName: "face.smiling.inverse")
@@ -110,7 +106,7 @@ struct SpendFootnoteView: View {
     let date: Date
     
     var body: some View {
-        HStack(spacing: 0) {
+        HStack(alignment: .center, spacing: 0) {
             Text("Spends")
                 .foregroundStyle(Color("CustomGreenColor"))
                 .font(AppFont.customFont(font: .bold, .title3))

@@ -66,7 +66,7 @@ struct AvatarModifier: ViewModifier {
     let borderColor: Color
     let borderThickness: CGFloat
     
-    init(width: CGFloat, height: CGFloat, space: CGFloat = 3, gapColor: Color = .white, borderColor: Color = .white, borderThickness: CGFloat = 2) {
+    init(width: CGFloat, height: CGFloat, space: CGFloat = 3, gapColor: Color = .white, borderColor: Color = .white, borderThickness: CGFloat = 1) {
         self.width = width
         self.height = height
         self.space = space

@@ -64,18 +64,29 @@ struct CategoryIconView: View {
     let categoryIcon: String
     let isDefault: Bool
     let categoryHexColor: String
-    let width: CGFloat = 60
-    let height: CGFloat = 60
+    let width: CGFloat
+    let height: CGFloat
     let cornerRadius: CGFloat = 10
     let shadowOpacity: Double = 0.3
     let shadowRadius: CGFloat = 5
     let fontSize = FontSize.title
     let color: Color = .white
     
+    init(categoryIcon: String, isDefault: Bool, categoryHexColor: String, width: CGFloat = 60, height: CGFloat = 60) {
+        self.categoryIcon = categoryIcon
+        self.isDefault = isDefault
+        self.categoryHexColor = categoryHexColor
+        self.width = width
+        self.height = height
+    }
+    
     @ViewBuilder
     var icon: some View {
         if isDefault {
             Image(systemName: categoryIcon)
+                .resizable()
+                .scaledToFit()
+                .frame(width: width * 0.6, height: height * 0.6)
         } else {
             Text(categoryIcon)
         }
@@ -105,7 +116,7 @@ struct CategoryNameView: View {
     let fontSize: FontSize
     
     // Custom initializer with defaults
-    init(name: String, fontColor: Color = .black, font: CustomFont = .bold, fontSize: FontSize = .title3) {
+    init(name: String, fontColor: Color = .black, font: CustomFont = .regular, fontSize: FontSize = .title3) {
         self.name = name
         self.fontColor = fontColor
         self.font = font
@@ -165,7 +176,7 @@ struct NoExpenseFoundView: View {
     var body: some View {
         HStack {
             Image(systemName: "magnifyingglass")
-            Text("No expenses found...")
+            Text("No expenses found")
         }
         .font(AppFont.customFont(font: .bold, .title2))
         .padding(.top)

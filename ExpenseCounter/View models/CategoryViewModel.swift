@@ -13,31 +13,27 @@ class CategoryViewModel: ObservableObject {
     @Published var defaultCategories: [Category] = []
     private let coreDataSharedInstance = PersistenceContainer.shared
     
-    func ensureDefaultCategoriesExist(completion: @escaping () -> Void) {
-        CloudKitDatabase.queryCategoryIds { existingIDs in
-            for defaultCat in DefaultCategory.categories {
-                if existingIDs.contains(defaultCat.id) {
-                    continue
-                }
-                if self.searchCategory(defaultCat.id) != nil {
-                    continue
-                }
-                let newCategory = Category(context: self.coreDataSharedInstance.context)
-                newCategory.id = defaultCat.id
-                newCategory.name = defaultCat.name
-                newCategory.icon = defaultCat.icon
-                newCategory.colorHex = defaultCat.colorHex
-                newCategory.defaultCategory = true
-                self.coreDataSharedInstance.save()
-            }
-            DispatchQueue.main.async {
-                self.fetchCategories()
-            }
-            completion()
+    init() {
+        fetchCategories()
+        if defaultCategories.isEmpty {
+            addDefaultCategories()
         }
     }
+    
+    private func addDefaultCategories() {
+        for defaultCategory in DefaultCategory.categories {
+            let category = Category(context: coreDataSharedInstance.context)
+            category.id = defaultCategory.id
+            category.name = defaultCategory.name
+            category.colorHex = defaultCategory.colorHex
+            category.defaultCategory = true
+            category.icon = defaultCategory.icon
+            coreDataSharedInstance.save()
+        }
+        fetchCategories()
+    }
 
-    private func searchCategory(_ id: String) -> Category? {
+    func searchCategory(_ id: String) -> Category? {
         let fetchRequest: NSFetchRequest = Category.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "id == %@", id)
         fetchRequest.fetchLimit = 1
@@ -56,9 +52,12 @@ class CategoryViewModel: ObservableObject {
         let request = NSFetchRequest<Category>(entityName: "Category")
         
         do {
-            categories = try coreDataSharedInstance.context.fetch(request)
-            customCategories = categories.filter { $0.defaultCategory == false }
-            defaultCategories = categories.filter { $0.defaultCategory == true }
+            let fetched = try coreDataSharedInstance.context.fetch(request)
+            DispatchQueue.main.async {
+                self.categories = fetched
+                self.customCategories = self.categories.filter { $0.defaultCategory == false }
+                self.defaultCategories = self.categories.filter { $0.defaultCategory == true }
+            }
             
         } catch let error {
             fatalError("Can't fetch categories with error -> \(error.localizedDescription)")
@@ -73,9 +72,13 @@ class CategoryViewModel: ObservableObject {
         defaultCategories = categories.filter { $0.defaultCategory == true }
     }
     
-    func addCategory(_ name: String, _ colorHex: String, _ icon: String) {
+    func addCategory(_ remoteId: String?, _ name: String, _ colorHex: String, _ icon: String) {
         let category = Category(context: coreDataSharedInstance.context)
-        category.id = UUID().uuidString
+        if let usedId = remoteId {
+            category.id = usedId
+        } else {
+            category.id = UUID().uuidString
+        }
         category.name = name
         category.colorHex = colorHex
         category.icon = icon
@@ -85,13 +88,14 @@ class CategoryViewModel: ObservableObject {
         fetchCategories()
     }
     
-    func updateCategory(_ id: String, _ name: String, _ colorHex: String, _ icon: String) {
-        let searchedCategory = searchCategory(id)
-        
-        if searchedCategory != nil {
-            searchedCategory?.name = name
-            searchedCategory?.colorHex = colorHex
-            searchedCategory?.icon = icon
+    func updateCategory(_ id: String, _ remoteId: String?, _ name: String, _ colorHex: String, _ icon: String) {
+        if let searchedCategory = searchCategory(id) {
+            if let newId = remoteId {
+                searchedCategory.id = newId
+            }
+            searchedCategory.name = name
+            searchedCategory.colorHex = colorHex
+            searchedCategory.icon = icon
             
             coreDataSharedInstance.save()
             fetchCategories()
