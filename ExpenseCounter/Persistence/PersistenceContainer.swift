@@ -9,51 +9,20 @@ import CoreData
 
 class PersistenceContainer {
     static let shared = PersistenceContainer()
-    let container: NSPersistentCloudKitContainer
+    let container: NSPersistentContainer
     let context: NSManagedObjectContext
-    let cloudKitContainerIdentifier = "iCloud.com.DanielLe.ExpenseCounter"
     
     init() {
-        let container = NSPersistentCloudKitContainer(name: "ExpenseCounter")
-        guard (container.persistentStoreDescriptions.first?.url?.path) != nil else {
+        container = NSPersistentContainer(name: "ExpenseCounter")
+        guard container.persistentStoreDescriptions.first != nil else {
             fatalError("Could not find persistence container")
         }
-        
-        //Define where the local store file will live
-        let localStoreURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent("local.sqlite")
-        let localStoreDescription = NSPersistentStoreDescription(url: localStoreURL)
-        localStoreDescription.configuration = "Local"
-        
-        let cloudStoreURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent("cloud.sqlite")
-        let cloudStoreDescription = NSPersistentStoreDescription(url: cloudStoreURL)
-        cloudStoreDescription.configuration = "Cloud"
-        
-        cloudStoreDescription.cloudKitContainerOptions = NSPersistentCloudKitContainerOptions(containerIdentifier: cloudKitContainerIdentifier)
-        cloudStoreDescription.setOption(true as NSNumber, forKey: NSPersistentHistoryTrackingKey)
-        
-        container.persistentStoreDescriptions = [cloudStoreDescription, localStoreDescription]
-        container.loadPersistentStores { _, error in
-            if let error = error as NSError? {
-                fatalError("Failed to load stores \(error), \(error.userInfo)")
+        container.loadPersistentStores { storeDescription, error in
+            guard error == nil else {
+                fatalError("Could not load persistent stores. \(error!)")
             }
         }
-        self.container = container
-        self.context = self.container.viewContext
-        self.context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
-        self.context.automaticallyMergesChangesFromParent = true
-        self.context.shouldDeleteInaccessibleFaults = true
-    }
-    
-    private static func whereIsMySQLite() {
-        let path = FileManager
-            .default
-            .urls(for: .applicationSupportDirectory, in: .userDomainMask)
-            .last?
-            .absoluteString
-            .replacingOccurrences(of: "file://", with: "")
-            .removingPercentEncoding
-        
-        print(path ?? "Not found")
+        context = container.viewContext
     }
     func save() {
         guard context.hasChanges else { return }

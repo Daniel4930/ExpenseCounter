@@ -7,11 +7,6 @@
         <attribute name="id" optional="YES" attributeType="String"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <relationship name="expense" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Expense" inverseName="category" inverseEntity="Expense"/>
-        <uniquenessConstraints>
-            <uniquenessConstraint>
-                <constraint value="id"/>
-            </uniquenessConstraint>
-        </uniquenessConstraints>
     </entity>
     <entity name="Expense" representedClassName="Expense" syncable="YES" codeGenerationType="class">
         <attribute name="amount" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
@@ -19,33 +14,6 @@
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="title" optional="YES" attributeType="String"/>
         <relationship name="category" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Category" inverseName="expense" inverseEntity="Category"/>
-        <uniquenessConstraints>
-            <uniquenessConstraint>
-                <constraint value="id"/>
-            </uniquenessConstraint>
-        </uniquenessConstraints>
-    </entity>
-    <entity name="RemoteCategory" representedClassName="RemoteCategory" syncable="YES" codeGenerationType="class">
-        <attribute name="colorHex" optional="YES" attributeType="String"/>
-        <attribute name="defaultCategory" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
-        <attribute name="icon" optional="YES" attributeType="String"/>
-        <attribute name="id" optional="YES" attributeType="String"/>
-        <attribute name="name" optional="YES" attributeType="String"/>
-        <relationship name="remoteExpense" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="RemoteExpense" inverseName="remoteCategory" inverseEntity="RemoteExpense"/>
-    </entity>
-    <entity name="RemoteExpense" representedClassName="RemoteExpense" syncable="YES" codeGenerationType="class">
-        <attribute name="amount" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
-        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
-        <attribute name="title" optional="YES" attributeType="String"/>
-        <relationship name="remoteCategory" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="RemoteCategory" inverseName="remoteExpense" inverseEntity="RemoteCategory"/>
-    </entity>
-    <entity name="RemoteUser" representedClassName="RemoteUser" syncable="YES" codeGenerationType="class">
-        <attribute name="avatarData" optional="YES" attributeType="Binary"/>
-        <attribute name="firstName" optional="YES" attributeType="String"/>
-        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
-        <attribute name="income" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="lastName" optional="YES" attributeType="String"/>
     </entity>
     <entity name="User" representedClassName="User" syncable="YES" codeGenerationType="class">
         <attribute name="avatarData" optional="YES" attributeType="Binary"/>
@@ -53,20 +21,5 @@
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="income" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="lastName" optional="YES" attributeType="String"/>
-        <uniquenessConstraints>
-            <uniquenessConstraint>
-                <constraint value="id"/>
-            </uniquenessConstraint>
-        </uniquenessConstraints>
     </entity>
-    <configuration name="Cloud" usedWithCloudKit="YES">
-        <memberEntity name="RemoteUser"/>
-        <memberEntity name="RemoteCategory"/>
-        <memberEntity name="RemoteExpense"/>
-    </configuration>
-    <configuration name="Local">
-        <memberEntity name="User"/>
-        <memberEntity name="Expense"/>
-        <memberEntity name="Category"/>
-    </configuration>
 </model>

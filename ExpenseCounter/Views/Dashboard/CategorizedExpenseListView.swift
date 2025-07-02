@@ -86,11 +86,10 @@ struct CategorizedExpenseListView: View {
                 }
             }
         }
-        .navigationBarBackButtonHidden(true)
+        .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(Color("CustomGreenColor"), for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .toolbar {
-            BackButtonToolbarItem()
             NavbarTitle(title: date.formatted(.dateTime.month(.wide).year()))
             trailingDeleteButton
         }

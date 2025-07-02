@@ -28,15 +28,17 @@ struct ExpenseSearchAndSortBarView: View {
                         .foregroundStyle(.black)
                 }
                 Spacer()
-                Button {
-                    searchText = ""
-                    hideKeyboard()
-                } label: {
-                    Image(systemName: "x.circle.fill")
-                        .foregroundStyle(Color("CustomGrayColor"))
+                if searchText != "" {
+                    Button {
+                        searchText = ""
+                        hideKeyboard()
+                    } label: {
+                        Image(systemName: "x.circle.fill")
+                            .foregroundStyle(Color("CustomGrayColor"))
+                    }
                 }
             }
-            .padding(5)
+            .padding(10)
             .background(
                 RoundedRectangle(cornerRadius: 10)
                     .fill(Color.white)
@@ -65,10 +67,12 @@ struct ExpenseSearchAndSortBarView: View {
                         showPopOver = false
                     }
                 }
+                .tint(Color("CustomGreenColor"))
                 .font(AppFont.customFont(.title3))
                 .padding()
                 .presentationCompactAdaptation(.popover)
             }
         }
+        .tint(Color("CustomGreenColor"))
     }
 }

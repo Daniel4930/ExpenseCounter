@@ -106,24 +106,6 @@ struct KeyboardProvider: ViewModifier {
             })
     }
 }
-
-struct BackButtonToolbarItem: ToolbarContent {
-    @Environment(\.dismiss) var dismiss
-    var body: some ToolbarContent {
-        ToolbarItem(placement: .topBarLeading) {
-            Button {
-                dismiss()
-            } label: {
-                HStack {
-                    Image(systemName: "chevron.left")
-                    Text("Back")
-                }
-                .foregroundStyle(.white)
-            }
-        }
-    }
-}
-
 struct NavbarTitle: ToolbarContent {
     let title: String
     var body: some ToolbarContent {
@@ -145,12 +127,14 @@ struct KeyboardToolbarGroup<Field: FocusableField>: ToolbarContent {
                 focusedField.wrappedValue = switchFocusedState(direction: 1)
             } label: {
                 Image(systemName: "chevron.up")
+                    .foregroundStyle(.blue)
             }
 
             Button {
                 focusedField.wrappedValue = switchFocusedState(direction: -1)
             } label: {
                 Image(systemName: "chevron.down")
+                    .foregroundStyle(.blue)
             }
 
             Spacer()
@@ -158,6 +142,7 @@ struct KeyboardToolbarGroup<Field: FocusableField>: ToolbarContent {
             Button("Done") {
                 focusedField.wrappedValue = nil
             }
+            .foregroundStyle(.blue)
         }
     }
 }

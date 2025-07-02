@@ -9,12 +9,12 @@ import SwiftUI
 
 struct TotalSpendingView: View {
     var totalSpending: Double
-
+    
     var body: some View {
         HStack(spacing: 0) {
-            spendingSummary
+            spendingSummary()
+                .foregroundStyle(Color("CustomDarkGrayColor"))
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-//                .padding(.leading, 30)
         }
         .frame(maxWidth: .infinity)
         .background(Color.white)
@@ -26,8 +26,9 @@ struct TotalSpendingView: View {
         .padding(.horizontal)
         .shadow(color: .black.opacity(0.2), radius: 4)
     }
-
-    private var spendingSummary: some View {
+}
+extension TotalSpendingView {
+    func spendingSummary() -> some View {
         VStack(alignment: .center, spacing: 0) {
             Text("Spends")
                 .font(AppFont.customFont(font: .semibold, .title2))
@@ -41,31 +42,5 @@ struct TotalSpendingView: View {
             .minimumScaleFactor(0.5)
             .font(AppFont.customFont(font: .bold, .title))
         }
-        .foregroundStyle(Color("CustomDarkGrayColor"))
-    }
-
-    private var divider: some View {
-        Divider()
-            .frame(maxHeight: .infinity)
-            .frame(maxWidth: 3)
-            .overlay(Color("CustomGreenColor"))
-            .padding(.vertical)
-    }
-
-    private var safeToSpendSection: some View {
-        VStack(alignment: .center, spacing: 0) {
-            Text("Safe to spend")
-                .font(AppFont.customFont(font: .semibold, .body))
-                .foregroundStyle(Color("CustomDarkGrayColor"))
-                .padding(.bottom, 5)
-            Button {
-                // Action here
-            } label: {
-                Text("Set Budget")
-            }
-            .buttonStyle(.borderedProminent)
-            .tint(Color("CustomGreenColor"))
-        }
-        .font(AppFont.customFont(.body))
     }
 }

@@ -7,7 +7,6 @@
 
 import SwiftUI
 import PhotosUI
-import CloudKit
 
 enum ProfileFormField: FocusableField {
     case firstName
@@ -26,8 +25,6 @@ struct EditProfileFormView: View {
     
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var userViewModel: UserViewModel
-    @EnvironmentObject var remoteUserViewModel: RemoteUserViewModel
-    @AppStorage("syncedWithCloudKit") var syncWithCloudKit: Bool = false
     
     init(id: UUID?, firstName: String, lastName: String, data: Data?) {
         self.id = id
@@ -49,7 +46,7 @@ struct EditProfileFormView: View {
                     .inputFormModifier()
                     .foregroundStyle(.black)
                     .onChange(of: firstName) { newValue in
-                        readyToSubmit = validateInput(newValue, lastName)
+                        readyToSubmit = validateInput(newValue)
                     }
                 }
                 CustomSectionView(header: "Last name") {
@@ -58,9 +55,6 @@ struct EditProfileFormView: View {
                     }
                     .inputFormModifier()
                     .foregroundStyle(.black)
-                    .onChange(of: lastName) { newValue in
-                        readyToSubmit = validateInput(firstName, newValue)
-                    }
                 }
                 CustomSectionView(header: "Avatar") {
                     PhotosPicker("Select a photo", selection: $selectedItem, matching: .images)
@@ -87,25 +81,21 @@ struct EditProfileFormView: View {
             }
             .padding()
             .onAppear {
-                readyToSubmit = validateInput(firstName, lastName)
+                readyToSubmit = validateInput(firstName)
             }
         }
         .tint(Color("CustomGreenColor"))
-        .navigationBarBackButtonHidden(true)
+        .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(Color("CustomGreenColor"), for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .toolbar {
-            BackButtonToolbarItem()
             NavbarTitle(title: "Edit profile")
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     if let id = id {
-                        userViewModel.updateUser(id, nil, firstName, lastName, imageData)
+                        userViewModel.updateUser(id, firstName, lastName, imageData)
                     } else {
                         userViewModel.addUser(firstName, lastName, imageData)
-                    }
-                    if syncWithCloudKit {
-                        syncToCloudKitData()
                     }
                     dismiss()
                 } label: {
@@ -120,78 +110,36 @@ struct EditProfileFormView: View {
 }
 
 extension EditProfileFormView {
-    func validateInput(_ firstName: String, _ lastName: String) -> Bool {
-        if firstName != "" && lastName != "" {
+    func validateInput(_ firstName: String) -> Bool {
+        if firstName != "" {
             return true
         }
         return false
-    }
-    func syncToCloudKitData() {
-        // When the user clicks sync, combine local data with CloudKit, prioritizing local data
-        userViewModel.fetchUser()
-        
-        DispatchQueue.main.async {
-            CloudKitService.sharedInstance.queryCloudKitUserData { result in
-                switch result {
-                case .failure(let error):
-                    print("Failed to fetch remote user with an error: \(error)")
-                    
-                case .success(let records):
-                    // Ensure remoteUser data is fetched and consistent with CloudKit
-                    while !compareCloudKitDataWithRemoteUserData(records, remoteUserViewModel) {
-                        self.remoteUserViewModel.fetchRemoteUser()
-                    }
-                    if self.remoteUserViewModel.remoteUser == nil {
-                        // No user data in CloudKit: upload local user data
-                        uploadLocalUserToCloudKit(userViewModel, remoteUserViewModel)
-                        
-                    } else {
-                        // overwrite CloudKit with local
-                        self.overwriteCloudKitWithLocal()
-                    }
-                }
-            }
-        }
-    }
-    func overwriteCloudKitWithLocal() {
-        guard let localUser = userViewModel.user,
-              let id = localUser.id,
-              let firstName = localUser.firstName,
-              let lastName = localUser.lastName,
-              let imageData = localUser.avatarData,
-              let remoteUser = remoteUserViewModel.remoteUser,
-              let remoteId = remoteUser.id else {
-            print("Cannot overwrite CloudKit without complete local and remote data")
-            return
-        }
-        remoteUserViewModel.updateRemoteUser(remoteId, id, firstName, lastName, imageData)
     }
 }
 
 struct PreviewAvatarView: View {
     let avatar: Image?
     let firstName: String
-    let lastName: String
-    
-    @Environment(\.colorScheme) var colorScheme
+    let lastName: String?
+
     var body: some View {
-        HStack {
+        HStack(alignment: .center) {
             if let image = avatar {
                 image
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .modifier(AvatarModifier(width: 80, height: 80))
             } else {
-                let color = (colorScheme == .light ? Color.black : Color.white)
                 Text("No avatar")
-                    .modifier(AvatarModifier(width: 80, height: 80, gapColor: color, borderColor: color))
+                    .modifier(AvatarModifier(width: 80, height: 80, gapColor: .black, borderColor: .black))
             }
             
             VStack(alignment: .leading) {
                 if firstName != "" {
                     Text(firstName)
                 }
-                if lastName != "" {
+                if let lastName = lastName {
                     Text(lastName)
                 }
             }

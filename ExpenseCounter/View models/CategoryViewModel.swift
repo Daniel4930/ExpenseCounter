@@ -52,12 +52,9 @@ class CategoryViewModel: ObservableObject {
         let request = NSFetchRequest<Category>(entityName: "Category")
         
         do {
-            let fetched = try coreDataSharedInstance.context.fetch(request)
-            DispatchQueue.main.async {
-                self.categories = fetched
-                self.customCategories = self.categories.filter { $0.defaultCategory == false }
-                self.defaultCategories = self.categories.filter { $0.defaultCategory == true }
-            }
+            categories = try coreDataSharedInstance.context.fetch(request)
+            customCategories = categories.filter { $0.defaultCategory == false }
+            defaultCategories = categories.filter { $0.defaultCategory == true }
             
         } catch let error {
             fatalError("Can't fetch categories with error -> \(error.localizedDescription)")
@@ -72,13 +69,9 @@ class CategoryViewModel: ObservableObject {
         defaultCategories = categories.filter { $0.defaultCategory == true }
     }
     
-    func addCategory(_ remoteId: String?, _ name: String, _ colorHex: String, _ icon: String) {
+    func addCategory(_ name: String, _ colorHex: String, _ icon: String) {
         let category = Category(context: coreDataSharedInstance.context)
-        if let usedId = remoteId {
-            category.id = usedId
-        } else {
-            category.id = UUID().uuidString
-        }
+        category.id = UUID().uuidString
         category.name = name
         category.colorHex = colorHex
         category.icon = icon
@@ -88,11 +81,8 @@ class CategoryViewModel: ObservableObject {
         fetchCategories()
     }
     
-    func updateCategory(_ id: String, _ remoteId: String?, _ name: String, _ colorHex: String, _ icon: String) {
+    func updateCategory(_ id: String, _ name: String, _ colorHex: String, _ icon: String) {
         if let searchedCategory = searchCategory(id) {
-            if let newId = remoteId {
-                searchedCategory.id = newId
-            }
             searchedCategory.name = name
             searchedCategory.colorHex = colorHex
             searchedCategory.icon = icon
@@ -106,8 +96,12 @@ class CategoryViewModel: ObservableObject {
     
     func deleteCategory(_ id: String) {
         let searchedCategory = searchCategory(id)
+        let unknownCategory = searchCategory("unknown-category-id")
         
-        if let category = searchedCategory {
+        if let category = searchedCategory, let expenses = category.expense {
+            for expense in expenses.allObjects as! [Expense] {
+                expense.category = unknownCategory
+            }
             coreDataSharedInstance.context.delete(category)
             coreDataSharedInstance.save()
             fetchCategories()

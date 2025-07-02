@@ -34,14 +34,16 @@ struct CategoryItemView: View {
     
     var body: some View {
         HStack(alignment: .center, spacing: 0) {
-            CategoryIconView(
-                categoryIcon: category.icon ?? ErrorCategory.icon,
-                isDefault: category.defaultCategory,
-                categoryHexColor: category.colorHex ?? ErrorCategory.colorHex,
-                width: 50,
-                height: 50
-            )
-            .padding(.trailing)
+            if let icon = category.icon, let colorHex = category.colorHex {
+                CategoryIconView(
+                    categoryIcon: icon,
+                    isDefault: category.defaultCategory,
+                    categoryHexColor: colorHex,
+                    width: 50,
+                    height: 50
+                )
+                .padding(.trailing)
+            }
             
             VStack(alignment: .leading, spacing: 0) {
                 CategoryNameView(name: category.name ?? "No name", font: .bold)

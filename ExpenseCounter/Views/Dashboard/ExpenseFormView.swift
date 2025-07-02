@@ -25,13 +25,9 @@ struct ExpenseFormView: View {
     @State var title: String
     @State var readyToSubmit: Bool = false
     @State private var showCategoryPopUp = false
-    @State private var keyboardHeight: CGFloat = 0
     @State private var showDatePicker: Bool = false
-    @State private var showDate = false
     @FocusState var focusedField: ExpenseFormField?
-    
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var expenseViewModel: ExpenseViewModel
     private let coreDataSharedInstance = PersistenceContainer.shared
     
@@ -50,95 +46,38 @@ struct ExpenseFormView: View {
         ScrollView {
             VStack {
                 CustomSectionView(header: "Title") {
-                    HStack {
-                        CustomTextField(focusedField: $focusedField, text: $title, field: .title) {
-                            Text("Enter a title")
-                                .foregroundStyle(Color("CustomGrayColor"))
-                        }
-                        Spacer()
-                        Image(systemName: "list.bullet.rectangle")
-                            .foregroundStyle(Color("CustomGreenColor"))
-                    }
-                    .inputFormModifier()
-                    .foregroundColor(.black)
+                    titleTextField()
+                        .inputFormModifier()
+                        .foregroundColor(.black)
                 }
                 .padding()
                 
                 CustomSectionView(header: "Amount") {
-                    HStack {
-                        CustomTextField(focusedField: $focusedField, text: $amount, field: .amount) {
-                            Text("Enter an amount")
-                                .foregroundStyle(Color("CustomGrayColor"))
-                        }
-                        .onChange(of: amount) {newValue in
-                            if !amountInputValid(newValue) && !newValue.isEmpty {
-                                amount = String(newValue.dropLast())
-                            }
-                            readyToSubmit = validInputsBeforeSubmit(amount, category, showDate)
-                        }
-                        Spacer()
-                        Text(Locale.current.currencySymbol ?? "$")
-                            .foregroundStyle(Color("CustomGreenColor"))
-                    }
-                    .inputFormModifier()
-                    .keyboardType(.decimalPad)
-                    .foregroundColor( .black)
+                    amountTextField()
+                        .inputFormModifier()
+                        .keyboardType(.decimalPad)
+                        .foregroundColor( .black)
                 }
                 .padding()
                 
                 CustomSectionView(header: "Category") {
-                    Button(action: {
-                        showCategoryPopUp = true
-                    }, label: {
-                        HStack {
-                            Text(category?.name ?? "Select a category")
-                            Spacer()
-                            Image(systemName: "list.bullet")
-                        }
-                    })
-                    .inputFormModifier()
-                    .popover(isPresented: $showCategoryPopUp) {
-                        CategorySelectionGridView(selectedCategory: $category)
-                            .presentationDetents([.medium])
-                    }
-                    .onChange(of: category) { newValue in
-                        readyToSubmit = validInputsBeforeSubmit(amount, newValue, showDate)
-                    }
+                    categorySelectionView()
                 }
                 .padding()
                 
                 CustomSectionView(header: "Date") {
-                    Button {
-                        showDatePicker = true
-                        showDate = true
-                    } label: {
-                        HStack(spacing: 0) {
-                            Text(showDate ? date.formatted(date: .abbreviated, time: .shortened) : "Select a date")
-                            Spacer()
-                            Image(systemName: "calendar")
-                        }
-                    }
-                    .inputFormModifier()
-                    .sheet(isPresented: $showDatePicker) {
-                        CustomDatePickerView(date: $date)
-                            .presentationDetents([.fraction(0.3)])
-                    }
-                    .onChange(of: showDate) { newValue in
-                        readyToSubmit = validInputsBeforeSubmit(amount, category, newValue)
-                    }
+                    dateSelectionView()
                 }
                 .padding()
                 
                 Spacer()
             }
-            .navigationBarBackButtonHidden(true)
+            .tint(Color("CustomGreenColor"))
+            .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(Color("CustomGreenColor"), for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
-            .keyboardHeight($keyboardHeight)
-            .padding(.bottom, focusedField == ExpenseFormField.amount ? keyboardHeight : 0)
             .animation(.easeInOut(duration: 0.3), value: focusedField)
             .toolbar {
-                BackButtonToolbarItem()
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         if isEditMode {
@@ -165,19 +104,15 @@ struct ExpenseFormView: View {
                     date = expense.date ?? Date()
                     title = expense.title ?? ""
                     category = expense.category
-                    showDate = true
                 } else {
                     amount = ""
                     date = Date()
                     title = ""
                     category = nil
                 }
-                readyToSubmit = validInputsBeforeSubmit(amount, category, showDate)
+                readyToSubmit = validInputsBeforeSubmit(amount, category)
             }
         }
-        .scrollDismissesKeyboard(.interactively)
-        .ignoresSafeArea(.keyboard)
-        .tint(Color("CustomGreenColor"))
     }
 }
 
@@ -192,11 +127,74 @@ private extension ExpenseFormView {
         }
         return false
     }
-    func validInputsBeforeSubmit(_ amount: String, _ category: Category?, _ showDate: Bool) -> Bool {
-        if !amount.isEmpty && category != nil && showDate == true {
+    func validInputsBeforeSubmit(_ amount: String, _ category: Category?) -> Bool {
+        if !amount.isEmpty && category != nil {
             return true
         }
         return false
+    }
+    func titleTextField() -> some View {
+        HStack {
+            CustomTextField(focusedField: $focusedField, text: $title, field: .title) {
+                Text("Enter a title")
+                    .foregroundStyle(Color("CustomGrayColor"))
+            }
+            Spacer()
+            Image(systemName: "list.bullet.rectangle")
+                .foregroundStyle(Color("CustomGreenColor"))
+        }
+    }
+    func amountTextField() -> some View {
+        HStack {
+            CustomTextField(focusedField: $focusedField, text: $amount, field: .amount) {
+                Text("Enter an amount")
+                    .foregroundStyle(Color("CustomGrayColor"))
+            }
+            .onChange(of: amount) {newValue in
+                if !amountInputValid(newValue) && !newValue.isEmpty {
+                    amount = String(newValue.dropLast())
+                }
+                readyToSubmit = validInputsBeforeSubmit(amount, category)
+            }
+            Spacer()
+            Text(Locale.current.currencySymbol ?? "$")
+                .foregroundStyle(Color("CustomGreenColor"))
+        }
+    }
+    func categorySelectionView() -> some View {
+        Button(action: {
+            showCategoryPopUp = true
+        }, label: {
+            HStack {
+                Text(category?.name ?? "Select a category")
+                Spacer()
+                Image(systemName: "list.bullet")
+            }
+        })
+        .inputFormModifier()
+        .popover(isPresented: $showCategoryPopUp) {
+            CategorySelectionGridView(selectedCategory: $category)
+                .presentationDetents([.medium])
+        }
+        .onChange(of: category) { newValue in
+            readyToSubmit = validInputsBeforeSubmit(amount, newValue)
+        }
+    }
+    func dateSelectionView() -> some View {
+        Button {
+            showDatePicker = true
+        } label: {
+            HStack(spacing: 0) {
+                Text(date.formatted(date: .abbreviated, time: .shortened))
+                Spacer()
+                Image(systemName: "calendar")
+            }
+        }
+        .inputFormModifier()
+        .sheet(isPresented: $showDatePicker) {
+            CustomDatePickerView(date: $date)
+                .presentationDetents([.fraction(0.3)])
+        }
     }
 }
 

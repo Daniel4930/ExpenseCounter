@@ -50,6 +50,7 @@ enum CustomFont: String {
     case regular = "OpenSans-Regular"
     case bold = "OpenSans-Bold"
     case semibold = "OpenSans-Semibold"
+    case italic = "OpenSans-Italic"
 }
 
 struct AppFont {
@@ -135,7 +136,7 @@ struct LinearGradientBackgroundView: View {
     let startPoint: UnitPoint
     let endPoint: UnitPoint
     
-    init(colors: [Color] = [Color("GradientColor1"), Color("GradientColor2")], startPoint: UnitPoint = .topTrailing, endPoint: UnitPoint = .bottomLeading) {
+    init(colors: [Color] = [Color("GradientColor1"), Color("GradientColor2")], startPoint: UnitPoint = .top, endPoint: UnitPoint = .bottom) {
         self.colors = colors
         self.startPoint = startPoint
         self.endPoint = endPoint

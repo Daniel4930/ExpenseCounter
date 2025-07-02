@@ -33,7 +33,7 @@ struct DashboardView: View {
                 .clipShape(BottomRoundedRectangle(radius: 15))
                 .shadow(color: .black, radius: 1)
                 
-                SpendFootnoteView(date: expensesViewModel.date)
+                SpendsAndViewAll(date: expensesViewModel.date)
                 
                 ScrollView {
                     CategorySpendingView(date: expensesViewModel.date)
@@ -41,6 +41,7 @@ struct DashboardView: View {
             }
             .ignoresSafeArea()
         }
+        .tint(.white)
         .task {
             expensesViewModel.fetchExpensesOfMonthYear()
             userViewModel.fetchUser()
@@ -66,10 +67,9 @@ struct Header: View {
     @EnvironmentObject var userViewModel: UserViewModel
     
     var body: some View {
-        HStack {
-            HStack {
-                NavigationLink(
-                    destination: ProfileView(syncWithCloudKit: UserDefaults.standard.bool(forKey: "syncWithCloudKit"))) {
+        HStack(alignment: .center) {
+            HStack(alignment: .center) {
+                NavigationLink(destination: ProfileView()) {
                     if let imageData = userViewModel.user?.avatarData, let uiImage = UIImage(data: imageData) {
                         Image(uiImage: uiImage)
                             .resizable()
@@ -81,8 +81,12 @@ struct Header: View {
                             .modifier(AvatarModifier(width: 60, height: 60))
                     }
                     VStack(alignment: .leading) {
-                        Text("\(userViewModel.user?.firstName ?? "User")")
-                        Text("\(userViewModel.user?.lastName ?? "")")
+                        if let user = userViewModel.user {
+                            Text("\(user.firstName ?? "User")")
+                            if let lastName = user.lastName {
+                                Text("\(lastName)")
+                            }
+                        }
                     }
                     .font(AppFont.customFont(font: .bold, .title3))
                     .foregroundStyle(.white)
@@ -91,7 +95,10 @@ struct Header: View {
             
             Spacer()
         
-            NavigationLink(destination: ExpenseFormView(navTitle: "Add an expense", id: nil, isEditMode: false)) {
+            NavigationLink(
+                destination:
+                    ExpenseFormView(navTitle: "Add an expense", id: nil, isEditMode: false)
+            ) {
                 Image(systemName: "plus")
                     .resizable()
                     .frame(maxWidth: 20, maxHeight: 20)
@@ -102,7 +109,7 @@ struct Header: View {
     }
 }
 
-struct SpendFootnoteView: View {
+struct SpendsAndViewAll: View {
     let date: Date
     
     var body: some View {

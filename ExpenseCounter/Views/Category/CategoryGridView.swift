@@ -12,7 +12,6 @@ struct CategoryGridView: View {
     @EnvironmentObject var categoryViewModel: CategoryViewModel
     
     var body: some View {
-        
         NavigationStack {
             VStack {
                 ZStack {
@@ -74,6 +73,7 @@ struct CategoryGridView: View {
             }
             .ignoresSafeArea()
         }
+        .tint(.white)
     }
 }
 
@@ -84,7 +84,6 @@ struct CategoryGridRow: View {
     @State private var showSheet = false
     
     @EnvironmentObject var categoryViewModel: CategoryViewModel
-    @Environment(\.colorScheme) var colorScheme
 
     var body: some View {
         GridRow(alignment: .top) {
@@ -138,7 +137,7 @@ extension CategoryGridRow {
             )
             CategoryNameView(
                 name: category.name ?? ErrorCategory.name,
-                fontColor: colorScheme == .dark ? .white : .black
+                fontColor: .black
             )
         }
     }
