@@ -28,19 +28,6 @@ class ExpenseViewModel: ObservableObject {
         fatalError("Can't get date")
     }
     
-    func expenseExists(id: UUID) -> Bool {
-        let fetchRequest: NSFetchRequest<Expense> = Expense.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "id == %@", id as CVarArg)
-        fetchRequest.fetchLimit = 1
-
-        do {
-            let count = try coreDateStackInstance.context.count(for: fetchRequest)
-            return count > 0
-        } catch let error {
-            fatalError("Error fetching existing expense -> \(error.localizedDescription)")
-        }
-    }
-    
     func fetchExpensesOfMonthYear() {
         let calendar = Calendar.current
         let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: date))!
@@ -105,33 +92,14 @@ class ExpenseViewModel: ObservableObject {
                     existingExpense.title = title
                 }
                 coreDateStackInstance.save()
-                if date.formatted(.dateTime.month().year()) == self.date.formatted(.dateTime.month().year()) {
-                    fetchExpensesOfMonthYear()
-                }
+                fetchExpensesOfMonthYear()
             }
         } catch let error {
             fatalError("Error updating an expense -> \(error.localizedDescription)")
         }
     }
     
-    func getExpensesInCategoryInDate(_ category: Category, _ date: Date) -> [Expense] {
-        let expenses = expensesOfMonth.filter { $0.category == category }
-        
-        let calendar = Calendar.current
-        let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: date))!
-        var components = DateComponents()
-        components.month = 1
-        components.second = -1
-        let endOfMonth = calendar.date(byAdding: components, to: startOfMonth)!
-        
-        var result = [Expense]()
-        for expense in expenses {
-            if let expenseDate = expense.date {
-                if startOfMonth <= expenseDate && expenseDate <= endOfMonth {
-                    result.append(expense)
-                }
-            }
-        }
-        return result
+    func getExpensesInCategoryInDate(_ category: Category) -> [Expense] {
+        return expensesOfMonth.filter { $0.category == category }
     }
 }

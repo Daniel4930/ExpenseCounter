@@ -15,21 +15,10 @@ struct AllExpensesView: View {
     @State private var editMode = false
     @EnvironmentObject var expenseViewModel: ExpenseViewModel
     @Environment(\.dismiss) var dismiss
-    
-    private var trailingDeleteButton: some ToolbarContent {
-        ToolbarItem(placement: .topBarTrailing) {
-            Button(action: {
-                editMode.toggle()
-            }) {
-                Text(editMode ? "Done" : "Delete")
-                    .foregroundColor(.white)
-            }
-        }
-    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            AllExpensesViewTitle()
+            viewTitle()
                 .padding()
 
             ExpenseSearchAndSortBarView(searchText: $searchText, isAscending: $isAscending)
@@ -49,13 +38,14 @@ struct AllExpensesView: View {
                         VStack(alignment: .leading, spacing: 5) {
                             ExpenseDate(date: date)
                             ForEach(expenses) { expense in
-                                let category = expense.category ?? nil
-                                let actions = [
-                                    SwipeAction(color: .red, systemImage: "trash.fill") {
-                                        deleteAnExpense(expense)
-                                    }
-                                ]
-                                ExpenseView(editMode: $editMode, expense: expense, category: category, actions: actions)
+                                if let category = expense.category {
+                                    let actions = [
+                                        SwipeAction(color: .red, systemImage: "trash.fill") {
+                                            deleteAnExpense(expense)
+                                        }
+                                    ]
+                                    ExpenseView(editMode: $editMode, expense: expense, category: category, actions: actions)
+                                }
                             }
                         }
                         .padding(.top)
@@ -70,15 +60,13 @@ struct AllExpensesView: View {
         .toolbarBackground(.visible, for: .navigationBar)
         .toolbar {
             NavbarTitle(title: date.formatted(.dateTime.month(.wide).year()))
-            trailingDeleteButton
+            deleteButton()
         }
     }
 }
 private extension AllExpensesView {
     func filterExpense() -> [Expense] {
-        expenseViewModel.expensesOfMonth.filter {
-            searchText.isEmpty ||
-            $0.title?.localizedCaseInsensitiveContains(searchText) == true
+        expenseViewModel.expensesOfMonth.filter {searchText.isEmpty || $0.title?.localizedCaseInsensitiveContains(searchText) == true
         }
     }
     func sortExpensesByDate(_ expenses: [Expense]) -> [Expense] {
@@ -122,6 +110,20 @@ private extension AllExpensesView {
             expenseViewModel.deleteAnExpense(expense)
         }
     }
+    func deleteButton() -> some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            Button(action: {
+                editMode.toggle()
+            }) {
+                Text(editMode ? "Done" : "Delete")
+                    .foregroundColor(.white)
+            }
+        }
+    }
+    func viewTitle() -> some View {
+        Text("Expenses")
+            .font(AppFont.customFont(font: .bold, .title))
+    }
 }
 
 struct ExpenseDate: View {
@@ -143,26 +145,24 @@ struct ExpenseView: View {
     let formTitle = "Edit an expense"
     @Binding var editMode: Bool
     let expense: Expense
-    let category: Category?
+    let category: Category
     let actions: [SwipeAction]
     
     var body: some View {
         NavigationLink(destination: ExpenseFormView(navTitle: formTitle, id: expense.id, isEditMode: true)) {
             CustomSwipeView(isEditMode: $editMode, actions: actions) {
                 HStack(alignment: .center, spacing: 0) {
-                    CategoryIconView(
-                        categoryIcon: category?.icon ?? ErrorCategory.icon,
-                        isDefault: category?.defaultCategory ?? true,
-                        categoryHexColor: category?.colorHex ?? ErrorCategory.colorHex
-                    )
-                    .padding(.trailing, 10)
-                    
-                    ExpenseInfo(
-                        expenseTitle: expense.title ?? nil,
-                        expenseDate: expense.date ?? nil,
-                        categoryName: category?.name ?? ErrorCategory.name,
-                        categoryColorHex: category?.colorHex ?? ErrorCategory.colorHex
-                    )
+                    if let name = category.name, let icon = category.icon, let colorHex = category.colorHex {
+                        CategoryIconView(icon: icon, isDefault: category.defaultCategory, hexColor: colorHex)
+                        .padding(.trailing, 10)
+                        
+                        ExpenseInfo(
+                            expenseTitle: expense.title ?? nil,
+                            expenseDate: expense.date ?? nil,
+                            categoryName: name,
+                            categoryColorHex: colorHex
+                        )
+                    }
                     
                     Spacer()
                     
@@ -216,12 +216,5 @@ struct ExpenseInfo: View {
             }
             .font(AppFont.customFont(.footnote))
         }
-    }
-}
-
-struct AllExpensesViewTitle: View {
-    var body: some View {
-        Text("Expenses")
-            .font(AppFont.customFont(font: .bold, .title))
     }
 }

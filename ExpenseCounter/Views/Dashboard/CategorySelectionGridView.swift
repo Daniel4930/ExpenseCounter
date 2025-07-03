@@ -33,25 +33,23 @@ struct CategoryGridItemView: View {
     let category: Category
     
     var body: some View {
-        Button(action: {
+        Button {
             selectedCategory = category
             dismiss()
-        }, label: {
-            VStack {
-                CategoryIconView(
-                    categoryIcon: category.icon ?? ErrorCategory.icon,
-                    isDefault: category.defaultCategory,
-                    categoryHexColor: category.colorHex ?? ErrorCategory.colorHex
-                )
-                CategoryNameView(name: category.name ?? ErrorCategory.name, fontColor: .primary, font: .regular, fontSize: .body)
-            }
-            .padding()
-            .overlay {
-                if selectedCategory == category {
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color("CustomGreenColor"), lineWidth: 2)
+        } label: {
+            if let name = category.name, let icon = category.icon, let colorHex = category.colorHex {
+                VStack {
+                    CategoryIconView(icon: icon, isDefault: category.defaultCategory, hexColor: colorHex)
+                    CategoryNameView(name: name, fontColor: .primary, font: .regular, fontSize: .body)
+                }
+                .padding()
+                .overlay {
+                    if selectedCategory == category {
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color("CustomGreenColor"), lineWidth: 2)
+                    }
                 }
             }
-        })
+        }
     }
 }

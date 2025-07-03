@@ -29,7 +29,6 @@ struct ExpenseFormView: View {
     @FocusState var focusedField: ExpenseFormField?
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var expenseViewModel: ExpenseViewModel
-    private let coreDataSharedInstance = PersistenceContainer.shared
     
     init(navTitle: String, id: UUID?, isEditMode: Bool) {
         self.navTitle = navTitle

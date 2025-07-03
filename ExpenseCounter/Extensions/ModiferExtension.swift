@@ -33,7 +33,7 @@ struct MonthOverlayModifier: ViewModifier {
             if isSelected {
                 content.overlay(
                     RoundedRectangle(cornerRadius: 20)
-                        .stroke(Color.blue, lineWidth: 1)
+                        .stroke(Color("CustomGreenColor"), lineWidth: 1)
                 )
             } else {
                 content

@@ -43,14 +43,14 @@
       "size" : "40x40"
     },
     {
-      "filename" : "Expense Counter 2.png",
+      "filename" : "ExpenseAppIcon-120 1.jpg",
       "idiom" : "universal",
       "platform" : "ios",
       "scale" : "3x",
       "size" : "40x40"
     },
     {
-      "filename" : "Expense Counter.png",
+      "filename" : "ExpenseAppIcon-120.jpg",
       "idiom" : "universal",
       "platform" : "ios",
       "scale" : "2x",
@@ -81,7 +81,7 @@
       "size" : "68x68"
     },
     {
-      "filename" : "Expense Counter 1.png",
+      "filename" : "ExpenseAppIcon-152.jpg",
       "idiom" : "universal",
       "platform" : "ios",
       "scale" : "2x",
@@ -94,7 +94,7 @@
       "size" : "83.5x83.5"
     },
     {
-      "filename" : "Expense Counter-2.png",
+      "filename" : "ExpenseAppIcon.jpg",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"

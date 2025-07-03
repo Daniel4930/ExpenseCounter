@@ -81,11 +81,13 @@ struct Header: View {
                             .modifier(AvatarModifier(width: 60, height: 60))
                     }
                     VStack(alignment: .leading) {
-                        if let user = userViewModel.user {
-                            Text("\(user.firstName ?? "User")")
+                        if let user = userViewModel.user, let firstName = user.firstName {
+                            Text("\(firstName)")
                             if let lastName = user.lastName {
                                 Text("\(lastName)")
                             }
+                        } else {
+                            Text("User")
                         }
                     }
                     .font(AppFont.customFont(font: .bold, .title3))

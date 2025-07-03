@@ -106,16 +106,8 @@ struct CategoryGridRow: View {
                         }
                     } else {
                         if let id = category.id, let name = category.name, let hexColor = category.colorHex, let icon = category.icon {
-                            NavigationLink(
-                                destination:
-                                    CategoryFormView(
-                                        navTitle: "Edit a category",
-                                        id: id,
-                                        name: name,
-                                        color: Color(hex: hexColor),
-                                        icon: icon
-                                    )
-                            ) {
+                            NavigationLink(destination: CategoryFormView(navTitle: "Edit a category", id: id, name: name, color: Color(hex: hexColor), icon: icon))
+                            {
                                 categoryView(for: category)
                             }
                         }
@@ -130,15 +122,10 @@ struct CategoryGridRow: View {
 extension CategoryGridRow {
     func categoryView(for category: Category) -> some View {
         VStack(alignment: .center) {
-            CategoryIconView (
-                categoryIcon: category.icon ?? ErrorCategory.icon,
-                isDefault: category.defaultCategory,
-                categoryHexColor: category.colorHex ?? ErrorCategory.colorHex
-            )
-            CategoryNameView(
-                name: category.name ?? ErrorCategory.name,
-                fontColor: .black
-            )
+            if let name = category.name, let icon = category.icon, let colorHex = category.colorHex {
+                CategoryIconView (icon: icon, isDefault: category.defaultCategory, hexColor: colorHex)
+                CategoryNameView(name: name, fontColor: .black)
+            }
         }
     }
     

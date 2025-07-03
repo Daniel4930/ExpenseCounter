@@ -19,7 +19,6 @@
         <attribute name="avatarData" optional="YES" attributeType="Binary"/>
         <attribute name="firstName" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
-        <attribute name="income" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="lastName" optional="YES" attributeType="String"/>
     </entity>
 </model>

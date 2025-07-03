@@ -31,11 +31,13 @@ struct ProfileView: View {
                             .padding(.trailing, 10)
                     }
                     VStack(alignment: .leading) {
-                        if let user = userViewModel.user {
-                            Text("\(user.firstName ?? defaultFirstName)")
+                        if let user = userViewModel.user, let firstName = user.firstName {
+                            Text("\(firstName)")
                             if let lastName = user.lastName {
                                 Text("\(lastName)")
                             }
+                        } else {
+                            Text(defaultFirstName)
                         }
                     }
                     .font(AppFont.customFont(.title2))

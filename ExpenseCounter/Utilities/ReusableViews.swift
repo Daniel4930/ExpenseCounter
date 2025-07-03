@@ -61,55 +61,6 @@ struct AppFont {
     }
 }
 
-struct CategoryIconView: View {
-    let categoryIcon: String
-    let isDefault: Bool
-    let categoryHexColor: String
-    let width: CGFloat
-    let height: CGFloat
-    let cornerRadius: CGFloat = 10
-    let shadowOpacity: Double = 0.3
-    let shadowRadius: CGFloat = 5
-    let fontSize = FontSize.title
-    let color: Color = .white
-    
-    init(categoryIcon: String, isDefault: Bool, categoryHexColor: String, width: CGFloat = 60, height: CGFloat = 60) {
-        self.categoryIcon = categoryIcon
-        self.isDefault = isDefault
-        self.categoryHexColor = categoryHexColor
-        self.width = width
-        self.height = height
-    }
-    
-    @ViewBuilder
-    var icon: some View {
-        if isDefault {
-            Image(systemName: categoryIcon)
-                .resizable()
-                .scaledToFit()
-                .frame(width: width * 0.6, height: height * 0.6)
-        } else {
-            Text(categoryIcon)
-        }
-    }
-    
-    var body: some View {
-        icon
-            .font(AppFont.customFont(fontSize))
-            .foregroundStyle(color)
-            .frame(width: width, height: height)
-            .background(
-                RoundedRectangle(cornerRadius: cornerRadius)
-                    .fill(Color(hex: categoryHexColor))
-                    .shadow(
-                        color: Color(hex: categoryHexColor)
-                            .opacity(shadowOpacity),
-                        radius: shadowRadius
-                    )
-            )
-    }
-}
-
 struct CategoryNameView: View {
     let name: String
     let fontColor: Color
@@ -128,6 +79,59 @@ struct CategoryNameView: View {
         Text(name)
             .font(AppFont.customFont(font: font, fontSize))
             .foregroundStyle(fontColor)
+    }
+}
+
+struct CategoryIconView: View {
+    let icon: String?
+    let isDefault: Bool
+    let hexColor: String?
+    let width: CGFloat
+    let height: CGFloat
+    let cornerRadius: CGFloat = 10
+    let shadowOpacity: Double = 0.3
+    let shadowRadius: CGFloat = 5
+    let fontSize = FontSize.title
+    let color: Color = .white
+    
+    init(icon: String, isDefault: Bool, hexColor: String, width: CGFloat = 60, height: CGFloat = 60) {
+        self.icon = icon
+        self.isDefault = isDefault
+        self.hexColor = hexColor
+        self.width = width
+        self.height = height
+    }
+    
+    @ViewBuilder
+    var categoryIcon: some View {
+        if let icon = icon {
+            if isDefault {
+                Image(systemName: icon)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: width * 0.6, height: height * 0.6)
+            } else {
+                Text(icon)
+            }
+        }
+    }
+    
+    var body: some View {
+        if let colorHex = hexColor {
+            categoryIcon
+                .font(AppFont.customFont(fontSize))
+                .foregroundStyle(color)
+                .frame(width: width, height: height)
+                .background(
+                    RoundedRectangle(cornerRadius: cornerRadius)
+                        .fill(Color(hex: colorHex))
+                        .shadow(
+                            color: Color(hex: colorHex)
+                                .opacity(shadowOpacity),
+                            radius: shadowRadius
+                        )
+                )
+        }
     }
 }
 

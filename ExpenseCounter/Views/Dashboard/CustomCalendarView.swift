@@ -55,6 +55,7 @@ struct CurrentDateView: View {
                 Image(systemName: "chevron.right")
             })
         }
+        .tint(Color("CustomGreenColor"))
         .font(AppFont.customFont(.title2))
     }
 }
@@ -77,6 +78,7 @@ struct MonthGridView: View {
     @Binding var date: Date
     let calendar = Calendar.current
     let months = Calendar.current.monthSymbols
+    @Environment(\.dismiss) var dismiss
     
     var body: some View {
         LazyVGrid(columns: columns) {
@@ -94,14 +96,10 @@ struct MonthGridView: View {
                     .foregroundStyle(isDisabled ? Color.gray : Color.primary)
                     .monthOverlay(isSelected: isSelected, isDisabled: isDisabled)
                     .onTapGesture {
-                        if !isDisabled,
-                           let newDate = MonthGridView.updateMonth(
-                               date: selectedDate,
-                               newMonth: index + 1,
-                               newYear: calendar.component(.year, from: currentDate)
-                           ) {
+                        if !isDisabled, let newDate = MonthGridView.updateMonth(date: selectedDate, newMonth: index + 1, newYear: calendar.component(.year, from: currentDate)) {
                             selectedDate = newDate
                             date = newDate
+                            dismiss()
                         }
                     }
                     .disabled(isDisabled)

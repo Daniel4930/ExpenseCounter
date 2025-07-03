@@ -61,14 +61,6 @@ class CategoryViewModel: ObservableObject {
         }
     }
     
-    func getCustomCategories() {
-        customCategories = categories.filter { $0.defaultCategory == false }
-    }
-    
-    func getDefaultCategories() {
-        defaultCategories = categories.filter { $0.defaultCategory == true }
-    }
-    
     func addCategory(_ name: String, _ colorHex: String, _ icon: String) {
         let category = Category(context: coreDataSharedInstance.context)
         category.id = UUID().uuidString

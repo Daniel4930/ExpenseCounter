@@ -16,7 +16,7 @@ struct CategorySpendingView: View {
     var body: some View {
         VStack(spacing: 16) {
             ForEach(categoryViewModel.categories, id: \.id) { category in
-                if !expenseViewModel.getExpensesInCategoryInDate(category, date).isEmpty {
+                if !expenseViewModel.getExpensesInCategoryInDate(category).isEmpty {
                     NavigationLink(destination: CategorizedExpenseListView(category: category, date: date)) {
                         CategoryItemView(category: category, date: date)
                     }
@@ -35,13 +35,7 @@ struct CategoryItemView: View {
     var body: some View {
         HStack(alignment: .center, spacing: 0) {
             if let icon = category.icon, let colorHex = category.colorHex {
-                CategoryIconView(
-                    categoryIcon: icon,
-                    isDefault: category.defaultCategory,
-                    categoryHexColor: colorHex,
-                    width: 50,
-                    height: 50
-                )
+                CategoryIconView(icon: icon, isDefault: category.defaultCategory, hexColor: colorHex, width: 50, height: 50)
                 .padding(.trailing)
             }
             
@@ -83,13 +77,13 @@ struct CategoryItemView: View {
 
 extension CategoryItemView {
     func getLastestExpense() -> Expense? {
-        let expenses = expenseViewModel.getExpensesInCategoryInDate(category, date)
+        let expenses = expenseViewModel.getExpensesInCategoryInDate(category)
         let dates = expenses.compactMap{ $0.date }
         return expenses.first{ $0.date == dates.max() }
     }
     func calculateTotalExpense() -> Double {
         var total: Double = 0
-        for expense in expenseViewModel.getExpensesInCategoryInDate(category, date) {
+        for expense in expenseViewModel.getExpensesInCategoryInDate(category) {
             total += expense.amount
         }
         return total

@@ -28,8 +28,10 @@ struct CategoryFormView: View {
     var body: some View {
         ScrollView {
             VStack {
-                CategoryIconView(categoryIcon: icon, isDefault: false, categoryHexColor: color.toHex() ?? ErrorCategory.colorHex)
-                    .padding(.top)
+                if let colorHex = color.toHex() {
+                    CategoryIconView(icon: icon, isDefault: false, hexColor: colorHex)
+                        .padding(.top)
+                }
                 
                 CategoryNameView(name: name, fontColor: .black)
                     .frame(height: 20)
@@ -76,6 +78,7 @@ struct CategoryFormView: View {
                         }
                         
                         Spacer()
+                        
                         Image(systemName: "face.smiling")
                             .frame(width: 25, height: 25)
                     }
@@ -85,43 +88,18 @@ struct CategoryFormView: View {
                 .padding([.leading, .trailing, .top])
                 
                 if let id = id {
-                    Button {
-                        categoryViewModel.deleteCategory(id)
-                        dismiss()
-                    } label: {
-                        Text("Delete")
-                            .font(AppFont.customFont(.title3))
-                    }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 50)
-                    .foregroundStyle(.white)
-                    .background(
-                        RoundedRectangle(cornerRadius: 10)
-                            .fill(.red)
-                    )
+                    deleteButton(id)
                     .padding([.leading, .trailing, .top])
                 }
             }
+            .tint(Color("CustomGreenColor"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(Color("CustomGreenColor"), for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
             .animation(.easeInOut(duration: 0.3), value: focusedField)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        if let hexColor = color.toHex() {
-                            if let id = id {
-                                categoryViewModel.updateCategory(id, name, hexColor, icon)
-                            } else {
-                                categoryViewModel.addCategory(name, hexColor, icon)
-                            }
-                        }
-                        dismiss()
-                    } label: {
-                        Text("Submit")
-                            .foregroundColor(readyToSubmit ? .white : Color("CustomGrayColor"))
-                    }
-                    .disabled(!readyToSubmit)
+                    submitButton()
                 }
                 NavbarTitle(title: navTitle)
                 KeyboardToolbarGroup(focusedField: $focusedField)
@@ -147,5 +125,37 @@ private extension CategoryFormView {
             return true
         }
         return false
+    }
+    func deleteButton(_ id: String) -> some View {
+        Button {
+            categoryViewModel.deleteCategory(id)
+            dismiss()
+        } label: {
+            Text("Delete")
+                .font(AppFont.customFont(.title3))
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: 50)
+        .foregroundStyle(.white)
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(.red)
+        )
+    }
+    func submitButton() -> some View {
+        Button {
+            if let hexColor = color.toHex() {
+                if let id = id {
+                    categoryViewModel.updateCategory(id, name, hexColor, icon)
+                } else {
+                    categoryViewModel.addCategory(name, hexColor, icon)
+                }
+            }
+            dismiss()
+        } label: {
+            Text("Submit")
+                .foregroundColor(readyToSubmit ? .white : Color("CustomGrayColor"))
+        }
+        .disabled(!readyToSubmit)
     }
 }

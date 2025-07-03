@@ -18,9 +18,7 @@ class UserViewModel: ObservableObject {
         do {
             let result = try sharedCoreDataInstance.context.fetch(request)
             if let firstUser = result.first {
-                DispatchQueue.main.async {
-                    self.user = firstUser
-                }
+                user = firstUser
             }
             
         } catch let error {
@@ -31,16 +29,6 @@ class UserViewModel: ObservableObject {
     func addUser(_ firstName: String, _ lastName: String?, _ imageData: Data?) {
         let user = User(context: sharedCoreDataInstance.context)
         user.id = UUID()
-        user.firstName = firstName
-        user.lastName = lastName
-        user.avatarData = imageData
-        
-        sharedCoreDataInstance.save()
-        fetchUser()
-    }
-    func addUserFromRemote(_ id: UUID, _ firstName: String, _ lastName: String, _ imageData: Data?) {
-        let user = User(context: sharedCoreDataInstance.context)
-        user.id = id
         user.firstName = firstName
         user.lastName = lastName
         user.avatarData = imageData
