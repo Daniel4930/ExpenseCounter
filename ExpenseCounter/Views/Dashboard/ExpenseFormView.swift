@@ -192,7 +192,7 @@ private extension ExpenseFormView {
         .inputFormModifier()
         .sheet(isPresented: $showDatePicker) {
             CustomDatePickerView(date: $date)
-                .presentationDetents([.fraction(0.3)])
+                .presentationDetents([.medium])
         }
     }
 }

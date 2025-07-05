@@ -36,7 +36,7 @@ struct AllExpensesView: View {
                 ScrollView {
                     ForEach(sortedGroupExpenses, id: \.key) {date, expenses in
                         VStack(alignment: .leading, spacing: 5) {
-                            ExpenseDate(date: date)
+                            expenseDate(date: date)
                             ForEach(expenses) { expense in
                                 if let category = expense.category {
                                     let actions = [
@@ -124,12 +124,8 @@ private extension AllExpensesView {
         Text("Expenses")
             .font(AppFont.customFont(font: .bold, .title))
     }
-}
-
-struct ExpenseDate: View {
-    let date: DateKey
     
-    var body: some View {
+    func expenseDate(date: DateKey) -> some View {
         switch date {
         case DateKey.known(let actualDate):
             Text("\(actualDate.formatted(.dateTime.month().day()))")

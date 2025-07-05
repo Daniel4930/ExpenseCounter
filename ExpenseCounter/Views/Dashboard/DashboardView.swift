@@ -24,10 +24,6 @@ struct DashboardView: View {
                         MonthNavigatorView(showCalendar: $showCalendar, date: $expensesViewModel.date)
                     }
                     .padding(.top, 55)
-                    .overlay(
-                        BottomRoundedRectangle(radius: 15)
-                            .stroke(Color("CustomGreenColor"), lineWidth: 3)
-                    )
                 }
                 .frame(maxHeight: UIScreen.main.bounds.height * 0.3)
                 .clipShape(BottomRoundedRectangle(radius: 15))
@@ -42,14 +38,12 @@ struct DashboardView: View {
             .ignoresSafeArea()
         }
         .tint(.white)
-        .task {
+        .onAppear {
             expensesViewModel.fetchExpensesOfMonthYear()
             userViewModel.fetchUser()
         }
         .onChange(of: expensesViewModel.date) {newValue in
-            DispatchQueue.main.async {
-                expensesViewModel.fetchExpensesOfMonthYear()
-            }
+            expensesViewModel.fetchExpensesOfMonthYear()
         }
     }
 }

@@ -40,7 +40,7 @@ struct ProfileView: View {
                             Text(defaultFirstName)
                         }
                     }
-                    .font(AppFont.customFont(.title2))
+                    .font(AppFont.customFont(font: .bold, .title2))
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.bottom, 30)
