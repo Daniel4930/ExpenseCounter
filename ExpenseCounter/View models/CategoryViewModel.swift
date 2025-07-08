@@ -90,7 +90,7 @@ class CategoryViewModel: ObservableObject {
         let searchedCategory = searchCategory(id)
         let unknownCategory = searchCategory("unknown-category-id")
         
-        if let category = searchedCategory, let expenses = category.expense {
+        if let category = searchedCategory, let expenses = category.expenses {
             for expense in expenses.allObjects as! [Expense] {
                 expense.category = unknownCategory
             }
