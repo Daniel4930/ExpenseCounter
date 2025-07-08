@@ -16,4 +16,4 @@ View my article to learn more: https://danielletan.com/expense-counter-app/
 </br>
 Demo: https://youtu.be/yCY2Cgm9G70
 </br>
-My LinkedIn: [![Linkedin](https://i.sstatic.net/gVE0j.png) LinkedIn](www.linkedin.com/in/daniel-le-a320b8281)
+My LinkedIn: [![Linkedin](https://i.sstatic.net/gVE0j.png) LinkedIn](https://www.linkedin.com/in/daniel-le-a320b8281)
